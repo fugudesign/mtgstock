@@ -1,16 +1,8 @@
 {
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next"
-    }
-  ],
+  "buildCommand": "prisma generate && next build",
   "functions": {
     "src/app/api/**/*": {
       "maxDuration": 30
     }
-  },
-  "env": {
-    "MTG_API_BASE_URL": "https://api.magicthegathering.io/v1"
   }
 }
