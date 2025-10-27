@@ -10,15 +10,7 @@ import { forwardRef } from "react";
  * <MtgStockIcon className="text-purple-600" />
  */
 export const MtgStockIcon = forwardRef<SVGSVGElement, LucideProps>(
-  (
-    {
-      color = "currentColor",
-      size = 24,
-      className = "",
-      ...props
-    },
-    ref
-  ) => {
+  ({ color = "currentColor", size = 24, className = "", ...props }, ref) => {
     return (
       <svg
         ref={ref}
