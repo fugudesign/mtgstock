@@ -1,0 +1,179 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Next Auth Schema
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // Hashed password for credentials login
+  language      String    @default("en") // User's preferred language for card searches
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts    Account[]
+  sessions    Session[]
+  collections Collection[]
+  decks       Deck[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// MTG App Models
+model Collection {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  cards CollectionCard[]
+
+  @@index([userId])
+}
+
+model Deck {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  format      String   @default("casual") // Standard, Modern, Legacy, etc.
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  cards DeckCard[]
+
+  @@index([userId])
+}
+
+model Card {
+  id            String  @id // MTG API card ID
+  name          String
+  manaCost      String?
+  cmc           Int?    // Converted Mana Cost
+  colors        String? @db.Text // JSON array of colors
+  colorIdentity String? @db.Text // JSON array of color identity
+  type          String?
+  supertypes    String? @db.Text // JSON array
+  types         String? @db.Text // JSON array
+  subtypes      String? @db.Text // JSON array
+  rarity        String?
+  setCode       String?
+  setName       String?
+  text          String? @db.Text
+  flavor        String? @db.Text
+  artist        String?
+  number        String?
+  power         String?
+  toughness     String?
+  loyalty       String?
+  imageUrl      String?
+  multiverseid  Int?
+  layout        String?
+  foreignNames  String? @db.Text // JSON array of foreign names
+  printings     String? @db.Text // JSON array of set codes
+  legalities    String? @db.Text // JSON array of format legalities
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  collectionCards CollectionCard[]
+  deckCards       DeckCard[]
+
+  @@index([name])
+  @@index([setCode])
+  @@index([rarity])
+}
+
+model CollectionCard {
+  id           String @id @default(cuid())
+  quantity     Int    @default(1)
+  foil         Boolean @default(false)
+  condition    String  @default("nm") // nm, lp, mp, hp, dmg
+  acquiredDate DateTime @default(now())
+  notes        String?
+
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  cardId String
+  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, cardId])
+  @@index([collectionId])
+  @@index([cardId])
+}
+
+model DeckCard {
+  id           String @id @default(cuid())
+  quantity     Int    @default(1)
+  isMainboard  Boolean @default(true) // true for mainboard, false for sideboard
+  category     String  @default("main") // main, side, maybe
+  notes        String?
+
+  deckId String
+  deck   Deck   @relation(fields: [deckId], references: [id], onDelete: Cascade)
+
+  cardId String
+  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@unique([deckId, cardId, isMainboard])
+  @@index([deckId])
+  @@index([cardId])
+}
