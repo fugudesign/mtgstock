@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
 // GET a specific collection with its cards
 export async function GET(
@@ -8,59 +8,56 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth()
-    const { id } = await params
+    const session = await auth();
+    const { id } = await params;
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    })
+      where: { email: session.user.email },
+    });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Utilisateur non trouvé' },
+        { error: "Utilisateur non trouvé" },
         { status: 404 }
-      )
+      );
     }
 
     const collection = await prisma.collection.findFirst({
       where: {
         id,
-        userId: user.id
+        userId: user.id,
       },
       include: {
         cards: {
           include: {
-            card: true
+            card: true,
           },
-          orderBy: { acquiredDate: 'desc' }
+          orderBy: { acquiredDate: "desc" },
         },
         _count: {
-          select: { cards: true }
-        }
-      }
-    })
+          select: { cards: true },
+        },
+      },
+    });
 
     if (!collection) {
       return NextResponse.json(
-        { error: 'Collection non trouvée' },
+        { error: "Collection non trouvée" },
         { status: 404 }
-      )
+      );
     }
 
-    return NextResponse.json(collection)
+    return NextResponse.json(collection);
   } catch (error) {
-    console.error('Collection fetch error:', error)
+    console.error("Collection fetch error:", error);
     return NextResponse.json(
-      { error: 'Erreur lors de la récupération de la collection' },
+      { error: "Erreur lors de la récupération de la collection" },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -70,53 +67,50 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth()
-    const { id } = await params
+    const session = await auth();
+    const { id } = await params;
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    })
+      where: { email: session.user.email },
+    });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Utilisateur non trouvé' },
+        { error: "Utilisateur non trouvé" },
         { status: 404 }
-      )
+      );
     }
 
     // Check if collection belongs to user
     const collection = await prisma.collection.findFirst({
       where: {
         id,
-        userId: user.id
-      }
-    })
+        userId: user.id,
+      },
+    });
 
     if (!collection) {
       return NextResponse.json(
-        { error: 'Collection non trouvée' },
+        { error: "Collection non trouvée" },
         { status: 404 }
-      )
+      );
     }
 
     await prisma.collection.delete({
-      where: { id }
-    })
+      where: { id },
+    });
 
-    return NextResponse.json({ message: 'Collection supprimée' })
+    return NextResponse.json({ message: "Collection supprimée" });
   } catch (error) {
-    console.error('Collection deletion error:', error)
+    console.error("Collection deletion error:", error);
     return NextResponse.json(
-      { error: 'Erreur lors de la suppression de la collection' },
+      { error: "Erreur lors de la suppression de la collection" },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -126,64 +120,63 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth()
-    const { id } = await params
+    const session = await auth();
+    const { id } = await params;
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
-    })
+      where: { email: session.user.email },
+    });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Utilisateur non trouvé' },
+        { error: "Utilisateur non trouvé" },
         { status: 404 }
-      )
+      );
     }
 
-    const { name, description, isPublic } = await req.json()
+    const { name, description, isPublic } = await req.json();
 
     // Check if collection belongs to user
     const collection = await prisma.collection.findFirst({
       where: {
         id,
-        userId: user.id
-      }
-    })
+        userId: user.id,
+      },
+    });
 
     if (!collection) {
       return NextResponse.json(
-        { error: 'Collection non trouvée' },
+        { error: "Collection non trouvée" },
         { status: 404 }
-      )
+      );
     }
 
     const updatedCollection = await prisma.collection.update({
       where: { id },
       data: {
         ...(name && { name: name.trim() }),
-        ...(description !== undefined && { description: description?.trim() || null }),
+        ...(description !== undefined && {
+          description: description?.trim() || null,
+        }),
         ...(isPublic !== undefined && { isPublic }),
       },
       include: {
         _count: {
-          select: { cards: true }
-        }
-      }
-    })
+          select: { cards: true },
+        },
+      },
+    });
 
-    return NextResponse.json(updatedCollection)
+    return NextResponse.json(updatedCollection);
   } catch (error) {
-    console.error('Collection update error:', error)
+    console.error("Collection update error:", error);
     return NextResponse.json(
-      { error: 'Erreur lors de la mise à jour de la collection' },
+      { error: "Erreur lors de la mise à jour de la collection" },
       { status: 500 }
-    )
+    );
   }
 }

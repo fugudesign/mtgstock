@@ -1,85 +1,163 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Plus, Trophy, Trash2, Edit } from 'lucide-react'
-import Link from 'next/link'
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Edit,
+  Layers,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Deck {
-  id: string
-  name: string
-  description?: string
-  format: string
-  cardCount: number
-  isPublic: boolean
-  createdAt: Date
+  id: string;
+  name: string;
+  description: string | null;
+  format: string;
+  cardCount: number;
+  createdAt: string;
 }
 
 export default function DecksPage() {
-  const [decks, setDecks] = useState<Deck[]>([
-    // Mock data
-    {
-      id: '1',
-      name: 'Aggro Rouge',
-      description: 'Deck aggro rapide avec des créatures rouges',
-      format: 'Standard',
-      cardCount: 60,
-      isPublic: false,
-      createdAt: new Date(),
-    },
-    {
-      id: '2',
-      name: 'Contrôle Bleu/Blanc',
-      description: 'Deck de contrôle avec contre-sorts et board wipes',
-      format: 'Modern',
-      cardCount: 75,
-      isPublic: true,
-      createdAt: new Date(),
-    },
-  ])
+  const { status } = useSession();
+  const router = useRouter();
+  const [decks, setDecks] = useState<Deck[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showNewDeckForm, setShowNewDeckForm] = useState(false);
+  const [newDeckName, setNewDeckName] = useState("");
+  const [newDeckDescription, setNewDeckDescription] = useState("");
+  const [newDeckFormat, setNewDeckFormat] = useState("casual");
 
-  const [showNewDeckForm, setShowNewDeckForm] = useState(false)
-  const [newDeckName, setNewDeckName] = useState('')
-  const [newDeckDescription, setNewDeckDescription] = useState('')
-  const [newDeckFormat, setNewDeckFormat] = useState('casual')
-
-  const formats = [
-    'Standard',
-    'Modern',
-    'Legacy',
-    'Vintage',
-    'Commander',
-    'Pioneer',
-    'Pauper',
-    'Casual',
-  ]
-
-  const handleCreateDeck = () => {
-    if (!newDeckName.trim()) return
-
-    const newDeck: Deck = {
-      id: Date.now().toString(),
-      name: newDeckName,
-      description: newDeckDescription,
-      format: newDeckFormat,
-      cardCount: 0,
-      isPublic: false,
-      createdAt: new Date(),
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/login");
+      return;
     }
 
-    setDecks([...decks, newDeck])
-    setNewDeckName('')
-    setNewDeckDescription('')
-    setNewDeckFormat('casual')
-    setShowNewDeckForm(false)
-  }
-
-  const handleDeleteDeck = (id: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce deck ?')) {
-      setDecks(decks.filter(d => d.id !== id))
+    if (status === "authenticated") {
+      fetchDecks();
     }
+  }, [status, router]);
+
+  const fetchDecks = async () => {
+    try {
+      const response = await fetch("/api/decks");
+      if (response.ok) {
+        const data = await response.json();
+        setDecks(data);
+      }
+    } catch (error) {
+      console.error("Error fetching decks:", error);
+      toast.error("Erreur lors du chargement des decks");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateDeck = async () => {
+    if (!newDeckName.trim()) {
+      toast.error("Le nom du deck est requis");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/decks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newDeckName,
+          description: newDeckDescription || null,
+          format: newDeckFormat,
+        }),
+      });
+
+      if (response.ok) {
+        toast.success("Deck créé avec succès");
+        setNewDeckName("");
+        setNewDeckDescription("");
+        setNewDeckFormat("casual");
+        setShowNewDeckForm(false);
+        fetchDecks();
+      } else {
+        const error = await response.json();
+        toast.error(error.error || "Erreur lors de la création du deck");
+      }
+    } catch (error) {
+      console.error("Error creating deck:", error);
+      toast.error("Erreur lors de la création du deck");
+    }
+  };
+
+  const handleDeleteDeck = async (deckId: string) => {
+    if (!confirm("Voulez-vous vraiment supprimer ce deck ?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/decks/${deckId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        toast.success("Deck supprimé");
+        fetchDecks();
+      } else {
+        toast.error("Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Error deleting deck:", error);
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
+  const getDeckStatus = (cardCount: number) => {
+    if (cardCount < 60) {
+      return {
+        label: `${cardCount}/60 - Incomplet`,
+        color: "bg-red-100 text-red-700 border-red-300",
+        icon: AlertCircle,
+      };
+    } else if (cardCount >= 60 && cardCount <= 100) {
+      return {
+        label: `${cardCount} cartes - Valide`,
+        color: "bg-green-100 text-green-700 border-green-300",
+        icon: CheckCircle2,
+      };
+    } else {
+      return {
+        label: `${cardCount}/100 - Trop de cartes`,
+        color: "bg-orange-100 text-orange-700 border-orange-300",
+        icon: AlertCircle,
+      };
+    }
+  };
+
+  if (status === "loading" || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="animate-pulse space-y-4">
+            <div className="h-12 bg-gray-200 rounded w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-48 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -92,7 +170,8 @@ export default function DecksPage() {
               Mes Decks
             </h1>
             <p className="text-slate-600">
-              Créez et gérez vos decks pour différents formats
+              Construisez vos decks compétitifs (60-100 cartes, max 4 copies par
+              carte)
             </p>
           </div>
           <Button
@@ -118,26 +197,10 @@ export default function DecksPage() {
                   </label>
                   <Input
                     type="text"
-                    placeholder="ex: Mon Deck Elfe"
+                    placeholder="ex: Mon Deck Aggro Rouge"
                     value={newDeckName}
                     onChange={(e) => setNewDeckName(e.target.value)}
                   />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Format
-                  </label>
-                  <select
-                    value={newDeckFormat}
-                    onChange={(e) => setNewDeckFormat(e.target.value)}
-                    className="w-full h-10 px-3 rounded-md border border-gray-300"
-                  >
-                    {formats.map((format) => (
-                      <option key={format} value={format.toLowerCase()}>
-                        {format}
-                      </option>
-                    ))}
-                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -150,17 +213,33 @@ export default function DecksPage() {
                     onChange={(e) => setNewDeckDescription(e.target.value)}
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Format
+                  </label>
+                  <select
+                    value={newDeckFormat}
+                    onChange={(e) => setNewDeckFormat(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="casual">Casual</option>
+                    <option value="standard">Standard</option>
+                    <option value="modern">Modern</option>
+                    <option value="commander">Commander</option>
+                    <option value="legacy">Legacy</option>
+                    <option value="vintage">Vintage</option>
+                    <option value="pauper">Pauper</option>
+                  </select>
+                </div>
                 <div className="flex gap-2">
-                  <Button onClick={handleCreateDeck}>
-                    Créer le deck
-                  </Button>
+                  <Button onClick={handleCreateDeck}>Créer le deck</Button>
                   <Button
                     variant="outline"
                     onClick={() => {
-                      setShowNewDeckForm(false)
-                      setNewDeckName('')
-                      setNewDeckDescription('')
-                      setNewDeckFormat('casual')
+                      setShowNewDeckForm(false);
+                      setNewDeckName("");
+                      setNewDeckDescription("");
+                      setNewDeckFormat("casual");
                     }}
                   >
                     Annuler
@@ -174,90 +253,90 @@ export default function DecksPage() {
         {/* Decks Grid */}
         {decks.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {decks.map((deck) => (
-              <Card
-                key={deck.id}
-                className="hover:shadow-lg transition-shadow cursor-pointer"
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3 flex-1">
-                      <Trophy className="h-6 w-6 text-purple-600 mt-1" />
-                      <div className="flex-1">
-                        <CardTitle className="text-xl mb-1">
-                          {deck.name}
-                        </CardTitle>
-                        {deck.description && (
-                          <p className="text-sm text-gray-600 line-clamp-2">
-                            {deck.description}
-                          </p>
-                        )}
+            {decks.map((deck) => {
+              const status = getDeckStatus(deck.cardCount);
+              const StatusIcon = status.icon;
+
+              return (
+                <Card
+                  key={deck.id}
+                  className="hover:shadow-lg transition-shadow"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        <Layers className="h-6 w-6 text-purple-600 mt-1" />
+                        <div className="flex-1">
+                          <CardTitle className="text-xl mb-1">
+                            {deck.name}
+                          </CardTitle>
+                          {deck.description && (
+                            <p className="text-sm text-gray-600 line-clamp-2">
+                              {deck.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">
-                        {deck.cardCount} carte{deck.cardCount !== 1 ? 's' : ''}
-                      </span>
-                      <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">
-                        {deck.format}
-                      </span>
-                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline" className="capitalize">
+                          {deck.format}
+                        </Badge>
+                        <div
+                          className={`flex items-center gap-1 px-2 py-1 rounded text-xs border ${status.color}`}
+                        >
+                          <StatusIcon className="h-3 w-3" />
+                          <span>{status.label}</span>
+                        </div>
+                      </div>
 
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>
-                        {deck.isPublic ? '🌐 Public' : '🔒 Privé'}
-                      </span>
-                      <span>
-                        Créé le {deck.createdAt.toLocaleDateString('fr-FR')}
-                      </span>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Link href={`/decks/${deck.id}`} className="flex-1">
-                        <Button variant="outline" className="w-full">
-                          <Trophy className="mr-2 h-4 w-4" />
-                          Voir
+                      <div className="flex gap-2">
+                        <Link href={`/decks/${deck.id}`} className="flex-1">
+                          <Button variant="outline" className="w-full">
+                            <Layers className="mr-2 h-4 w-4" />
+                            Voir
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log("Éditer deck:", deck.id);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
                         </Button>
-                      </Link>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          console.log('Éditer deck:', deck.id)
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteDeck(deck.id)
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteDeck(deck.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         ) : (
           <Card>
             <CardContent className="p-12 text-center">
-              <Trophy className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <Layers className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
                 Aucun deck
               </h3>
               <p className="text-gray-500 mb-6">
-                Créez votre premier deck pour commencer à construire vos stratégies
+                Créez votre premier deck pour commencer à construire votre
+                stratégie
               </p>
               <Button onClick={() => setShowNewDeckForm(true)}>
                 <Plus className="mr-2 h-5 w-5" />
@@ -268,5 +347,5 @@ export default function DecksPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

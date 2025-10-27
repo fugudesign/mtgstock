@@ -1,28 +1,29 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Search, BookOpen, Trophy, Home, User, LogOut } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useSession, signOut } from 'next-auth/react'
-import { Button } from './ui/button'
-import { useState } from 'react'
+import { MtgStockIcon } from "@/components/icons/MtgStockIcon";
+import { cn } from "@/lib/utils";
+import { BookOpen, Home, Layers, LogOut, Search, User } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { Button } from "./ui/button";
 
 const navigation = [
-  { name: 'Accueil', href: '/', icon: Home },
-  { name: 'Recherche', href: '/search', icon: Search },
-  { name: 'Collections', href: '/collections', icon: BookOpen },
-  { name: 'Decks', href: '/decks', icon: Trophy },
-]
+  { name: "Accueil", href: "/", icon: Home },
+  { name: "Recherche", href: "/search", icon: Search },
+  { name: "Collections", href: "/collections", icon: BookOpen },
+  { name: "Decks", href: "/decks", icon: Layers },
+];
 
 export function Navigation() {
-  const pathname = usePathname()
-  const { data: session, status } = useSession()
-  const [showUserMenu, setShowUserMenu] = useState(false)
+  const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' })
-  }
+    await signOut({ callbackUrl: "/" });
+  };
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -30,38 +31,40 @@ export function Navigation() {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">MTG</span>
+              <div className="size-10 bg-linear-to-br from-purple-600 to-blue-600 text-white rounded-lg flex items-center justify-center">
+                <MtgStockIcon size={32} />
               </div>
-              <span className="text-xl font-bold text-slate-900">MTG Stock</span>
+              <span className="text-xl font-bold text-slate-900">
+                MTG Stock
+              </span>
             </Link>
 
             <div className="hidden md:flex items-center gap-1">
               {navigation.map((item) => {
-                const Icon = item.icon
-                const isActive = pathname === item.href
-                
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                      "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                       isActive
-                        ? 'bg-slate-100 text-slate-900'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                        ? "bg-slate-100 text-slate-900"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     )}
                   >
                     <Icon className="h-4 w-4" />
                     {item.name}
                   </Link>
-                )
+                );
               })}
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            {status === 'loading' ? (
+            {status === "loading" ? (
               <div className="h-8 w-20 bg-slate-100 animate-pulse rounded"></div>
             ) : session ? (
               <div className="relative">
@@ -70,9 +73,9 @@ export function Navigation() {
                   className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   {session.user?.image ? (
-                    <img 
-                      src={session.user.image} 
-                      alt={session.user.name || 'User'} 
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name || "User"}
                       className="w-8 h-8 rounded-full"
                     />
                   ) : (
@@ -87,8 +90,8 @@ export function Navigation() {
 
                 {showUserMenu && (
                   <>
-                    <div 
-                      className="fixed inset-0 z-10" 
+                    <div
+                      className="fixed inset-0 z-10"
                       onClick={() => setShowUserMenu(false)}
                     ></div>
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
@@ -119,9 +122,7 @@ export function Navigation() {
                   </Button>
                 </Link>
                 <Link href="/auth/register">
-                  <Button size="sm">
-                    Inscription
-                  </Button>
+                  <Button size="sm">Inscription</Button>
                 </Link>
               </div>
             )}
@@ -132,28 +133,28 @@ export function Navigation() {
         <div className="md:hidden border-t border-gray-200">
           <div className="flex items-center justify-around py-2">
             {navigation.map((item) => {
-              const Icon = item.icon
-              const isActive = pathname === item.href
-              
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+
               return (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
-                    isActive
-                      ? 'text-slate-900'
-                      : 'text-slate-600'
+                    "flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors",
+                    isActive ? "text-slate-900" : "text-slate-600"
                   )}
                 >
-                  <Icon className={cn('h-5 w-5', isActive && 'text-purple-600')} />
+                  <Icon
+                    className={cn("h-5 w-5", isActive && "text-purple-600")}
+                  />
                   <span>{item.name}</span>
                 </Link>
-              )
+              );
             })}
           </div>
         </div>
       </div>
     </nav>
-  )
+  );
 }

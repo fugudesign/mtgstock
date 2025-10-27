@@ -1,16 +1,13 @@
-import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const session = await auth()
+    const session = await auth();
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
@@ -26,48 +23,53 @@ export async function GET() {
           select: {
             collections: true,
             decks: true,
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Utilisateur non trouvé' },
+        { error: "Utilisateur non trouvé" },
         { status: 404 }
-      )
+      );
     }
 
-    return NextResponse.json(user)
+    return NextResponse.json(user);
   } catch (error) {
-    console.error('Profile fetch error:', error)
+    console.error("Profile fetch error:", error);
     return NextResponse.json(
-      { error: 'Erreur lors de la récupération du profil' },
+      { error: "Erreur lors de la récupération du profil" },
       { status: 500 }
-    )
+    );
   }
 }
 
 export async function PATCH(req: Request) {
   try {
-    const session = await auth()
+    const session = await auth();
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'Non authentifié' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const { name, language } = await req.json()
+    const { name, language } = await req.json();
 
     // Validate language
-    const validLanguages = ['en', 'fr', 'de', 'es', 'it', 'pt', 'ja', 'ko', 'ru', 'zh']
+    const validLanguages = [
+      "en",
+      "fr",
+      "de",
+      "es",
+      "it",
+      "pt",
+      "ja",
+      "ko",
+      "ru",
+      "zh",
+    ];
     if (language && !validLanguages.includes(language)) {
-      return NextResponse.json(
-        { error: 'Langue invalide' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Langue invalide" }, { status: 400 });
     }
 
     const user = await prisma.user.update({
@@ -83,18 +85,18 @@ export async function PATCH(req: Request) {
         language: true,
         image: true,
         updatedAt: true,
-      }
-    })
+      },
+    });
 
     return NextResponse.json({
-      message: 'Profil mis à jour',
-      user
-    })
+      message: "Profil mis à jour",
+      user,
+    });
   } catch (error) {
-    console.error('Profile update error:', error)
+    console.error("Profile update error:", error);
     return NextResponse.json(
-      { error: 'Erreur lors de la mise à jour du profil' },
+      { error: "Erreur lors de la mise à jour du profil" },
       { status: 500 }
-    )
+    );
   }
 }

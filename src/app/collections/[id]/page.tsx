@@ -1,123 +1,133 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { BookOpen, ArrowLeft, Trash2, Package } from 'lucide-react'
-import Link from 'next/link'
-import Image from 'next/image'
+import { DeckSelector } from "@/components/DeckSelector";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MTGCard } from "@/lib/scryfall-api";
+import { ArrowLeft, BookOpen, Layers, Package, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface CollectionCard {
-  id: string
-  quantity: number
-  foil: boolean
-  condition: string
-  acquiredDate: string
+  id: string;
+  quantity: number;
+  foil: boolean;
+  condition: string;
+  acquiredDate: string;
   card: {
-    id: string
-    name: string
-    imageUrl: string | null
-    setName: string | null
-    rarity: string | null
-    manaCost: string | null
-    type: string | null
-  }
+    id: string;
+    name: string;
+    imageUrl: string | null;
+    setName: string | null;
+    rarity: string | null;
+    manaCost: string | null;
+    type: string | null;
+  };
 }
 
 interface Collection {
-  id: string
-  name: string
-  description: string | null
-  isPublic: boolean
-  createdAt: string
-  cards: CollectionCard[]
+  id: string;
+  name: string;
+  description: string | null;
+  isPublic: boolean;
+  createdAt: string;
+  cards: CollectionCard[];
   _count: {
-    cards: number
-  }
+    cards: number;
+  };
 }
 
-export default function CollectionDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { status } = useSession()
-  const router = useRouter()
-  const [collection, setCollection] = useState<Collection | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null)
+export default function CollectionDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { status } = useSession();
+  const router = useRouter();
+  const [collection, setCollection] = useState<Collection | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(
+    null
+  );
+  const [showDeckSelector, setShowDeckSelector] = useState(false);
+  const [selectedCard, setSelectedCard] = useState<MTGCard | null>(null);
 
   useEffect(() => {
-    params.then(setResolvedParams)
-  }, [params])
+    params.then(setResolvedParams);
+  }, [params]);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/login')
-      return
+    if (status === "unauthenticated") {
+      router.push("/auth/login");
+      return;
     }
 
-    if (status === 'authenticated' && resolvedParams) {
-      fetchCollection()
+    if (status === "authenticated" && resolvedParams) {
+      fetchCollection();
     }
-  }, [status, router, resolvedParams])
+  }, [status, router, resolvedParams]);
 
   const fetchCollection = async () => {
-    if (!resolvedParams) return
+    if (!resolvedParams) return;
 
     try {
-      const response = await fetch(`/api/collections/${resolvedParams.id}`)
+      const response = await fetch(`/api/collections/${resolvedParams.id}`);
       if (response.ok) {
-        const data = await response.json()
-        setCollection(data)
+        const data = await response.json();
+        setCollection(data);
       } else if (response.status === 404) {
-        router.push('/collections')
+        router.push("/collections");
       }
     } catch (error) {
-      console.error('Error fetching collection:', error)
+      console.error("Error fetching collection:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleRemoveCard = async (cardId: string) => {
-    if (!resolvedParams || !confirm('Retirer cette carte de la collection ?')) {
-      return
+    if (!resolvedParams || !confirm("Retirer cette carte de la collection ?")) {
+      return;
     }
 
     try {
       const response = await fetch(
         `/api/collections/${resolvedParams.id}/cards?cardId=${cardId}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
         }
-      )
+      );
 
       if (response.ok) {
         // Refresh collection
-        fetchCollection()
+        fetchCollection();
       }
     } catch (error) {
-      console.error('Error removing card:', error)
+      console.error("Error removing card:", error);
     }
-  }
+  };
 
   const getTotalCards = () => {
-    if (!collection) return 0
-    return collection.cards.reduce((sum, card) => sum + card.quantity, 0)
-  }
+    if (!collection) return 0;
+    return collection.cards.reduce((sum, card) => sum + card.quantity, 0);
+  };
 
   const getConditionLabel = (condition: string) => {
     const labels: { [key: string]: string } = {
-      nm: 'Near Mint',
-      lp: 'Lightly Played',
-      mp: 'Moderately Played',
-      hp: 'Heavily Played',
-      dmg: 'Damaged',
-    }
-    return labels[condition] || condition
-  }
+      nm: "Near Mint",
+      lp: "Lightly Played",
+      mp: "Moderately Played",
+      hp: "Heavily Played",
+      dmg: "Damaged",
+    };
+    return labels[condition] || condition;
+  };
 
-  if (status === 'loading' || loading || !resolvedParams) {
+  if (status === "loading" || loading || !resolvedParams) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4">
@@ -131,7 +141,7 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!collection) {
@@ -150,7 +160,7 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ id:
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -175,15 +185,21 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ id:
                   {collection.name}
                 </h1>
                 {collection.description && (
-                  <p className="text-slate-600 mb-3">{collection.description}</p>
+                  <p className="text-slate-600 mb-3">
+                    {collection.description}
+                  </p>
                 )}
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Package className="h-4 w-4" />
-                    <span className="font-medium">{getTotalCards()} cartes</span>
+                    <span className="font-medium">
+                      {getTotalCards()} cartes
+                    </span>
                   </div>
-                  <Badge variant={collection.isPublic ? "default" : "secondary"}>
-                    {collection.isPublic ? 'Public' : 'Privé'}
+                  <Badge
+                    variant={collection.isPublic ? "default" : "secondary"}
+                  >
+                    {collection.isPublic ? "Public" : "Privé"}
                   </Badge>
                 </div>
               </div>
@@ -195,7 +211,10 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ id:
         {collection.cards.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {collection.cards.map((collectionCard) => (
-              <Card key={collectionCard.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
+              <Card
+                key={collectionCard.id}
+                className="overflow-hidden hover:shadow-lg transition-shadow group"
+              >
                 <Link href={`/cards/${collectionCard.card.id}`}>
                   <div className="relative aspect-[5/7] bg-gray-100 cursor-pointer">
                     {collectionCard.card.imageUrl ? (
@@ -244,18 +263,52 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ id:
                       Condition: {getConditionLabel(collectionCard.condition)}
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-4"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      handleRemoveCard(collectionCard.card.id)
-                    }}
-                  >
-                    <Trash2 className="mr-2 h-3 w-3" />
-                    Retirer
-                  </Button>
+                  <div className="flex gap-2 mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Convertir la carte de collection en MTGCard pour DeckSelector
+                        const mtgCard: MTGCard = {
+                          id: collectionCard.card.id,
+                          name: collectionCard.card.name,
+                          type_line: collectionCard.card.type || "",
+                          mana_cost: collectionCard.card.manaCost || "",
+                          image_uris: collectionCard.card.imageUrl
+                            ? {
+                                normal: collectionCard.card.imageUrl,
+                                small: collectionCard.card.imageUrl,
+                                png: collectionCard.card.imageUrl,
+                                large: collectionCard.card.imageUrl,
+                                art_crop: collectionCard.card.imageUrl,
+                                border_crop: collectionCard.card.imageUrl,
+                              }
+                            : undefined,
+                          set_name: collectionCard.card.setName || "",
+                          rarity: collectionCard.card.rarity || "",
+                        } as MTGCard;
+                        setSelectedCard(mtgCard);
+                        setShowDeckSelector(true);
+                      }}
+                    >
+                      <Layers className="h-4 w-4 mr-2" />
+                      Deck
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleRemoveCard(collectionCard.card.id);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Retirer
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -268,17 +321,28 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ id:
                 Collection vide
               </h3>
               <p className="text-gray-500 mb-6">
-                Ajoutez des cartes à votre collection depuis la page de recherche
+                Ajoutez des cartes à votre collection depuis la page de
+                recherche
               </p>
               <Link href="/search">
-                <Button>
-                  Rechercher des cartes
-                </Button>
+                <Button>Rechercher des cartes</Button>
               </Link>
             </CardContent>
           </Card>
         )}
+
+        {/* Deck Selector Modal */}
+        {selectedCard && (
+          <DeckSelector
+            card={selectedCard}
+            isOpen={showDeckSelector}
+            onClose={() => {
+              setShowDeckSelector(false);
+              setSelectedCard(null);
+            }}
+          />
+        )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,68 +1,76 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { signIn } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Github } from 'lucide-react'
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Github } from "lucide-react";
+import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  })
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const registered = searchParams.get('registered')
+  const registered = searchParams.get("registered");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         email: formData.email,
         password: formData.password,
         redirect: false,
-      })
+      });
 
       if (result?.error) {
-        setError('Email ou mot de passe incorrect')
-        setLoading(false)
-        return
+        setError("Email ou mot de passe incorrect");
+        setLoading(false);
+        return;
       }
 
       // Redirect to home page
-      router.push('/')
-      router.refresh()
+      router.push("/");
+      router.refresh();
     } catch (err) {
-      console.error('Login error:', err)
-      setError('Erreur lors de la connexion')
-      setLoading(false)
+      console.error("Login error:", err);
+      setError("Erreur lors de la connexion");
+      setLoading(false);
     }
-  }
+  };
 
-  const handleOAuthSignIn = async (provider: 'github' | 'google') => {
+  const handleOAuthSignIn = async (provider: "github" | "google") => {
     try {
-      await signIn(provider, { callbackUrl: '/' })
+      await signIn(provider, { callbackUrl: "/" });
     } catch (err) {
-      console.error('OAuth error:', err)
-      setError('Erreur lors de la connexion')
+      console.error("OAuth error:", err);
+      setError("Erreur lors de la connexion");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Connexion</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">
+            Connexion
+          </CardTitle>
           <CardDescription className="text-center">
             Connectez-vous à votre compte MTG Stock
           </CardDescription>
@@ -82,7 +90,10 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email
               </label>
               <Input
@@ -90,13 +101,18 @@ export default function LoginPage() {
                 type="email"
                 required
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 placeholder="votre@email.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Mot de passe
               </label>
               <Input
@@ -104,17 +120,15 @@ export default function LoginPage() {
                 type="password"
                 required
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 placeholder="Votre mot de passe"
               />
             </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-            >
-              {loading ? 'Connexion...' : 'Se connecter'}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Connexion..." : "Se connecter"}
             </Button>
           </form>
 
@@ -124,7 +138,9 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Ou continuer avec</span>
+                <span className="px-2 bg-white text-gray-500">
+                  Ou continuer avec
+                </span>
               </div>
             </div>
 
@@ -132,7 +148,7 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => handleOAuthSignIn('github')}
+                onClick={() => handleOAuthSignIn("github")}
                 className="w-full"
               >
                 <Github className="mr-2 h-4 w-4" />
@@ -141,7 +157,7 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => handleOAuthSignIn('google')}
+                onClick={() => handleOAuthSignIn("google")}
                 className="w-full"
               >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -168,13 +184,16 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-6 text-center text-sm text-gray-600">
-            Pas encore de compte ?{' '}
-            <Link href="/auth/register" className="text-blue-600 hover:text-blue-700 font-medium">
+            Pas encore de compte ?{" "}
+            <Link
+              href="/auth/register"
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
               Créer un compte
             </Link>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface ManaSymbolProps {
   symbol: string;
@@ -17,7 +17,11 @@ let symbolsLoaded = false;
  * Utilise l'API Scryfall pour récupérer les SVG des symboles
  * Exemples: {W}, {U}, {B}, {R}, {G}, {1}, {2}, {X}, {T}, {Q}, etc.
  */
-export function ManaSymbol({ symbol, size = 20, className = "" }: ManaSymbolProps) {
+export function ManaSymbol({
+  symbol,
+  size = 20,
+  className = "",
+}: ManaSymbolProps) {
   const [svgUri, setSvgUri] = useState<string | null>(null);
   const [error, setError] = useState(false);
 
@@ -32,7 +36,7 @@ export function ManaSymbol({ symbol, size = 20, className = "" }: ManaSymbolProp
       // Si les symboles ne sont pas encore chargés, les charger
       if (!symbolsLoaded) {
         try {
-          const response = await fetch('https://api.scryfall.com/symbology');
+          const response = await fetch("https://api.scryfall.com/symbology");
           if (response.ok) {
             const data = await response.json();
             // Mettre en cache tous les symboles
@@ -42,7 +46,7 @@ export function ManaSymbol({ symbol, size = 20, className = "" }: ManaSymbolProp
               }
             });
             symbolsLoaded = true;
-            
+
             // Maintenant récupérer l'URI pour ce symbole
             if (symbolCache[symbol]) {
               setSvgUri(symbolCache[symbol]);
@@ -51,7 +55,7 @@ export function ManaSymbol({ symbol, size = 20, className = "" }: ManaSymbolProp
             }
           }
         } catch (err) {
-          console.error('Error loading symbols:', err);
+          console.error("Error loading symbols:", err);
           setError(true);
         }
       }
@@ -62,7 +66,10 @@ export function ManaSymbol({ symbol, size = 20, className = "" }: ManaSymbolProp
 
   if (error || (!svgUri && symbolsLoaded)) {
     return (
-      <span className={`inline-block font-bold text-xs ${className}`} style={{ fontSize: size * 0.8 }}>
+      <span
+        className={`inline-block font-bold text-xs ${className}`}
+        style={{ fontSize: size * 0.8 }}
+      >
         {symbol}
       </span>
     );
@@ -95,7 +102,11 @@ interface ManaSymbolsProps {
  * Composant pour afficher une série de symboles de mana
  * Exemple: "{2}{G}{G}" affichera trois symboles
  */
-export function ManaSymbols({ manaCost, size = 20, className = "" }: ManaSymbolsProps) {
+export function ManaSymbols({
+  manaCost,
+  size = 20,
+  className = "",
+}: ManaSymbolsProps) {
   if (!manaCost) return null;
 
   // Extraire tous les symboles entre accolades
@@ -120,7 +131,11 @@ interface ManaTextProps {
  * Composant pour afficher du texte avec des symboles de mana intégrés
  * Remplace automatiquement les symboles {X} par leurs images
  */
-export function ManaText({ text, symbolSize = 16, className = "" }: ManaTextProps) {
+export function ManaText({
+  text,
+  symbolSize = 16,
+  className = "",
+}: ManaTextProps) {
   if (!text) return null;
 
   // Diviser le texte en parties (texte normal et symboles)

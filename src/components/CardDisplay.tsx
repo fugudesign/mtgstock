@@ -1,16 +1,22 @@
 "use client";
 
+import { DeckSelector } from "@/components/DeckSelector";
+import { ManaSymbols } from "@/components/ManaSymbol";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { MTGCard, getCardImageUrl, getCardManaCost, getCardType } from "@/lib/scryfall-api";
-import { Eye, Heart, Plus } from "lucide-react";
-import Image from "next/image";
-import { useState, useEffect } from "react";
+import {
+  MTGCard,
+  getCardImageUrl,
+  getCardManaCost,
+  getCardType,
+} from "@/lib/scryfall-api";
+import { Eye, Heart, Layers } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { toast } from "sonner";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ManaSymbols } from "@/components/ManaSymbol";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface CardDisplayProps {
   card: MTGCard;
@@ -34,24 +40,25 @@ export function CardDisplay({
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
   const [showCollectionMenu, setShowCollectionMenu] = useState(false);
+  const [showDeckSelector, setShowDeckSelector] = useState(false);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (status === "authenticated") {
       fetchCollections();
     }
   }, [status]);
 
   const fetchCollections = async () => {
     try {
-      const response = await fetch('/api/collections');
+      const response = await fetch("/api/collections");
       if (response.ok) {
         const data = await response.json();
         setCollections(data);
       }
     } catch (error) {
-      console.error('Error fetching collections:', error);
+      console.error("Error fetching collections:", error);
     }
   };
 
@@ -59,15 +66,15 @@ export function CardDisplay({
     setAdding(true);
     try {
       const response = await fetch(`/api/collections/${collectionId}/cards`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           cardData: card,
           quantity: 1,
           foil: false,
-          condition: 'nm',
+          condition: "nm",
         }),
       });
 
@@ -80,8 +87,8 @@ export function CardDisplay({
         }
       }
     } catch (error) {
-      console.error('Error adding card to collection:', error);
-      toast.error('Erreur lors de l\'ajout de la carte');
+      console.error("Error adding card to collection:", error);
+      toast.error("Erreur lors de l'ajout de la carte");
     } finally {
       setAdding(false);
     }
@@ -114,8 +121,8 @@ export function CardDisplay({
       {/* Menu collections en dehors du hover */}
       {showCollectionMenu && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => setShowCollectionMenu(false)}
           />
           <div className="absolute top-12 right-2 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 min-w-[200px]">
@@ -172,15 +179,15 @@ export function CardDisplay({
                   <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
                 </div>
               </div>
-              
-              {status === 'authenticated' && (
+
+              {status === "authenticated" && (
                 <div className="relative group/tooltip">
                   <Button
                     size="icon"
                     variant="default"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      setShowCollectionMenu(!showCollectionMenu)
+                      e.stopPropagation();
+                      setShowCollectionMenu(!showCollectionMenu);
                     }}
                     className="h-12 w-12 rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
                   >
@@ -192,16 +199,19 @@ export function CardDisplay({
                   </div>
                 </div>
               )}
-              
-              {onAddToDeck && (
+
+              {status === "authenticated" && (
                 <div className="relative group/tooltip">
                   <Button
                     size="icon"
                     variant="default"
-                    onClick={() => onAddToDeck(card)}
-                    className="h-12 w-12 rounded-full bg-green-600 hover:bg-green-700 shadow-lg"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowDeckSelector(true);
+                    }}
+                    className="h-12 w-12 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
                   >
-                    <Plus className="h-5 w-5" />
+                    <Layers className="h-5 w-5" />
                   </Button>
                   <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                     Ajouter à un deck
@@ -238,7 +248,9 @@ export function CardDisplay({
           )}
 
           {getCardType(card) && (
-            <p className="text-xs text-gray-600 line-clamp-1">{getCardType(card)}</p>
+            <p className="text-xs text-gray-600 line-clamp-1">
+              {getCardType(card)}
+            </p>
           )}
 
           <div className="flex items-center justify-between text-xs text-gray-500">
@@ -247,6 +259,18 @@ export function CardDisplay({
           </div>
         </div>
       </CardContent>
+
+      {/* Deck Selector Modal */}
+      <DeckSelector
+        card={card}
+        isOpen={showDeckSelector}
+        onClose={() => setShowDeckSelector(false)}
+        onSuccess={() => {
+          if (onAddToDeck) {
+            onAddToDeck(card);
+          }
+        }}
+      />
     </Card>
   );
 }

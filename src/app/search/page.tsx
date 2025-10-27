@@ -1,132 +1,139 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { mtgApiService, MTGCard } from '@/lib/scryfall-api'
-import { CardDisplay } from '@/components/CardDisplay'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Search, Loader2, Filter } from 'lucide-react'
+import { CardDisplay } from "@/components/CardDisplay";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
+import { Filter, Loader2, Search } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 export default function SearchPage() {
-  const { data: session, status } = useSession()
-  const [searchQuery, setSearchQuery] = useState('')
-  const [cards, setCards] = useState<MTGCard[]>([])
-  const [loading, setLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalResults, setTotalResults] = useState(0)
-  const [userLanguage, setUserLanguage] = useState('')
+  const { status } = useSession();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cards, setCards] = useState<MTGCard[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
+  const [userLanguage, setUserLanguage] = useState("");
 
   const [filters, setFilters] = useState({
-    colors: '',
-    type: '',
-    rarity: '',
-    set: '',
-    language: '',
-  })
+    colors: "",
+    type: "",
+    rarity: "",
+    set: "",
+    language: "",
+  });
 
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch user's default language
   useEffect(() => {
-    if (status === 'authenticated') {
-      fetchUserLanguage()
+    if (status === "authenticated") {
+      fetchUserLanguage();
     }
-  }, [status])
+  }, [status]);
 
   const fetchUserLanguage = async () => {
     try {
-      const response = await fetch('/api/user/profile')
+      const response = await fetch("/api/user/profile");
       if (response.ok) {
-        const data = await response.json()
-        const langCode = data.language || 'en'
-        setUserLanguage(langCode)
-        
+        const data = await response.json();
+        const langCode = data.language || "en";
+        setUserLanguage(langCode);
+
         // Convert language code to full name for Scryfall
         const languageMap: { [key: string]: string } = {
-          'en': 'English',
-          'fr': 'French',
-          'de': 'German',
-          'es': 'Spanish',
-          'it': 'Italian',
-          'pt': 'Portuguese (Brazil)',
-          'ja': 'Japanese',
-          'ko': 'Korean',
-          'ru': 'Russian',
-          'zh': 'Chinese Simplified',
-        }
-        
-        const fullLanguageName = languageMap[langCode] || 'English'
-        
+          en: "English",
+          fr: "French",
+          de: "German",
+          es: "Spanish",
+          it: "Italian",
+          pt: "Portuguese (Brazil)",
+          ja: "Japanese",
+          ko: "Korean",
+          ru: "Russian",
+          zh: "Chinese Simplified",
+        };
+
+        const fullLanguageName = languageMap[langCode] || "English";
+
         // Set the language filter to user's default
-        setFilters(prev => ({ ...prev, language: fullLanguageName }))
+        setFilters((prev) => ({ ...prev, language: fullLanguageName }));
       }
     } catch (error) {
-      console.error('Error fetching user language:', error)
+      console.error("Error fetching user language:", error);
     }
-  }
+  };
 
   const handleSearch = async (page = 1) => {
-    if (!searchQuery.trim() && !filters.colors && !filters.type && !filters.rarity && !filters.set && !filters.language) {
-      return
+    if (
+      !searchQuery.trim() &&
+      !filters.colors &&
+      !filters.type &&
+      !filters.rarity &&
+      !filters.set &&
+      !filters.language
+    ) {
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
       const searchParams: Record<string, string | number> = {
         page,
         pageSize: 20,
-      }
+      };
 
       if (searchQuery.trim()) {
-        searchParams.name = searchQuery
+        searchParams.name = searchQuery;
       }
       if (filters.colors) {
-        searchParams.colors = filters.colors
+        searchParams.colors = filters.colors;
       }
       if (filters.type) {
-        searchParams.type = filters.type
+        searchParams.type = filters.type;
       }
       if (filters.rarity) {
-        searchParams.rarity = filters.rarity
+        searchParams.rarity = filters.rarity;
       }
       if (filters.set) {
-        searchParams.set = filters.set
+        searchParams.set = filters.set;
       }
       if (filters.language) {
-        searchParams.language = filters.language
+        searchParams.language = filters.language;
       }
 
-      const result = await mtgApiService.searchCards(searchParams)
-      
+      const result = await mtgApiService.searchCards(searchParams);
+
       if (page === 1) {
-        setCards(result.cards)
+        setCards(result.cards);
       } else {
-        setCards(prev => [...prev, ...result.cards])
+        setCards((prev) => [...prev, ...result.cards]);
       }
-      
-      setHasMore(result.hasMore)
-      setTotalResults(result.total || 0)
-      setCurrentPage(page)
+
+      setHasMore(result.hasMore);
+      setTotalResults(result.total || 0);
+      setCurrentPage(page);
     } catch (error) {
-      console.error('Erreur lors de la recherche:', error)
+      console.error("Erreur lors de la recherche:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleLoadMore = () => {
-    handleSearch(currentPage + 1)
-  }
+    handleSearch(currentPage + 1);
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      setCurrentPage(1)
-      handleSearch(1)
+    if (e.key === "Enter") {
+      setCurrentPage(1);
+      handleSearch(1);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -140,7 +147,8 @@ export default function SearchPage() {
             Recherchez parmi plus de 30 000 cartes Magic: The Gathering
           </p>
           <p className="text-sm text-blue-600 mt-1">
-            💡 Astuce : Utilisez le filtre &quot;Langue&quot; pour rechercher des cartes en français
+            💡 Astuce : Utilisez le filtre &quot;Langue&quot; pour rechercher
+            des cartes en français
           </p>
         </div>
 
@@ -159,8 +167,8 @@ export default function SearchPage() {
                   className="pl-10 h-12 text-lg"
                 />
               </div>
-              <Button 
-                onClick={() => handleSearch(1)} 
+              <Button
+                onClick={() => handleSearch(1)}
                 disabled={loading}
                 size="lg"
                 className="min-w-[120px]"
@@ -189,12 +197,14 @@ export default function SearchPage() {
             {/* Quick examples */}
             {!showFilters && cards.length === 0 && (
               <div className="mt-4 pt-4 border-t">
-                <p className="text-sm text-gray-600 mb-2">Exemples de recherche :</p>
+                <p className="text-sm text-gray-600 mb-2">
+                  Exemples de recherche :
+                </p>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => {
-                      setSearchQuery('Jace')
-                      handleSearch(1)
+                      setSearchQuery("Jace");
+                      handleSearch(1);
                     }}
                     className="px-3 py-1 text-xs bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors"
                   >
@@ -202,8 +212,8 @@ export default function SearchPage() {
                   </button>
                   <button
                     onClick={() => {
-                      setSearchQuery('Lightning Bolt')
-                      handleSearch(1)
+                      setSearchQuery("Lightning Bolt");
+                      handleSearch(1);
                     }}
                     className="px-3 py-1 text-xs bg-red-50 text-red-700 rounded-full hover:bg-red-100 transition-colors"
                   >
@@ -211,8 +221,8 @@ export default function SearchPage() {
                   </button>
                   <button
                     onClick={() => {
-                      setSearchQuery('Black Lotus')
-                      handleSearch(1)
+                      setSearchQuery("Black Lotus");
+                      handleSearch(1);
                     }}
                     className="px-3 py-1 text-xs bg-purple-50 text-purple-700 rounded-full hover:bg-purple-100 transition-colors"
                   >
@@ -220,8 +230,8 @@ export default function SearchPage() {
                   </button>
                   <button
                     onClick={() => {
-                      setFilters({ ...filters, language: 'French' })
-                      setShowFilters(true)
+                      setFilters({ ...filters, language: "French" });
+                      setShowFilters(true);
                     }}
                     className="px-3 py-1 text-xs bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors"
                   >
@@ -236,13 +246,18 @@ export default function SearchPage() {
               <div className="mt-6 pt-6 border-t grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Langue {userLanguage && filters.language && (
-                      <span className="text-xs text-blue-600 ml-1">(par défaut)</span>
+                    Langue{" "}
+                    {userLanguage && filters.language && (
+                      <span className="text-xs text-blue-600 ml-1">
+                        (par défaut)
+                      </span>
                     )}
                   </label>
                   <select
                     value={filters.language}
-                    onChange={(e) => setFilters({ ...filters, language: e.target.value })}
+                    onChange={(e) =>
+                      setFilters({ ...filters, language: e.target.value })
+                    }
                     className="w-full h-10 px-3 rounded-md border border-gray-300"
                   >
                     <option value="">Toutes les langues</option>
@@ -251,10 +266,16 @@ export default function SearchPage() {
                     <option value="German">Allemand</option>
                     <option value="Spanish">Espagnol</option>
                     <option value="Italian">Italien</option>
-                    <option value="Portuguese (Brazil)">Portugais (Brésil)</option>
+                    <option value="Portuguese (Brazil)">
+                      Portugais (Brésil)
+                    </option>
                     <option value="Japanese">Japonais</option>
-                    <option value="Chinese Simplified">Chinois Simplifié</option>
-                    <option value="Chinese Traditional">Chinois Traditionnel</option>
+                    <option value="Chinese Simplified">
+                      Chinois Simplifié
+                    </option>
+                    <option value="Chinese Traditional">
+                      Chinois Traditionnel
+                    </option>
                     <option value="Korean">Coréen</option>
                     <option value="Russian">Russe</option>
                   </select>
@@ -267,7 +288,9 @@ export default function SearchPage() {
                     type="text"
                     placeholder="ex: red, blue"
                     value={filters.colors}
-                    onChange={(e) => setFilters({ ...filters, colors: e.target.value })}
+                    onChange={(e) =>
+                      setFilters({ ...filters, colors: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -278,7 +301,9 @@ export default function SearchPage() {
                     type="text"
                     placeholder="ex: creature, instant"
                     value={filters.type}
-                    onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                    onChange={(e) =>
+                      setFilters({ ...filters, type: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -287,7 +312,9 @@ export default function SearchPage() {
                   </label>
                   <select
                     value={filters.rarity}
-                    onChange={(e) => setFilters({ ...filters, rarity: e.target.value })}
+                    onChange={(e) =>
+                      setFilters({ ...filters, rarity: e.target.value })
+                    }
                     className="w-full h-10 px-3 rounded-md border border-gray-300"
                   >
                     <option value="">Toutes</option>
@@ -305,7 +332,12 @@ export default function SearchPage() {
                     type="text"
                     placeholder="ex: KTK, M15"
                     value={filters.set}
-                    onChange={(e) => setFilters({ ...filters, set: e.target.value.toUpperCase() })}
+                    onChange={(e) =>
+                      setFilters({
+                        ...filters,
+                        set: e.target.value.toUpperCase(),
+                      })
+                    }
                   />
                 </div>
               </div>
@@ -316,7 +348,8 @@ export default function SearchPage() {
         {/* Results Count */}
         {totalResults > 0 && (
           <div className="mb-4 text-sm text-gray-600">
-            {totalResults} résultat{totalResults > 1 ? 's' : ''} trouvé{totalResults > 1 ? 's' : ''}
+            {totalResults} résultat{totalResults > 1 ? "s" : ""} trouvé
+            {totalResults > 1 ? "s" : ""}
           </div>
         )}
 
@@ -325,19 +358,7 @@ export default function SearchPage() {
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
               {cards.map((card) => (
-                <CardDisplay
-                  key={card.id}
-                  card={card}
-                  showActions={true}
-                  onAddToCollection={(card) => {
-                    console.log('Ajouter à la collection:', card.name)
-                    // TODO: Implémenter l'ajout à la collection
-                  }}
-                  onAddToDeck={(card) => {
-                    console.log('Ajouter au deck:', card.name)
-                    // TODO: Implémenter l'ajout au deck
-                  }}
-                />
+                <CardDisplay key={card.id} card={card} showActions={true} />
               ))}
             </div>
 
@@ -356,7 +377,7 @@ export default function SearchPage() {
                       Chargement...
                     </>
                   ) : (
-                    'Charger plus de cartes'
+                    "Charger plus de cartes"
                   )}
                 </Button>
               </div>
@@ -371,9 +392,9 @@ export default function SearchPage() {
                   Aucun résultat
                 </h3>
                 <p className="text-gray-500">
-                  {searchQuery || Object.values(filters).some(f => f)
-                    ? 'Essayez avec des termes différents ou modifiez les filtres'
-                    : 'Commencez votre recherche en entrant un nom de carte'}
+                  {searchQuery || Object.values(filters).some((f) => f)
+                    ? "Essayez avec des termes différents ou modifiez les filtres"
+                    : "Commencez votre recherche en entrant un nom de carte"}
                 </p>
               </CardContent>
             </Card>
@@ -393,5 +414,5 @@ export default function SearchPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

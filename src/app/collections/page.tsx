@@ -1,110 +1,110 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Plus, BookOpen, Trash2 } from 'lucide-react'
-import Link from 'next/link'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { BookOpen, Plus, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface Collection {
-  id: string
-  name: string
-  description?: string | null
-  isPublic: boolean
-  createdAt: string
+  id: string;
+  name: string;
+  description?: string | null;
+  isPublic: boolean;
+  createdAt: string;
   _count: {
-    cards: number
-  }
+    cards: number;
+  };
 }
 
 export default function CollectionsPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [collections, setCollections] = useState<Collection[]>([])
-  const [loading, setLoading] = useState(true)
-  const [showNewCollectionForm, setShowNewCollectionForm] = useState(false)
-  const [newCollectionName, setNewCollectionName] = useState('')
-  const [newCollectionDescription, setNewCollectionDescription] = useState('')
-  const [creating, setCreating] = useState(false)
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showNewCollectionForm, setShowNewCollectionForm] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [newCollectionDescription, setNewCollectionDescription] = useState("");
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/login')
-      return
+    if (status === "unauthenticated") {
+      router.push("/auth/login");
+      return;
     }
 
-    if (status === 'authenticated') {
-      fetchCollections()
+    if (status === "authenticated") {
+      fetchCollections();
     }
-  }, [status, router])
+  }, [status, router]);
 
   const fetchCollections = async () => {
     try {
-      const response = await fetch('/api/collections')
+      const response = await fetch("/api/collections");
       if (response.ok) {
-        const data = await response.json()
-        setCollections(data)
+        const data = await response.json();
+        setCollections(data);
       }
     } catch (error) {
-      console.error('Error fetching collections:', error)
+      console.error("Error fetching collections:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleCreateCollection = async () => {
-    if (!newCollectionName.trim()) return
+    if (!newCollectionName.trim()) return;
 
-    setCreating(true)
+    setCreating(true);
     try {
-      const response = await fetch('/api/collections', {
-        method: 'POST',
+      const response = await fetch("/api/collections", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: newCollectionName,
           description: newCollectionDescription || null,
           isPublic: false,
         }),
-      })
+      });
 
       if (response.ok) {
-        const newCollection = await response.json()
-        setCollections([newCollection, ...collections])
-        setNewCollectionName('')
-        setNewCollectionDescription('')
-        setShowNewCollectionForm(false)
+        const newCollection = await response.json();
+        setCollections([newCollection, ...collections]);
+        setNewCollectionName("");
+        setNewCollectionDescription("");
+        setShowNewCollectionForm(false);
       }
     } catch (error) {
-      console.error('Error creating collection:', error)
+      console.error("Error creating collection:", error);
     } finally {
-      setCreating(false)
+      setCreating(false);
     }
-  }
+  };
 
   const handleDeleteCollection = async (id: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette collection ?')) {
-      return
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cette collection ?")) {
+      return;
     }
 
     try {
       const response = await fetch(`/api/collections/${id}`, {
-        method: 'DELETE',
-      })
+        method: "DELETE",
+      });
 
       if (response.ok) {
-        setCollections(collections.filter(c => c.id !== id))
+        setCollections(collections.filter((c) => c.id !== id));
       }
     } catch (error) {
-      console.error('Error deleting collection:', error)
+      console.error("Error deleting collection:", error);
     }
-  }
+  };
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="max-w-7xl mx-auto px-4 py-8">
@@ -118,7 +118,7 @@ export default function CollectionsPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -170,19 +170,21 @@ export default function CollectionsPage() {
                     type="text"
                     placeholder="Description de votre collection..."
                     value={newCollectionDescription}
-                    onChange={(e) => setNewCollectionDescription(e.target.value)}
+                    onChange={(e) =>
+                      setNewCollectionDescription(e.target.value)
+                    }
                   />
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={handleCreateCollection} disabled={creating}>
-                    {creating ? 'Création...' : 'Créer la collection'}
+                    {creating ? "Création..." : "Créer la collection"}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => {
-                      setShowNewCollectionForm(false)
-                      setNewCollectionName('')
-                      setNewCollectionDescription('')
+                      setShowNewCollectionForm(false);
+                      setNewCollectionName("");
+                      setNewCollectionDescription("");
                     }}
                   >
                     Annuler
@@ -222,19 +224,25 @@ export default function CollectionsPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between text-sm text-gray-600">
                       <span className="font-medium">
-                        {collection._count.cards} carte{collection._count.cards !== 1 ? 's' : ''}
+                        {collection._count.cards} carte
+                        {collection._count.cards !== 1 ? "s" : ""}
                       </span>
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        collection.isPublic 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {collection.isPublic ? 'Public' : 'Privé'}
+                      <span
+                        className={`px-2 py-1 rounded text-xs ${
+                          collection.isPublic
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {collection.isPublic ? "Public" : "Privé"}
                       </span>
                     </div>
 
                     <div className="flex gap-2">
-                      <Link href={`/collections/${collection.id}`} className="flex-1">
+                      <Link
+                        href={`/collections/${collection.id}`}
+                        className="flex-1"
+                      >
                         <Button variant="outline" className="w-full">
                           <BookOpen className="mr-2 h-4 w-4" />
                           Voir
@@ -244,8 +252,8 @@ export default function CollectionsPage() {
                         variant="outline"
                         size="icon"
                         onClick={(e) => {
-                          e.stopPropagation()
-                          handleDeleteCollection(collection.id)
+                          e.stopPropagation();
+                          handleDeleteCollection(collection.id);
                         }}
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
@@ -264,7 +272,8 @@ export default function CollectionsPage() {
                 Aucune collection
               </h3>
               <p className="text-gray-500 mb-6">
-                Créez votre première collection pour commencer à organiser vos cartes
+                Créez votre première collection pour commencer à organiser vos
+                cartes
               </p>
               <Button onClick={() => setShowNewCollectionForm(true)}>
                 <Plus className="mr-2 h-5 w-5" />
@@ -275,5 +284,5 @@ export default function CollectionsPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

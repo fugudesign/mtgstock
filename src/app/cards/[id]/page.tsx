@@ -1,16 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DeckSelector } from "@/components/DeckSelector";
+import { ManaSymbols, ManaText } from "@/components/ManaSymbol";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MTGCard, getCardName, getCardTypeLine, getCardOracleText } from "@/lib/scryfall-api";
-import Image from "next/image";
-import { ArrowLeft, Heart, Plus, ExternalLink, TrendingUp } from "lucide-react";
-import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  MTGCard,
+  getCardName,
+  getCardOracleText,
+  getCardTypeLine,
+} from "@/lib/scryfall-api";
+import {
+  ArrowLeft,
+  ExternalLink,
+  Heart,
+  Layers,
+  TrendingUp,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
-import { ManaSymbols, ManaText } from "@/components/ManaSymbol";
+import Image from "next/image";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Collection {
   id: string;
@@ -25,6 +37,7 @@ export default function CardDetailPage() {
   const [loading, setLoading] = useState(true);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [showCollectionMenu, setShowCollectionMenu] = useState(false);
+  const [showDeckSelector, setShowDeckSelector] = useState(false);
   const [adding, setAdding] = useState(false);
   const [userLang, setUserLang] = useState<string | null>(null);
 
@@ -55,19 +68,28 @@ export default function CardDetailPage() {
   useEffect(() => {
     const fetchCard = async () => {
       if (!userLang) return; // Attendre que la langue soit chargée
-      
+
       try {
         // Récupérer la carte par son ID
-        const response = await fetch(`https://api.scryfall.com/cards/${params.id}`);
+        const response = await fetch(
+          `https://api.scryfall.com/cards/${params.id}`
+        );
         if (!response.ok) {
           toast.error("Carte introuvable");
           router.push("/search");
           return;
         }
-        
+
         const fetchedCard = await response.json();
-        console.log("Carte récupérée:", fetchedCard.name, "Lang:", fetchedCard.lang, "User lang:", userLang);
-        
+        console.log(
+          "Carte récupérée:",
+          fetchedCard.name,
+          "Lang:",
+          fetchedCard.lang,
+          "User lang:",
+          userLang
+        );
+
         // Si la carte est déjà dans la bonne langue, l'utiliser directement
         if (fetchedCard.lang === userLang) {
           console.log("Carte déjà dans la langue demandée");
@@ -75,23 +97,27 @@ export default function CardDetailPage() {
           setLoading(false);
           return;
         }
-        
+
         // Sinon, chercher la version dans la langue de l'utilisateur
         if (userLang !== "en") {
           try {
             // Attendre un peu pour respecter le rate limiting de Scryfall
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
             // Chercher la version dans la langue de l'utilisateur via l'oracle_id
             const searchUrl = `https://api.scryfall.com/cards/search?q=oracleid:${fetchedCard.oracle_id}+lang:${userLang}&unique=prints`;
             console.log("Recherche URL:", searchUrl);
-            
+
             const localizedResponse = await fetch(searchUrl);
-            
+
             if (localizedResponse.ok) {
               const localizedData = await localizedResponse.json();
-              console.log("Résultats localisés:", localizedData.total_cards, "cartes trouvées");
-              
+              console.log(
+                "Résultats localisés:",
+                localizedData.total_cards,
+                "cartes trouvées"
+              );
+
               // Prendre la première carte trouvée dans la langue demandée
               if (localizedData.data && localizedData.data.length > 0) {
                 // Chercher une carte du même set si possible
@@ -99,15 +125,27 @@ export default function CardDetailPage() {
                   (c: MTGCard) => c.set === fetchedCard.set
                 );
                 const selectedCard = sameSetCard || localizedData.data[0];
-                console.log("Carte sélectionnée:", selectedCard.name, "Set:", selectedCard.set, "Lang:", selectedCard.lang);
+                console.log(
+                  "Carte sélectionnée:",
+                  selectedCard.name,
+                  "Set:",
+                  selectedCard.set,
+                  "Lang:",
+                  selectedCard.lang
+                );
                 setCard(selectedCard);
               } else {
                 // Si pas de version localisée, utiliser la version récupérée
-                console.log("Aucune version localisée trouvée, utilisation de la version récupérée");
+                console.log(
+                  "Aucune version localisée trouvée, utilisation de la version récupérée"
+                );
                 setCard(fetchedCard);
               }
             } else {
-              console.log("Erreur lors de la recherche localisée:", localizedResponse.status);
+              console.log(
+                "Erreur lors de la recherche localisée:",
+                localizedResponse.status
+              );
               setCard(fetchedCard);
             }
           } catch (error) {
@@ -150,7 +188,7 @@ export default function CardDetailPage() {
 
   const handleAddToCollection = async (collectionId: string) => {
     if (!card) return;
-    
+
     setAdding(true);
     try {
       const response = await fetch(`/api/collections/${collectionId}/cards`, {
@@ -197,8 +235,10 @@ export default function CardDetailPage() {
   const getImageUrl = () => {
     if (card.image_uris?.large) return card.image_uris.large;
     if (card.image_uris?.normal) return card.image_uris.normal;
-    if (card.card_faces?.[0]?.image_uris?.large) return card.card_faces[0].image_uris.large;
-    if (card.card_faces?.[0]?.image_uris?.normal) return card.card_faces[0].image_uris.normal;
+    if (card.card_faces?.[0]?.image_uris?.large)
+      return card.card_faces[0].image_uris.large;
+    if (card.card_faces?.[0]?.image_uris?.normal)
+      return card.card_faces[0].image_uris.normal;
     return "/placeholder-card.svg";
   };
 
@@ -216,7 +256,9 @@ export default function CardDetailPage() {
       R: "Rouge",
       G: "Vert",
     };
-    return card.color_identity?.map((c) => colors[c] || c).join(", ") || "Incolore";
+    return (
+      card.color_identity?.map((c) => colors[c] || c).join(", ") || "Incolore"
+    );
   };
 
   const getRarityColor = (rarity: string) => {
@@ -277,7 +319,9 @@ export default function CardDetailPage() {
                       <Button
                         className="w-full"
                         variant="outline"
-                        onClick={() => setShowCollectionMenu(!showCollectionMenu)}
+                        onClick={() =>
+                          setShowCollectionMenu(!showCollectionMenu)
+                        }
                         disabled={adding}
                       >
                         <Heart className="mr-2 h-4 w-4" />
@@ -294,7 +338,9 @@ export default function CardDetailPage() {
                             {collections.map((collection) => (
                               <button
                                 key={collection.id}
-                                onClick={() => handleAddToCollection(collection.id)}
+                                onClick={() =>
+                                  handleAddToCollection(collection.id)
+                                }
                                 className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm"
                                 disabled={adding}
                               >
@@ -306,8 +352,12 @@ export default function CardDetailPage() {
                       )}
                     </div>
 
-                    <Button className="w-full" variant="outline">
-                      <Plus className="mr-2 h-4 w-4" />
+                    <Button
+                      className="w-full"
+                      variant="outline"
+                      onClick={() => setShowDeckSelector(true)}
+                    >
+                      <Layers className="mr-2 h-4 w-4" />
                       Ajouter à un deck
                     </Button>
                   </div>
@@ -324,25 +374,33 @@ export default function CardDetailPage() {
                       {card.prices.eur && (
                         <div className="flex justify-between">
                           <span className="text-slate-600">EUR:</span>
-                          <span className="font-semibold">{card.prices.eur}€</span>
+                          <span className="font-semibold">
+                            {card.prices.eur}€
+                          </span>
                         </div>
                       )}
                       {card.prices.eur_foil && (
                         <div className="flex justify-between">
                           <span className="text-slate-600">EUR (Foil):</span>
-                          <span className="font-semibold">{card.prices.eur_foil}€</span>
+                          <span className="font-semibold">
+                            {card.prices.eur_foil}€
+                          </span>
                         </div>
                       )}
                       {card.prices.usd && (
                         <div className="flex justify-between">
                           <span className="text-slate-600">USD:</span>
-                          <span className="font-semibold">${card.prices.usd}</span>
+                          <span className="font-semibold">
+                            ${card.prices.usd}
+                          </span>
                         </div>
                       )}
                       {card.prices.usd_foil && (
                         <div className="flex justify-between">
                           <span className="text-slate-600">USD (Foil):</span>
-                          <span className="font-semibold">${card.prices.usd_foil}</span>
+                          <span className="font-semibold">
+                            ${card.prices.usd_foil}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -385,16 +443,24 @@ export default function CardDetailPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-3xl mb-2">{getCardName(card)}</CardTitle>
+                    <CardTitle className="text-3xl mb-2">
+                      {getCardName(card)}
+                    </CardTitle>
                     <div className="flex flex-wrap gap-2">
                       <Badge className={getRarityColor(card.rarity)}>
                         {getRarityLabel(card.rarity)}
                       </Badge>
                       {card.lang && (
-                        <Badge variant="outline">{card.lang.toUpperCase()}</Badge>
+                        <Badge variant="outline">
+                          {card.lang.toUpperCase()}
+                        </Badge>
                       )}
-                      {card.foil && <Badge variant="secondary">Foil disponible</Badge>}
-                      {card.nonfoil && <Badge variant="secondary">Non-foil disponible</Badge>}
+                      {card.foil && (
+                        <Badge variant="secondary">Foil disponible</Badge>
+                      )}
+                      {card.nonfoil && (
+                        <Badge variant="secondary">Non-foil disponible</Badge>
+                      )}
                     </div>
                   </div>
                   {getManaCost() && (
@@ -406,7 +472,9 @@ export default function CardDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-sm text-slate-900 mb-2">Type</h3>
+                  <h3 className="font-semibold text-sm text-slate-900 mb-2">
+                    Type
+                  </h3>
                   <p className="text-slate-700">{getCardTypeLine(card)}</p>
                 </div>
 
@@ -416,7 +484,11 @@ export default function CardDetailPage() {
                       Texte d&apos;oracle
                     </h3>
                     <div className="text-slate-700">
-                      <ManaText text={getCardOracleText(card)} symbolSize={18} className="whitespace-pre-wrap" />
+                      <ManaText
+                        text={getCardOracleText(card)}
+                        symbolSize={18}
+                        className="whitespace-pre-wrap"
+                      />
                     </div>
                   </div>
                 )}
@@ -443,7 +515,9 @@ export default function CardDetailPage() {
 
                 {card.loyalty && (
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-900 mb-2">Loyauté</h3>
+                    <h3 className="font-semibold text-sm text-slate-900 mb-2">
+                      Loyauté
+                    </h3>
                     <p className="text-slate-700">{card.loyalty}</p>
                   </div>
                 )}
@@ -458,7 +532,9 @@ export default function CardDetailPage() {
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-900 mb-1">Édition</h3>
+                    <h3 className="font-semibold text-sm text-slate-900 mb-1">
+                      Édition
+                    </h3>
                     <p className="text-slate-700">{card.set_name}</p>
                   </div>
                   <div>
@@ -487,7 +563,9 @@ export default function CardDetailPage() {
                   )}
                   {card.artist && (
                     <div>
-                      <h3 className="font-semibold text-sm text-slate-900 mb-1">Artiste</h3>
+                      <h3 className="font-semibold text-sm text-slate-900 mb-1">
+                        Artiste
+                      </h3>
                       <p className="text-slate-700">{card.artist}</p>
                     </div>
                   )}
@@ -511,11 +589,12 @@ export default function CardDetailPage() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {Object.entries(card.legalities).map(([format, status]) => {
                       if (status === "not_legal") return null;
-                      
+
                       const statusColors: { [key: string]: string } = {
                         legal: "bg-green-100 text-green-700 border-green-300",
                         banned: "bg-red-100 text-red-700 border-red-300",
-                        restricted: "bg-orange-100 text-orange-700 border-orange-300",
+                        restricted:
+                          "bg-orange-100 text-orange-700 border-orange-300",
                       };
 
                       const statusLabels: { [key: string]: string } = {
@@ -527,12 +606,17 @@ export default function CardDetailPage() {
                       return (
                         <div
                           key={format}
-                          className={`px-3 py-2 rounded-md border ${statusColors[status] || "bg-gray-100 text-gray-700 border-gray-300"}`}
+                          className={`px-3 py-2 rounded-md border ${
+                            statusColors[status] ||
+                            "bg-gray-100 text-gray-700 border-gray-300"
+                          }`}
                         >
                           <p className="font-semibold text-xs uppercase">
                             {format.replace("_", " ")}
                           </p>
-                          <p className="text-sm">{statusLabels[status] || status}</p>
+                          <p className="text-sm">
+                            {statusLabels[status] || status}
+                          </p>
                         </div>
                       );
                     })}
@@ -560,6 +644,15 @@ export default function CardDetailPage() {
             )}
           </div>
         </div>
+
+        {/* Deck Selector Modal */}
+        {card && (
+          <DeckSelector
+            card={card}
+            isOpen={showDeckSelector}
+            onClose={() => setShowDeckSelector(false)}
+          />
+        )}
       </div>
     </div>
   );
