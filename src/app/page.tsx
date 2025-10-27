@@ -4,7 +4,7 @@ import { CardDisplay } from "@/components/CardDisplay";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
-import { BookOpen, Search, Sparkles, Trophy } from "lucide-react";
+import { BookOpen, Layers, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -29,7 +29,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
@@ -47,7 +47,7 @@ export default function Home() {
               </Button>
             </Link>
             <Link href="/collections">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto ">
                 <BookOpen className="mr-2 h-5 w-5" />
                 Mes collections
               </Button>
@@ -92,7 +92,7 @@ export default function Home() {
 
             <Card>
               <CardHeader>
-                <Trophy className="h-10 w-10 text-purple-600 mb-4" />
+                <Layers className="h-10 w-10 text-purple-600 mb-4" />
                 <CardTitle>Gestion de decks</CardTitle>
               </CardHeader>
               <CardContent>
