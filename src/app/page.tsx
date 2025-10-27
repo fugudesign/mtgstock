@@ -33,7 +33,12 @@ export default function Home() {
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-5xl font-bold text-slate-900 mb-6">MTG Stock</h1>
+          <h1 className="text-6xl tracking-tight font-extrabold text-purple-400 mb-2">
+            Magic Stock
+          </h1>
+          <p className="text-xs tracking-widest text-slate-600 uppercase mb-8">
+            The Magic cards gathering
+          </p>
           <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
             Gérez vos collections et decks Magic: The Gathering avec style.
             Recherchez parmi des milliers de cartes et organisez votre passion.

@@ -6,14 +6,10 @@
   --color-secondary: var(--color-gray-300);
   --color-secondary-foreground: var(--color-gray-800);
   --color-accent: var(--color-purple-100);
-  --color-accent-foreground: var(--color-purple-700);
+  --color-accent-foreground: var(--color-purple-800);
   --color-destructive: var(--color-red-700);
   --color-destructive-foreground: var(--color-red-100);
   --color-border: var(--color-gray-300);
   --color-input: var(--color-gray-300);
   --color-ring: var(--color-indigo-700);
-}
-
-body {
-  font-family: Arial, Helvetica, sans-serif;
 }
