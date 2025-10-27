@@ -40,6 +40,7 @@ export function ManaSymbol({
           if (response.ok) {
             const data = await response.json();
             // Mettre en cache tous les symboles
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             data.data.forEach((item: any) => {
               if (item.svg_uri) {
                 symbolCache[item.symbol] = item.svg_uri;

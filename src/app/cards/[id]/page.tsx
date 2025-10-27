@@ -496,7 +496,7 @@ export default function CardDetailPage() {
                 {card.flavor_text && (
                   <div>
                     <h3 className="font-semibold text-sm text-slate-900 mb-2">
-                      Texte d'ambiance
+                      Texte d&apos;ambiance
                     </h3>
                     <p className="text-slate-600 italic">{card.flavor_text}</p>
                   </div>
@@ -527,7 +527,7 @@ export default function CardDetailPage() {
             {/* Informations de set */}
             <Card>
               <CardHeader>
-                <CardTitle>Informations de l'édition</CardTitle>
+                <CardTitle>Informations de l&apos;édition</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-4">
@@ -539,7 +539,7 @@ export default function CardDetailPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-sm text-slate-900 mb-1">
-                      Code de l'édition
+                      Code de l&apos;édition
                     </h3>
                     <p className="text-slate-700 uppercase">{card.set}</p>
                   </div>

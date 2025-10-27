@@ -14,8 +14,6 @@ export const MtgStockIcon = forwardRef<SVGSVGElement, LucideProps>(
     {
       color = "currentColor",
       size = 24,
-      strokeWidth = 2,
-      absoluteStrokeWidth,
       className = "",
       ...props
     },

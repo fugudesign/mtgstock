@@ -147,7 +147,7 @@ export default function ProfilePage() {
                     className="bg-gray-50"
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    L'email ne peut pas être modifié
+                    L&apos;email ne peut pas être modifié
                   </p>
                 </div>
               </div>
