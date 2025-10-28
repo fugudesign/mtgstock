@@ -10,6 +10,7 @@ import {
   getCardImageUrl,
   getCardManaCost,
   getCardType,
+  isDoubleFacedCard,
 } from "@/lib/scryfall-api";
 import { Eye, Heart, Layers } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -150,7 +151,7 @@ export function CardDisplay({
       )}
 
       <div className="relative">
-        <div className="aspect-[5/7] overflow-hidden bg-gray-100">
+        <div className="aspect-5/7 overflow-hidden bg-gray-100">
           <Image
             src={getImageUrl()}
             alt={card.name}
@@ -231,6 +232,14 @@ export function CardDisplay({
             )} text-white border-0`}
           >
             {card.rarity}
+          </Badge>
+        )}
+
+        {/* Badge pour cartes double-face */}
+        {isDoubleFacedCard(card) && (
+          <Badge className="absolute top-2 left-2 bg-purple-600 text-white border-0 flex items-center gap-1">
+            <Layers className="h-3 w-3" />
+            Double face
           </Badge>
         )}
       </div>

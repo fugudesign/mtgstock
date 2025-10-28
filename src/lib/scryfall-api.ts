@@ -461,3 +461,27 @@ export const getCardOracleText = (card: MTGCard): string => {
   }
   return "";
 };
+
+// Vérifier si une carte a plusieurs faces
+export const isDoubleFacedCard = (card: MTGCard): boolean => {
+  return (
+    card.card_faces !== undefined &&
+    card.card_faces.length > 1 &&
+    card.card_faces.every((face) => face.image_uris !== undefined)
+  );
+};
+
+// Obtenir toutes les images des faces d'une carte
+export const getCardFaceImages = (
+  card: MTGCard
+): Array<{ name: string; image: string }> => {
+  if (card.card_faces && card.card_faces.length > 1) {
+    return card.card_faces
+      .filter((face) => face.image_uris)
+      .map((face) => ({
+        name: face.name,
+        image: face.image_uris!.large || face.image_uris!.normal,
+      }));
+  }
+  return [];
+};

@@ -407,7 +407,7 @@ export default function SearchPage() {
             {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
-                className="aspect-[5/7] bg-muted rounded-lg animate-pulse"
+                className="aspect-5/7 bg-muted rounded-lg animate-pulse"
               />
             ))}
           </div>

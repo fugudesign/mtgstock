@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   MTGCard,
+  getCardFaceImages,
   getCardName,
   getCardOracleText,
   getCardTypeLine,
+  isDoubleFacedCard,
 } from "@/lib/scryfall-api";
 import {
   ArrowLeft,
@@ -40,6 +42,7 @@ export default function CardDetailPage() {
   const [showDeckSelector, setShowDeckSelector] = useState(false);
   const [adding, setAdding] = useState(false);
   const [userLang, setUserLang] = useState<string | null>(null);
+  const [currentFaceIndex, setCurrentFaceIndex] = useState(0);
 
   // Récupérer la langue de l'utilisateur
   useEffect(() => {
@@ -233,6 +236,10 @@ export default function CardDetailPage() {
   }
 
   const getImageUrl = () => {
+    const faceImages = getCardFaceImages(card);
+    if (faceImages.length > 0) {
+      return faceImages[currentFaceIndex]?.image || faceImages[0].image;
+    }
     if (card.image_uris?.large) return card.image_uris.large;
     if (card.image_uris?.normal) return card.image_uris.normal;
     if (card.card_faces?.[0]?.image_uris?.large)
@@ -281,6 +288,9 @@ export default function CardDetailPage() {
     return labels[rarity] || rarity;
   };
 
+  const cardFaces = getCardFaceImages(card);
+  const isDoubleFaced = isDoubleFacedCard(card);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -310,7 +320,35 @@ export default function CardDetailPage() {
                     className="w-full h-auto"
                     priority
                   />
+
+                  {/* Indicateur et boutons pour les cartes double-face */}
+                  {isDoubleFaced && (
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
+                      {cardFaces.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentFaceIndex(index)}
+                          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                            currentFaceIndex === index
+                              ? "bg-primary text-white shadow-lg"
+                              : "bg-white/90 text-gray-700 hover:bg-white"
+                          }`}
+                        >
+                          Face {index + 1}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
+
+                {/* Nom de la face actuelle pour les cartes double-face */}
+                {isDoubleFaced && cardFaces[currentFaceIndex] && (
+                  <div className="mb-4 p-3 bg-muted rounded-lg">
+                    <p className="text-sm font-medium text-center">
+                      {cardFaces[currentFaceIndex].name}
+                    </p>
+                  </div>
+                )}
 
                 {/* Actions */}
                 {session && (
