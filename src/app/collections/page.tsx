@@ -108,7 +108,7 @@ export default function CollectionsPage() {
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className=" mx-auto px-4 py-8">
           <div className="animate-pulse space-y-4">
             <div className="h-12 bg-neutral-800 rounded w-1/3"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -125,7 +125,7 @@ export default function CollectionsPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className=" mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <div>

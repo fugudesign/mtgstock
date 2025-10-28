@@ -295,7 +295,7 @@ export default function CardDetailPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className=" mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-6">
             <Button

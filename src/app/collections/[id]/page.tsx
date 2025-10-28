@@ -131,7 +131,7 @@ export default function CollectionDetailPage({
   if (status === "loading" || loading || !resolvedParams) {
     return (
       <div className="min-h-screen bg-background py-8">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className=" mx-auto px-4">
           <div className="animate-pulse space-y-4">
             <div className="h-12 bg-neutral-800 rounded w-1/3"></div>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -148,7 +148,7 @@ export default function CollectionDetailPage({
   if (!collection) {
     return (
       <div className="min-h-screen bg-background py-8">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className=" mx-auto px-4">
           <Card>
             <CardContent className="p-12 text-center">
               <h3 className="text-xl font-semibold text-gray-700 mb-2">
@@ -167,7 +167,7 @@ export default function CollectionDetailPage({
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background py-8">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className=" mx-auto px-4">
           {/* Header */}
           <div className="mb-8">
             <Link href="/collections">

@@ -139,7 +139,7 @@ export default function SearchPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-foreground mb-2">
@@ -358,7 +358,7 @@ export default function SearchPage() {
           {/* Results Grid */}
           {cards.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8">
                 {cards.map((card) => (
                   <CardDisplay key={card.id} card={card} showActions={true} />
                 ))}
