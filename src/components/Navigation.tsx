@@ -30,17 +30,17 @@ export function Navigation() {
     <nav className="bg-background/60 fixed inset-x-0 backdrop-blur-xs top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <div className="w-full grid grid-cols-[1fr_auto_1fr] gap-8">
+          <div className="w-full h-full grid grid-cols-[1fr_auto_1fr] gap-8">
             <Link href="/" className="flex items-center gap-2">
               <div className="size-10 bg-linear-to-br from-purple-600 to-blue-600 text-primary-foreground rounded-lg flex items-center justify-center">
                 <MtgStockIcon size={32} />
               </div>
-              {/* <span className="font-decorative text-3xl tracking-tight text-indigo-900">
+              <span className="text-xl tracking-tight font-bold text-indigo-800">
                 Magic Stack
-              </span> */}
+              </span>
             </Link>
 
-            <div className="hidden md:flex justify-center items-center gap-1">
+            <div className="hidden md:flex justify-center items-stretch gap-4">
               {navigation.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
@@ -50,13 +50,13 @@ export function Navigation() {
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                      "flex items-center gap-2 px-1 py-2 text-xs uppercase tracking-wide font-medium transition-all border-b-4 border-t-4 border-transparent",
                       isActive
-                        ? "bg-accent text-accent-foreground"
-                        : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                        ? " border-b-primary text-primary-foreground "
+                        : "text-accent hover:text-muted-foreground"
                     )}
                   >
-                    <Icon className="h-4 w-4" />
+                    <Icon className="size-4" />
                     {item.name}
                   </Link>
                 );
