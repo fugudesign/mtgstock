@@ -1,17 +1,34 @@
 import { Navigation } from "@/components/Navigation";
 import { Providers } from "@/components/Providers";
 import type { Metadata } from "next";
-import { Geist_Mono, Lexend } from "next/font/google";
+import {
+  Cinzel_Decorative,
+  Geist_Mono,
+  Gloock,
+  Lexend,
+} from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
 const lexendSans = Lexend({
-  variable: "--font-lexend-sans",
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+  variable: "--font-mono",
+  subsets: ["latin"],
+});
+
+const cinzelDecorative = Cinzel_Decorative({
+  variable: "--font-decorative",
+  weight: ["400", "700"],
+  subsets: ["latin"],
+});
+
+const gloock = Gloock({
+  variable: "--font-heading",
+  weight: ["400"],
   subsets: ["latin"],
 });
 
@@ -45,7 +62,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${lexendSans.variable} ${geistMono.variable} antialiased`}
+        className={`${lexendSans.variable} ${geistMono.variable} ${cinzelDecorative.variable} ${gloock.variable} antialiased`}
         suppressHydrationWarning
       >
         <Providers>

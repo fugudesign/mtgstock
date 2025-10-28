@@ -32,15 +32,16 @@ export default function Home() {
     <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
       {/* Hero Section */}
       <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-6xl tracking-tight font-extrabold text-purple-400 mb-2">
-            Magic Stock
+        <div className="max-w-8xl mx-auto text-center">
+          <h1 className="font-decorative text-8xl text-purple-800 mb-2">
+            Magic Stack
           </h1>
           <p className="text-xs tracking-widest text-slate-600 uppercase mb-8">
-            The Magic cards gathering
+            The cards gathering
           </p>
-          <p className="text-xl text-slate-600 mb-8 max-w-2xl mx-auto">
-            Gérez vos collections et decks Magic: The Gathering avec style.
+          <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+            Gérez vos collections et decks Magic The Gathering avec style.
+            <br />
             Recherchez parmi des milliers de cartes et organisez votre passion.
           </p>
 

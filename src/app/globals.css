@@ -12,4 +12,9 @@
   --color-border: var(--color-gray-300);
   --color-input: var(--color-gray-300);
   --color-ring: var(--color-indigo-700);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-decorative: var(--font-decorative);
+  --font-heading: var(--font-heading);
 }
