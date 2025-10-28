@@ -5,11 +5,13 @@ import { MtgStockIcon } from "@/components/icons/MtgStockIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
-import { BookOpen, Layers, Search, Sparkles } from "lucide-react";
+import { BookOpen, Layers, LogIn, Search, Sparkles } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Home() {
+  const { status } = useSession();
   const [featuredCards, setFeaturedCards] = useState<MTGCard[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,18 +53,53 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/search">
-              <Button size="lg" variant="magic" className="w-full sm:w-auto">
-                <Search className="mr-2 h-5 w-5" />
-                Rechercher des cartes
-              </Button>
-            </Link>
-            <Link href="/collections">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto ">
-                <BookOpen className="mr-2 h-5 w-5" />
-                Mes collections
-              </Button>
-            </Link>
+            {status === "authenticated" ? (
+              <>
+                <Link href="/search">
+                  <Button
+                    size="lg"
+                    variant="magic"
+                    className="w-full sm:w-auto"
+                  >
+                    <Search className="mr-2 h-5 w-5" />
+                    Rechercher des cartes
+                  </Button>
+                </Link>
+                <Link href="/collections">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto "
+                  >
+                    <BookOpen className="mr-2 h-5 w-5" />
+                    Mes collections
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/auth/login">
+                  <Button
+                    size="lg"
+                    variant="magic"
+                    className="w-full sm:w-auto"
+                  >
+                    <LogIn className="mr-2 h-5 w-5" />
+                    Se connecter
+                  </Button>
+                </Link>
+                <Link href="/auth/register">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto "
+                  >
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Créer un compte
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -73,6 +110,19 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-center text-foreground mb-12">
             Fonctionnalités
           </h2>
+
+          {status === "unauthenticated" && (
+            <div className="mb-8 p-4 bg-primary/10 border border-primary/20 rounded-lg text-center">
+              <p className="text-foreground">
+                <strong>Connectez-vous</strong> pour accéder à toutes les
+                fonctionnalités !
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                La recherche de cartes, les collections et les decks nécessitent
+                une authentification.
+              </p>
+            </div>
+          )}
 
           <div className="grid md:grid-cols-3 gap-8">
             <Card>

@@ -31,6 +31,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
 
   const registered = searchParams.get("registered");
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   // Rediriger si déjà connecté
   useEffect(() => {
@@ -57,8 +58,8 @@ function LoginForm() {
         return;
       }
 
-      // Redirect to home page
-      router.push("/");
+      // Redirect to callback URL or home page
+      router.push(callbackUrl);
       router.refresh();
     } catch (err) {
       console.error("Login error:", err);
@@ -69,7 +70,7 @@ function LoginForm() {
 
   const handleOAuthSignIn = async (provider: "github" | "google") => {
     try {
-      await signIn(provider, { callbackUrl: "/" });
+      await signIn(provider, { callbackUrl });
     } catch (err) {
       console.error("OAuth error:", err);
       setError("Erreur lors de la connexion");
@@ -105,6 +106,12 @@ function LoginForm() {
           {registered && (
             <div className="bg-green-500/10 text-green-400 p-3 rounded-md text-sm mb-4">
               Compte créé avec succès ! Vous pouvez maintenant vous connecter.
+            </div>
+          )}
+
+          {callbackUrl !== "/" && (
+            <div className="bg-primary/10 text-primary p-3 rounded-md text-sm mb-4">
+              Vous devez être connecté pour accéder à cette page.
             </div>
           )}
 
