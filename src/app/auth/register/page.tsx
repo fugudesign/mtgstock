@@ -13,6 +13,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 const GITHUB_ENABLED = process.env.NEXT_PUBLIC_GITHUB_ENABLED === "true";
 const GOOGLE_ENABLED = process.env.NEXT_PUBLIC_GOOGLE_ENABLED === "true";
@@ -33,15 +34,18 @@ const languages = [
 export default function RegisterPage() {
   const router = useRouter();
   const { status } = useSession();
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
     name: "",
-    language: "en",
+    language: "fr",
   });
+  const [honeypot, setHoneypot] = useState(""); // Champ piège pour les bots
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [formLoadTime] = useState(() => Date.now()); // Timestamp du chargement du formulaire
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -53,6 +57,21 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    // Protection contre les bots : si le honeypot est rempli, c'est un bot
+    if (honeypot) {
+      console.warn("Bot detected via honeypot");
+      setError("Une erreur s'est produite");
+      return;
+    }
+
+    // Protection temporelle : le formulaire doit être rempli en au moins 3 secondes
+    const timeTaken = Date.now() - formLoadTime;
+    if (timeTaken < 3000) {
+      console.warn("Bot detected: form submitted too quickly");
+      setError("Veuillez prendre le temps de remplir le formulaire");
+      return;
+    }
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
@@ -68,6 +87,17 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      // Obtenir le token reCAPTCHA si disponible
+      let recaptchaToken: string | undefined;
+      if (executeRecaptcha) {
+        try {
+          recaptchaToken = await executeRecaptcha("register");
+        } catch (error) {
+          console.error("reCAPTCHA error:", error);
+          // Continuer sans reCAPTCHA si erreur
+        }
+      }
+
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
@@ -78,6 +108,7 @@ export default function RegisterPage() {
           password: formData.password,
           name: formData.name || null,
           language: formData.language,
+          recaptchaToken,
         }),
       });
 
@@ -130,6 +161,22 @@ export default function RegisterPage() {
                 {error}
               </div>
             )}
+
+            {/* Honeypot - Invisible pour les humains, visible pour les bots */}
+            <div className="hidden" aria-hidden="true">
+              <label htmlFor="website">
+                Si vous êtes humain, laissez ce champ vide
+              </label>
+              <Input
+                id="website"
+                name="website"
+                type="text"
+                autoComplete="off"
+                tabIndex={-1}
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+              />
+            </div>
 
             <div>
               <label
@@ -320,6 +367,30 @@ export default function RegisterPage() {
                 Se connecter
               </Link>
             </div>
+
+            {process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY && (
+              <div className="text-xs text-center text-muted-foreground pt-2">
+                Ce site est protégé par reCAPTCHA et les{" "}
+                <a
+                  href="https://policies.google.com/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Règles de confidentialité
+                </a>{" "}
+                et{" "}
+                <a
+                  href="https://policies.google.com/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Conditions d&apos;utilisation
+                </a>{" "}
+                de Google s&apos;appliquent.
+              </div>
+            )}
           </form>
         </CardContent>
       </Card>

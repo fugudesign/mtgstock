@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { Providers } from "@/components/Providers";
+import { RecaptchaProvider } from "@/components/RecaptchaProvider";
 import type { Metadata } from "next";
 import {
   Cinzel_Decorative,
@@ -66,9 +67,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Providers>
-          <Navigation />
-          <main className="pt-12">{children}</main>
-          <Toaster position="top-right" richColors />
+          <RecaptchaProvider>
+            <Navigation />
+            <main className="pt-12">{children}</main>
+            <Toaster position="top-right" richColors />
+          </RecaptchaProvider>
         </Providers>
       </body>
     </html>
