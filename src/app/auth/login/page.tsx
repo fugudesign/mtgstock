@@ -76,13 +76,13 @@ function LoginForm() {
     }
   };
 
-  // Afficher un loader pendant la vérification de la session
+  // Afficher un état de chargement pendant la vérification de l'authentification
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Chargement...</p>
         </div>
       </div>
     );
@@ -91,7 +91,7 @@ function LoginForm() {
   const showOAuthSection = GITHUB_ENABLED || GOOGLE_ENABLED;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
@@ -103,14 +103,14 @@ function LoginForm() {
         </CardHeader>
         <CardContent>
           {registered && (
-            <div className="bg-green-50 text-green-700 p-3 rounded-md text-sm mb-4">
+            <div className="bg-green-500/10 text-green-400 p-3 rounded-md text-sm mb-4">
               Compte créé avec succès ! Vous pouvez maintenant vous connecter.
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
+              <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
                 {error}
               </div>
             )}
@@ -118,7 +118,7 @@ function LoginForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-foreground mb-1"
               >
                 Email
               </label>
@@ -137,7 +137,7 @@ function LoginForm() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-foreground mb-1"
               >
                 Mot de passe
               </label>
@@ -162,10 +162,10 @@ function LoginForm() {
             <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+                  <div className="w-full border-t border-border"></div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="px-2 bg-card text-muted-foreground">
                     Ou continuer avec
                   </span>
                 </div>
@@ -215,11 +215,11 @@ function LoginForm() {
             </div>
           )}
 
-          <div className="mt-6 text-center text-sm text-gray-600">
+          <div className="mt-6 text-center text-sm text-muted-foreground">
             Pas encore de compte ?{" "}
             <Link
               href="/auth/register"
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="text-primary hover:text-primary/80 font-medium"
             >
               Créer un compte
             </Link>
@@ -234,10 +234,10 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-slate-600">Chargement...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Chargement...</p>
           </div>
         </div>
       }

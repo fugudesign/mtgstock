@@ -136,17 +136,17 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">
+          <h1 className="text-4xl font-bold text-foreground mb-2">
             Recherche de cartes
           </h1>
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             Recherchez parmi plus de 30 000 cartes Magic: The Gathering
           </p>
-          <p className="text-sm text-blue-600 mt-1">
+          <p className="text-sm text-primary mt-1">
             💡 Astuce : Utilisez le filtre &quot;Langue&quot; pour rechercher
             des cartes en français
           </p>
@@ -157,7 +157,7 @@ export default function SearchPage() {
           <CardContent className="p-6">
             <div className="flex gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="Nom de la carte (ex: Lightning Bolt, Ancestral Recall...)"
@@ -196,8 +196,8 @@ export default function SearchPage() {
 
             {/* Quick examples */}
             {!showFilters && cards.length === 0 && (
-              <div className="mt-4 pt-4 border-t">
-                <p className="text-sm text-gray-600 mb-2">
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-sm text-muted-foreground mb-2">
                   Exemples de recherche :
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -206,7 +206,7 @@ export default function SearchPage() {
                       setSearchQuery("Jace");
                       handleSearch(1);
                     }}
-                    className="px-3 py-1 text-xs bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors"
+                    className="px-3 py-1 text-xs bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors"
                   >
                     Jace
                   </button>
@@ -215,7 +215,7 @@ export default function SearchPage() {
                       setSearchQuery("Lightning Bolt");
                       handleSearch(1);
                     }}
-                    className="px-3 py-1 text-xs bg-red-50 text-red-700 rounded-full hover:bg-red-100 transition-colors"
+                    className="px-3 py-1 text-xs bg-destructive/10 text-destructive rounded-full hover:bg-destructive/20 transition-colors"
                   >
                     Lightning Bolt
                   </button>
@@ -224,7 +224,7 @@ export default function SearchPage() {
                       setSearchQuery("Black Lotus");
                       handleSearch(1);
                     }}
-                    className="px-3 py-1 text-xs bg-purple-50 text-purple-700 rounded-full hover:bg-purple-100 transition-colors"
+                    className="px-3 py-1 text-xs bg-purple-500/10 text-purple-400 rounded-full hover:bg-purple-500/20 transition-colors"
                   >
                     Black Lotus
                   </button>
@@ -233,7 +233,7 @@ export default function SearchPage() {
                       setFilters({ ...filters, language: "French" });
                       setShowFilters(true);
                     }}
-                    className="px-3 py-1 text-xs bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors"
+                    className="px-3 py-1 text-xs bg-green-500/10 text-green-400 rounded-full hover:bg-green-500/20 transition-colors"
                   >
                     🇫🇷 Rechercher en français
                   </button>
@@ -243,12 +243,12 @@ export default function SearchPage() {
 
             {/* Filters */}
             {showFilters && (
-              <div className="mt-6 pt-6 border-t grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div className="mt-6 pt-6 border-t border-border grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Langue{" "}
                     {userLanguage && filters.language && (
-                      <span className="text-xs text-blue-600 ml-1">
+                      <span className="text-xs text-primary ml-1">
                         (par défaut)
                       </span>
                     )}
@@ -258,7 +258,7 @@ export default function SearchPage() {
                     onChange={(e) =>
                       setFilters({ ...filters, language: e.target.value })
                     }
-                    className="w-full h-10 px-3 rounded-md border border-gray-300"
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground"
                   >
                     <option value="">Toutes les langues</option>
                     <option value="French">Français</option>
@@ -281,7 +281,7 @@ export default function SearchPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Couleurs
                   </label>
                   <Input
@@ -294,7 +294,7 @@ export default function SearchPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Type
                   </label>
                   <Input
@@ -307,7 +307,7 @@ export default function SearchPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Rareté
                   </label>
                   <select
@@ -315,7 +315,7 @@ export default function SearchPage() {
                     onChange={(e) =>
                       setFilters({ ...filters, rarity: e.target.value })
                     }
-                    className="w-full h-10 px-3 rounded-md border border-gray-300"
+                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground"
                   >
                     <option value="">Toutes</option>
                     <option value="common">Common</option>
@@ -325,7 +325,7 @@ export default function SearchPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Extension (code)
                   </label>
                   <Input
@@ -347,7 +347,7 @@ export default function SearchPage() {
 
         {/* Results Count */}
         {totalResults > 0 && (
-          <div className="mb-4 text-sm text-gray-600">
+          <div className="mb-4 text-sm text-muted-foreground">
             {totalResults} résultat{totalResults > 1 ? "s" : ""} trouvé
             {totalResults > 1 ? "s" : ""}
           </div>
@@ -387,11 +387,11 @@ export default function SearchPage() {
           !loading && (
             <Card>
               <CardContent className="p-12 text-center">
-                <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   Aucun résultat
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-muted-foreground">
                   {searchQuery || Object.values(filters).some((f) => f)
                     ? "Essayez avec des termes différents ou modifiez les filtres"
                     : "Commencez votre recherche en entrant un nom de carte"}
@@ -407,7 +407,7 @@ export default function SearchPage() {
             {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
-                className="aspect-[5/7] bg-slate-200 rounded-lg animate-pulse"
+                className="aspect-[5/7] bg-muted rounded-lg animate-pulse"
               />
             ))}
           </div>

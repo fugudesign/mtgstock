@@ -219,10 +219,10 @@ export default function CardDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Chargement...</p>
         </div>
       </div>
     );
@@ -263,10 +263,10 @@ export default function CardDetailPage() {
 
   const getRarityColor = (rarity: string) => {
     const colors: { [key: string]: string } = {
-      common: "bg-gray-500",
+      common: "bg-gray-600",
       uncommon: "bg-slate-400",
-      rare: "bg-yellow-500",
-      mythic: "bg-orange-500",
+      rare: "bg-yellow-600",
+      mythic: "bg-orange-600",
     };
     return colors[rarity] || "bg-gray-500";
   };
@@ -282,7 +282,7 @@ export default function CardDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6">
@@ -301,7 +301,7 @@ export default function CardDetailPage() {
           <div className="lg:col-span-1">
             <Card className="sticky top-4">
               <CardContent className="p-6">
-                <div className="relative mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
+                <div className="relative mb-4 rounded-lg overflow-hidden">
                   <Image
                     src={getImageUrl()}
                     alt={card.name}
@@ -365,15 +365,15 @@ export default function CardDetailPage() {
 
                 {/* Prix et liens */}
                 {card.prices && (
-                  <div className="mt-6 pt-6 border-t">
-                    <h3 className="font-semibold text-sm text-slate-900 mb-3 flex items-center">
+                  <div className="mt-6 pt-6 border-t border-muted">
+                    <h3 className="font-semibold text-sm text-foreground mb-3 flex items-center">
                       <TrendingUp className="mr-2 h-4 w-4" />
                       Prix estimés
                     </h3>
                     <div className="space-y-2 text-sm">
                       {card.prices.eur && (
                         <div className="flex justify-between">
-                          <span className="text-slate-600">EUR:</span>
+                          <span className="text-muted-foreground">EUR:</span>
                           <span className="font-semibold">
                             {card.prices.eur}€
                           </span>
@@ -381,7 +381,9 @@ export default function CardDetailPage() {
                       )}
                       {card.prices.eur_foil && (
                         <div className="flex justify-between">
-                          <span className="text-slate-600">EUR (Foil):</span>
+                          <span className="text-muted-foreground">
+                            EUR (Foil):
+                          </span>
                           <span className="font-semibold">
                             {card.prices.eur_foil}€
                           </span>
@@ -389,7 +391,7 @@ export default function CardDetailPage() {
                       )}
                       {card.prices.usd && (
                         <div className="flex justify-between">
-                          <span className="text-slate-600">USD:</span>
+                          <span className="text-muted-foreground">USD:</span>
                           <span className="font-semibold">
                             ${card.prices.usd}
                           </span>
@@ -397,7 +399,9 @@ export default function CardDetailPage() {
                       )}
                       {card.prices.usd_foil && (
                         <div className="flex justify-between">
-                          <span className="text-slate-600">USD (Foil):</span>
+                          <span className="text-muted-foreground">
+                            USD (Foil):
+                          </span>
                           <span className="font-semibold">
                             ${card.prices.usd_foil}
                           </span>
@@ -410,26 +414,28 @@ export default function CardDetailPage() {
                 {/* Liens externes */}
                 <div className="mt-6 space-y-2">
                   {card.scryfall_uri && (
-                    <a
-                      href={card.scryfall_uri}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      Voir sur Scryfall
-                    </a>
+                    <Button asChild variant="outline" className="w-full">
+                      <a
+                        href={card.scryfall_uri}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="size-4 mr-2" />
+                        Voir sur Scryfall
+                      </a>
+                    </Button>
                   )}
                   {card.related_uris?.gatherer && (
-                    <a
-                      href={card.related_uris.gatherer}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      Voir sur Gatherer
-                    </a>
+                    <Button asChild variant="outline" className="w-full">
+                      <a
+                        href={card.related_uris.gatherer}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="size-4 mr-2" />
+                        Voir sur Gatherer
+                      </a>
+                    </Button>
                   )}
                 </div>
               </CardContent>
@@ -472,18 +478,20 @@ export default function CardDetailPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-sm text-slate-900 mb-2">
+                  <h3 className="font-semibold text-sm text-foreground mb-2">
                     Type
                   </h3>
-                  <p className="text-slate-700">{getCardTypeLine(card)}</p>
+                  <p className="text-muted-foreground">
+                    {getCardTypeLine(card)}
+                  </p>
                 </div>
 
                 {getCardOracleText(card) && (
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-900 mb-2">
+                    <h3 className="font-semibold text-sm text-foreground mb-2">
                       Texte d&apos;oracle
                     </h3>
-                    <div className="text-slate-700">
+                    <div className="text-muted-foreground">
                       <ManaText
                         text={getCardOracleText(card)}
                         symbolSize={18}
@@ -495,19 +503,21 @@ export default function CardDetailPage() {
 
                 {card.flavor_text && (
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-900 mb-2">
+                    <h3 className="font-semibold text-sm text-foreground mb-2">
                       Texte d&apos;ambiance
                     </h3>
-                    <p className="text-slate-600 italic">{card.flavor_text}</p>
+                    <p className="text-muted-foreground italic">
+                      {card.flavor_text}
+                    </p>
                   </div>
                 )}
 
                 {(card.power || card.toughness) && (
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-900 mb-2">
+                    <h3 className="font-semibold text-sm text-foreground mb-2">
                       Force / Endurance
                     </h3>
-                    <p className="text-slate-700">
+                    <p className="text-muted-foreground">
                       {card.power} / {card.toughness}
                     </p>
                   </div>
@@ -515,10 +525,10 @@ export default function CardDetailPage() {
 
                 {card.loyalty && (
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-900 mb-2">
+                    <h3 className="font-semibold text-sm text-foreground mb-2">
                       Loyauté
                     </h3>
-                    <p className="text-slate-700">{card.loyalty}</p>
+                    <p className="text-muted-foreground">{card.loyalty}</p>
                   </div>
                 )}
               </CardContent>
@@ -532,48 +542,54 @@ export default function CardDetailPage() {
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-900 mb-1">
+                    <h3 className="font-semibold text-sm text-foreground mb-1">
                       Édition
                     </h3>
-                    <p className="text-slate-700">{card.set_name}</p>
+                    <p className="text-muted-foreground">{card.set_name}</p>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-900 mb-1">
+                    <h3 className="font-semibold text-sm text-foreground mb-1">
                       Code de l&apos;édition
                     </h3>
-                    <p className="text-slate-700 uppercase">{card.set}</p>
+                    <p className="text-muted-foreground uppercase">
+                      {card.set}
+                    </p>
                   </div>
                   {card.collector_number && (
                     <div>
-                      <h3 className="font-semibold text-sm text-slate-900 mb-1">
+                      <h3 className="font-semibold text-sm text-foreground mb-1">
                         Numéro de collection
                       </h3>
-                      <p className="text-slate-700">{card.collector_number}</p>
+                      <p className="text-muted-foreground">
+                        {card.collector_number}
+                      </p>
                     </div>
                   )}
                   {card.released_at && (
                     <div>
-                      <h3 className="font-semibold text-sm text-slate-900 mb-1">
+                      <h3 className="font-semibold text-sm text-foreground mb-1">
                         Date de sortie
                       </h3>
-                      <p className="text-slate-700">
+                      <p className="text-muted-foreground">
                         {new Date(card.released_at).toLocaleDateString("fr-FR")}
                       </p>
                     </div>
                   )}
                   {card.artist && (
                     <div>
-                      <h3 className="font-semibold text-sm text-slate-900 mb-1">
+                      <h3 className="font-semibold text-sm text-foreground mb-1">
                         Artiste
                       </h3>
-                      <p className="text-slate-700">{card.artist}</p>
+                      <p className="text-muted-foreground">{card.artist}</p>
                     </div>
                   )}
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-900 mb-1">
+                    <h3 className="font-semibold text-sm text-foreground mb-1">
                       Identité de couleur
                     </h3>
-                    <p className="text-slate-700">{getColorIdentity()}</p>
+                    <p className="text-muted-foreground">
+                      {getColorIdentity()}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -591,10 +607,11 @@ export default function CardDetailPage() {
                       if (status === "not_legal") return null;
 
                       const statusColors: { [key: string]: string } = {
-                        legal: "bg-green-100 text-green-700 border-green-300",
-                        banned: "bg-red-100 text-red-700 border-red-300",
+                        legal:
+                          "bg-green-700/20 text-green-300 border-green-700",
+                        banned: "bg-red-700/20 text-red-300 border-red-700",
                         restricted:
-                          "bg-orange-100 text-orange-700 border-orange-300",
+                          "bg-orange-700/20 text-orange-300 border-orange-700",
                       };
 
                       const statusLabels: { [key: string]: string } = {

@@ -106,21 +106,19 @@ export default function ProfilePage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
-          </div>
+      <div className="min-h-screen bg-background py-8">
+        <div className="max-w-4xl mx-auto px-4 space-y-4">
+          <div className="h-8 bg-muted rounded w-1/3"></div>
+          <div className="h-64 bg-muted rounded"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-3xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">Mon profil</h1>
+    <div className="min-h-screen bg-background py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <h1 className="text-3xl font-bold text-foreground mb-8">Mon profil</h1>
 
         <div className="space-y-6">
           {/* Account Info */}
@@ -137,16 +135,16 @@ export default function ProfilePage() {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Email
                   </label>
                   <Input
                     type="email"
                     value={session?.user?.email || ""}
                     disabled
-                    className="bg-gray-50"
+                    className="bg-muted"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     L&apos;email ne peut pas être modifié
                   </p>
                 </div>
@@ -169,8 +167,8 @@ export default function ProfilePage() {
                   <div
                     className={`p-3 rounded-md text-sm ${
                       message.type === "success"
-                        ? "bg-green-50 text-green-700"
-                        : "bg-red-50 text-red-600"
+                        ? "bg-green-500/10 text-green-400"
+                        : "bg-destructive/10 text-destructive"
                     }`}
                   >
                     {message.text}
@@ -180,7 +178,7 @@ export default function ProfilePage() {
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-foreground mb-1"
                   >
                     Nom
                   </label>
@@ -198,7 +196,7 @@ export default function ProfilePage() {
                 <div>
                   <label
                     htmlFor="language"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-foreground mb-1"
                   >
                     Langue par défaut
                   </label>
@@ -208,7 +206,7 @@ export default function ProfilePage() {
                     onChange={(e) =>
                       setFormData({ ...formData, language: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
                   >
                     {languages.map((lang) => (
                       <option key={lang.code} value={lang.code}>
@@ -216,7 +214,7 @@ export default function ProfilePage() {
                       </option>
                     ))}
                   </select>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Cette langue sera utilisée par défaut pour vos recherches de
                     cartes
                   </p>
@@ -240,16 +238,18 @@ export default function ProfilePage() {
             <CardContent>
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600">0</div>
-                  <div className="text-sm text-gray-600">Collections</div>
+                  <div className="text-2xl font-bold text-primary">0</div>
+                  <div className="text-sm text-muted-foreground">
+                    Collections
+                  </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">0</div>
-                  <div className="text-sm text-gray-600">Decks</div>
+                  <div className="text-2xl font-bold text-primary">0</div>
+                  <div className="text-sm text-muted-foreground">Decks</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">0</div>
-                  <div className="text-sm text-gray-600">Cartes</div>
+                  <div className="text-2xl font-bold text-primary">0</div>
+                  <div className="text-sm text-muted-foreground">Cartes</div>
                 </div>
               </div>
             </CardContent>

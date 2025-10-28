@@ -29,17 +29,17 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 h-lvh flex flex-col justify-center items-center bg-radial from-background to-neutral-950">
         <div className="max-w-8xl mx-auto text-center">
-          <h1 className="font-decorative text-8xl text-purple-800 mb-2">
+          <h1 className="font-decorative text-9xl  bg-clip-text bg-linear-to-br from-indigo-600 to-purple-700 text-transparent drop-shadow-md mb-2">
             Magic Stack
           </h1>
-          <p className="text-xs tracking-widest text-slate-600 uppercase mb-8">
+          <p className="text-xs tracking-[14px] text-foreground uppercase mb-8">
             The cards gathering
           </p>
-          <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-accent-foreground/40 mb-8 max-w-2xl mx-auto">
             Gérez vos collections et decks Magic The Gathering avec style.
             <br />
             Recherchez parmi des milliers de cartes et organisez votre passion.
@@ -47,7 +47,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/search">
-              <Button size="lg" className="w-full sm:w-auto">
+              <Button size="lg" variant="magic" className="w-full sm:w-auto">
                 <Search className="mr-2 h-5 w-5" />
                 Rechercher des cartes
               </Button>
@@ -65,18 +65,18 @@ export default function Home() {
       {/* Features Section */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-slate-900 mb-12">
+          <h2 className="text-3xl font-bold text-center text-foreground mb-12">
             Fonctionnalités
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
               <CardHeader>
-                <Search className="h-10 w-10 text-blue-600 mb-4" />
+                <Search className="h-10 w-10 text-indigo-600 mb-4" />
                 <CardTitle>Recherche avancée</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-600">
+                <p className="text-muted-foreground">
                   Recherchez parmi plus de 30 000 cartes Magic avec des filtres
                   avancés par nom, coût, couleur, rareté et plus encore.
                 </p>
@@ -89,7 +89,7 @@ export default function Home() {
                 <CardTitle>Collections personnelles</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-600">
+                <p className="text-muted-foreground">
                   Organisez vos cartes en collections personnalisées. Suivez vos
                   cartes par état, quantité et notes personnelles.
                 </p>
@@ -102,7 +102,7 @@ export default function Home() {
                 <CardTitle>Gestion de decks</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-slate-600">
+                <p className="text-muted-foreground">
                   Créez et gérez vos decks pour différents formats. Mainboard,
                   sideboard et notes stratégiques incluses.
                 </p>
@@ -113,11 +113,11 @@ export default function Home() {
       </section>
 
       {/* Featured Cards Section */}
-      <section className="py-16 px-4 bg-white">
+      <section className="py-16 px-4 bg-card">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center mb-12">
             <Sparkles className="h-6 w-6 text-yellow-500 mr-2" />
-            <h2 className="text-3xl font-bold text-slate-900">
+            <h2 className="text-3xl font-bold text-foreground">
               Cartes en vedette
             </h2>
           </div>
@@ -127,7 +127,7 @@ export default function Home() {
               {Array.from({ length: 8 }).map((_, i) => (
                 <div
                   key={i}
-                  className="aspect-[5/7] bg-slate-200 rounded-lg animate-pulse"
+                  className="aspect-[5/7] bg-muted rounded-lg animate-pulse"
                 />
               ))}
             </div>
@@ -148,12 +148,12 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-slate-900 text-white">
+      <section className="py-20 px-4 bg-primary-dark text-primary-foreground">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">
             Prêt à organiser votre collection ?
           </h2>
-          <p className="text-xl text-slate-300 mb-8">
+          <p className="text-xl text-primary-foreground/80 mb-8">
             Rejoignez MTG Stock dès aujourd&apos;hui et donnez une nouvelle
             dimension à votre passion pour Magic: The Gathering.
           </p>

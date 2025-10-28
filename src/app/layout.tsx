@@ -67,7 +67,7 @@ export default function RootLayout({
       >
         <Providers>
           <Navigation />
-          {children}
+          <main className="pt-12">{children}</main>
           <Toaster position="top-right" richColors />
         </Providers>
       </body>

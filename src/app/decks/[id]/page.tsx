@@ -155,13 +155,13 @@ export default function DeckDetailsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-background py-8">
         <div className="max-w-7xl mx-auto px-4">
           <div className="animate-pulse space-y-4">
-            <div className="h-12 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-12 bg-muted rounded w-1/3"></div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="h-96 bg-gray-200 rounded"></div>
+                <div key={i} className="h-96 bg-muted rounded"></div>
               ))}
             </div>
           </div>
@@ -179,12 +179,12 @@ export default function DeckDetailsPage() {
   const sideboardCards = deck.cards.filter((dc) => !dc.isMainboard);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6">
           <Link href="/decks">
-            <Button variant="ghost" className="mb-4">
+            <Button variant="outline" className="mb-4">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Retour aux decks
             </Button>
@@ -192,12 +192,12 @@ export default function DeckDetailsPage() {
 
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-slate-900 mb-2 flex items-center gap-3">
+              <h1 className="text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
                 <Layers className="h-10 w-10 text-purple-600" />
                 {deck.name}
               </h1>
               {deck.description && (
-                <p className="text-slate-600 text-lg mb-3">
+                <p className="text-muted-foreground text-lg mb-3">
                   {deck.description}
                 </p>
               )}
@@ -209,8 +209,8 @@ export default function DeckDetailsPage() {
                   <div
                     className={`flex items-center gap-2 px-3 py-1.5 rounded border ${
                       deckStatus.isValid
-                        ? "bg-green-100 text-green-700 border-green-300"
-                        : "bg-red-100 text-red-700 border-red-300"
+                        ? "bg-green-700/20 text-green-300 border-green-700"
+                        : "bg-red-700/20 text-red-300 border-red-700"
                     }`}
                   >
                     {deckStatus.isValid ? (
@@ -239,15 +239,15 @@ export default function DeckDetailsPage() {
 
         {/* Validation Warnings */}
         {deckStatus && !deckStatus.isValid && (
-          <Card className="mb-6 border-orange-300 bg-orange-50">
+          <Card className="mb-6 border-orange-500 text-orange-400 bg-orange-500/20">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <Info className="h-5 w-5 text-orange-600 mt-0.5" />
+                <Info className="h-5 w-5 text-orange-400 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-orange-900 mb-2">
+                  <h3 className="font-semibold text-orange-400 mb-2">
                     Ce deck n’est pas encore valide.
                   </h3>
-                  <ul className="space-y-1 text-sm text-orange-800">
+                  <ul className="space-y-1 text-sm text-orange-500">
                     {deckStatus.mainboardCount < 60 && (
                       <li>
                         • Minimum 60 cartes requises (actuellement{" "}
@@ -274,7 +274,7 @@ export default function DeckDetailsPage() {
 
         {/* Mainboard */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">
+          <h2 className="text-2xl font-bold text-background mb-4">
             Mainboard ({deckStatus?.mainboardCount || 0})
           </h2>
           {mainboardCards.length > 0 ? (
@@ -285,7 +285,7 @@ export default function DeckDetailsPage() {
                   className="group relative overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <Link href={`/cards/${deckCard.card.id}`}>
-                    <div className="relative aspect-[5/7] bg-gray-100">
+                    <div className="relative aspect-5/7 bg-gray-100">
                       {deckCard.card.imageUrl ? (
                         <Image
                           src={deckCard.card.imageUrl}

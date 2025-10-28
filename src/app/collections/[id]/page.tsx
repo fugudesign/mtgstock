@@ -129,13 +129,13 @@ export default function CollectionDetailPage({
 
   if (status === "loading" || loading || !resolvedParams) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-background py-8">
         <div className="max-w-7xl mx-auto px-4">
           <div className="animate-pulse space-y-4">
-            <div className="h-12 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-12 bg-neutral-800 rounded w-1/3"></div>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="h-96 bg-gray-200 rounded"></div>
+                <div key={i} className="h-96 bg-neutral-800 rounded"></div>
               ))}
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function CollectionDetailPage({
 
   if (!collection) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-background py-8">
         <div className="max-w-7xl mx-auto px-4">
           <Card>
             <CardContent className="p-12 text-center">
@@ -164,12 +164,12 @@ export default function CollectionDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
           <Link href="/collections">
-            <Button variant="ghost" className="mb-4">
+            <Button variant="outline" className="mb-4">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Retour aux collections
             </Button>
@@ -177,11 +177,11 @@ export default function CollectionDetailPage({
 
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-blue-100 rounded-lg">
+              <div className="p-3 bg-muted rounded-lg">
                 <BookOpen className="h-8 w-8 text-blue-600" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold text-slate-900 mb-2">
+                <h1 className="text-4xl font-bold text-foreground mb-2">
                   {collection.name}
                 </h1>
                 {collection.description && (
