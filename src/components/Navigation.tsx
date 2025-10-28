@@ -35,7 +35,7 @@ export function Navigation() {
               <div className="size-10 bg-linear-to-br from-purple-600 to-blue-600 text-primary-foreground rounded-lg flex items-center justify-center">
                 <MtgStockIcon size={32} />
               </div>
-              <span className="text-xl tracking-tight font-bold text-indigo-800">
+              <span className="text-xl tracking-tight font-semibold text-foreground">
                 Magic Stack
               </span>
             </Link>
