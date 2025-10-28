@@ -1,5 +1,6 @@
 "use client";
 
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -116,146 +117,152 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-foreground mb-8">Mon profil</h1>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <h1 className="text-3xl font-bold text-foreground mb-8">
+            Mon profil
+          </h1>
 
-        <div className="space-y-6">
-          {/* Account Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Informations du compte
-              </CardTitle>
-              <CardDescription>
-                Gérez vos informations personnelles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Email
-                  </label>
-                  <Input
-                    type="email"
-                    value={session?.user?.email || ""}
-                    disabled
-                    className="bg-muted"
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    L&apos;email ne peut pas être modifié
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Profile Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5" />
-                Préférences
-              </CardTitle>
-              <CardDescription>Personnalisez votre expérience</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {message && (
-                  <div
-                    className={`p-3 rounded-md text-sm ${
-                      message.type === "success"
-                        ? "bg-green-500/10 text-green-400"
-                        : "bg-destructive/10 text-destructive"
-                    }`}
-                  >
-                    {message.text}
-                  </div>
-                )}
-
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-foreground mb-1"
-                  >
-                    Nom
-                  </label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    placeholder="Votre nom"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="language"
-                    className="block text-sm font-medium text-foreground mb-1"
-                  >
-                    Langue par défaut
-                  </label>
-                  <select
-                    id="language"
-                    value={formData.language}
-                    onChange={(e) =>
-                      setFormData({ ...formData, language: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
-                  >
-                    {languages.map((lang) => (
-                      <option key={lang.code} value={lang.code}>
-                        {lang.label}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Cette langue sera utilisée par défaut pour vos recherches de
-                    cartes
-                  </p>
-                </div>
-
-                <Button type="submit" disabled={saving} className="w-full">
-                  {saving
-                    ? "Enregistrement..."
-                    : "Enregistrer les modifications"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Stats Card (Optional) */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Statistiques</CardTitle>
-              <CardDescription>Votre activité sur MTG Stock</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">0</div>
-                  <div className="text-sm text-muted-foreground">
-                    Collections
+          <div className="space-y-6">
+            {/* Account Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Informations du compte
+                </CardTitle>
+                <CardDescription>
+                  Gérez vos informations personnelles
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1">
+                      Email
+                    </label>
+                    <Input
+                      type="email"
+                      value={session?.user?.email || ""}
+                      disabled
+                      className="bg-muted"
+                    />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      L&apos;email ne peut pas être modifié
+                    </p>
                   </div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">0</div>
-                  <div className="text-sm text-muted-foreground">Decks</div>
+              </CardContent>
+            </Card>
+
+            {/* Profile Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="h-5 w-5" />
+                  Préférences
+                </CardTitle>
+                <CardDescription>
+                  Personnalisez votre expérience
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {message && (
+                    <div
+                      className={`p-3 rounded-md text-sm ${
+                        message.type === "success"
+                          ? "bg-green-500/10 text-green-400"
+                          : "bg-destructive/10 text-destructive"
+                      }`}
+                    >
+                      {message.text}
+                    </div>
+                  )}
+
+                  <div>
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-foreground mb-1"
+                    >
+                      Nom
+                    </label>
+                    <Input
+                      id="name"
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      placeholder="Votre nom"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="language"
+                      className="block text-sm font-medium text-foreground mb-1"
+                    >
+                      Langue par défaut
+                    </label>
+                    <select
+                      id="language"
+                      value={formData.language}
+                      onChange={(e) =>
+                        setFormData({ ...formData, language: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+                    >
+                      {languages.map((lang) => (
+                        <option key={lang.code} value={lang.code}>
+                          {lang.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Cette langue sera utilisée par défaut pour vos recherches
+                      de cartes
+                    </p>
+                  </div>
+
+                  <Button type="submit" disabled={saving} className="w-full">
+                    {saving
+                      ? "Enregistrement..."
+                      : "Enregistrer les modifications"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            {/* Stats Card (Optional) */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Statistiques</CardTitle>
+                <CardDescription>Votre activité sur MTG Stock</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">0</div>
+                    <div className="text-sm text-muted-foreground">
+                      Collections
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">0</div>
+                    <div className="text-sm text-muted-foreground">Decks</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">0</div>
+                    <div className="text-sm text-muted-foreground">Cartes</div>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">0</div>
-                  <div className="text-sm text-muted-foreground">Cartes</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

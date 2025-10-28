@@ -1,4 +1,5 @@
 "use client";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 import { ManaSymbols } from "@/components/ManaSymbol";
 import { Badge } from "@/components/ui/badge";
@@ -179,230 +180,232 @@ export default function DeckDetailsPage() {
   const sideboardCards = deck.cards.filter((dc) => !dc.isMainboard);
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-6">
-          <Link href="/decks">
-            <Button variant="outline" className="mb-4">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Retour aux decks
-            </Button>
-          </Link>
-
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
-                <Layers className="h-10 w-10 text-purple-600" />
-                {deck.name}
-              </h1>
-              {deck.description && (
-                <p className="text-muted-foreground text-lg mb-3">
-                  {deck.description}
-                </p>
-              )}
-              <div className="flex items-center gap-3">
-                <Badge variant="outline" className="capitalize text-base">
-                  {deck.format}
-                </Badge>
-                {deckStatus && (
-                  <div
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded border ${
-                      deckStatus.isValid
-                        ? "bg-green-700/20 text-green-300 border-green-700"
-                        : "bg-red-700/20 text-red-300 border-red-700"
-                    }`}
-                  >
-                    {deckStatus.isValid ? (
-                      <CheckCircle2 className="h-4 w-4" />
-                    ) : (
-                      <AlertCircle className="h-4 w-4" />
-                    )}
-                    <span className="font-medium">
-                      {deckStatus.mainboardCount} cartes mainboard
-                      {deckStatus.sideboardCount > 0 &&
-                        ` + ${deckStatus.sideboardCount} sideboard`}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <Link href="/cards">
-              <Button size="lg">
-                <Plus className="mr-2 h-5 w-5" />
-                Ajouter des cartes
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-6">
+            <Link href="/decks">
+              <Button variant="outline" className="mb-4">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Retour aux decks
               </Button>
             </Link>
-          </div>
-        </div>
 
-        {/* Validation Warnings */}
-        {deckStatus && !deckStatus.isValid && (
-          <Card className="mb-6 border-orange-500 text-orange-400 bg-orange-500/20">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Info className="h-5 w-5 text-orange-400 mt-0.5" />
-                <div>
-                  <h3 className="font-semibold text-orange-400 mb-2">
-                    Ce deck n’est pas encore valide.
-                  </h3>
-                  <ul className="space-y-1 text-sm text-orange-500">
-                    {deckStatus.mainboardCount < 60 && (
-                      <li>
-                        • Minimum 60 cartes requises (actuellement{" "}
-                        {deckStatus.mainboardCount})
-                      </li>
-                    )}
-                    {deckStatus.mainboardCount > 100 && (
-                      <li>
-                        • Maximum 100 cartes autorisées (actuellement{" "}
-                        {deckStatus.mainboardCount})
-                      </li>
-                    )}
-                    {deckStatus.duplicateIssues.map(([name, count]) => (
-                      <li key={name}>
-                        • {name} : {count} copies (max 4 autorisé)
-                      </li>
-                    ))}
-                  </ul>
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
+                  <Layers className="h-10 w-10 text-purple-600" />
+                  {deck.name}
+                </h1>
+                {deck.description && (
+                  <p className="text-muted-foreground text-lg mb-3">
+                    {deck.description}
+                  </p>
+                )}
+                <div className="flex items-center gap-3">
+                  <Badge variant="outline" className="capitalize text-base">
+                    {deck.format}
+                  </Badge>
+                  {deckStatus && (
+                    <div
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded border ${
+                        deckStatus.isValid
+                          ? "bg-green-700/20 text-green-300 border-green-700"
+                          : "bg-red-700/20 text-red-300 border-red-700"
+                      }`}
+                    >
+                      {deckStatus.isValid ? (
+                        <CheckCircle2 className="h-4 w-4" />
+                      ) : (
+                        <AlertCircle className="h-4 w-4" />
+                      )}
+                      <span className="font-medium">
+                        {deckStatus.mainboardCount} cartes mainboard
+                        {deckStatus.sideboardCount > 0 &&
+                          ` + ${deckStatus.sideboardCount} sideboard`}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        )}
 
-        {/* Mainboard */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-background mb-4">
-            Mainboard ({deckStatus?.mainboardCount || 0})
-          </h2>
-          {mainboardCards.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {mainboardCards.map((deckCard) => (
-                <Card
-                  key={deckCard.id}
-                  className="group relative overflow-hidden hover:shadow-xl transition-shadow"
-                >
-                  <Link href={`/cards/${deckCard.card.id}`}>
-                    <div className="relative aspect-5/7 bg-gray-100">
-                      {deckCard.card.imageUrl ? (
-                        <Image
-                          src={deckCard.card.imageUrl}
-                          alt={deckCard.card.name}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <span className="text-xs text-center p-2">
-                            Image non disponible
-                          </span>
-                        </div>
-                      )}
-                      {deckCard.quantity > 1 && (
-                        <div className="absolute top-2 right-2 bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                          {deckCard.quantity}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                  <CardContent className="p-2">
-                    <p className="text-xs font-semibold truncate">
-                      {deckCard.card.name}
-                    </p>
-                    <div className="flex items-center justify-between mt-1">
-                      <ManaSymbols
-                        manaCost={deckCard.card.manaCost || ""}
-                        size={14}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveCard(deckCard.cardId)}
-                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="h-3 w-3 text-red-600" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              <Link href="/cards">
+                <Button size="lg">
+                  <Plus className="mr-2 h-5 w-5" />
+                  Ajouter des cartes
+                </Button>
+              </Link>
             </div>
-          ) : (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <p className="text-gray-500">
-                  Aucune carte dans le mainboard. Ajoutez des cartes depuis la
-                  recherche.
-                </p>
+          </div>
+
+          {/* Validation Warnings */}
+          {deckStatus && !deckStatus.isValid && (
+            <Card className="mb-6 border-orange-500 text-orange-400 bg-orange-500/20">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <Info className="h-5 w-5 text-orange-400 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-orange-400 mb-2">
+                      Ce deck n’est pas encore valide.
+                    </h3>
+                    <ul className="space-y-1 text-sm text-orange-500">
+                      {deckStatus.mainboardCount < 60 && (
+                        <li>
+                          • Minimum 60 cartes requises (actuellement{" "}
+                          {deckStatus.mainboardCount})
+                        </li>
+                      )}
+                      {deckStatus.mainboardCount > 100 && (
+                        <li>
+                          • Maximum 100 cartes autorisées (actuellement{" "}
+                          {deckStatus.mainboardCount})
+                        </li>
+                      )}
+                      {deckStatus.duplicateIssues.map(([name, count]) => (
+                        <li key={name}>
+                          • {name} : {count} copies (max 4 autorisé)
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
-        </div>
 
-        {/* Sideboard */}
-        {sideboardCards.length > 0 && (
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">
-              Sideboard ({deckStatus?.sideboardCount || 0})
+          {/* Mainboard */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-background mb-4">
+              Mainboard ({deckStatus?.mainboardCount || 0})
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {sideboardCards.map((deckCard) => (
-                <Card
-                  key={deckCard.id}
-                  className="group relative overflow-hidden hover:shadow-xl transition-shadow"
-                >
-                  <Link href={`/cards/${deckCard.card.id}`}>
-                    <div className="relative aspect-[5/7] bg-gray-100">
-                      {deckCard.card.imageUrl ? (
-                        <Image
-                          src={deckCard.card.imageUrl}
-                          alt={deckCard.card.name}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+            {mainboardCards.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {mainboardCards.map((deckCard) => (
+                  <Card
+                    key={deckCard.id}
+                    className="group relative overflow-hidden hover:shadow-xl transition-shadow"
+                  >
+                    <Link href={`/cards/${deckCard.card.id}`}>
+                      <div className="relative aspect-5/7 bg-gray-100">
+                        {deckCard.card.imageUrl ? (
+                          <Image
+                            src={deckCard.card.imageUrl}
+                            alt={deckCard.card.name}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span className="text-xs text-center p-2">
+                              Image non disponible
+                            </span>
+                          </div>
+                        )}
+                        {deckCard.quantity > 1 && (
+                          <div className="absolute top-2 right-2 bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                            {deckCard.quantity}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                    <CardContent className="p-2">
+                      <p className="text-xs font-semibold truncate">
+                        {deckCard.card.name}
+                      </p>
+                      <div className="flex items-center justify-between mt-1">
+                        <ManaSymbols
+                          manaCost={deckCard.card.manaCost || ""}
+                          size={14}
                         />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <span className="text-xs text-center p-2">
-                            Image non disponible
-                          </span>
-                        </div>
-                      )}
-                      {deckCard.quantity > 1 && (
-                        <div className="absolute top-2 right-2 bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                          {deckCard.quantity}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                  <CardContent className="p-2">
-                    <p className="text-xs font-semibold truncate">
-                      {deckCard.card.name}
-                    </p>
-                    <div className="flex items-center justify-between mt-1">
-                      <ManaSymbols
-                        manaCost={deckCard.card.manaCost || ""}
-                        size={14}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveCard(deckCard.cardId)}
-                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Trash2 className="h-3 w-3 text-red-600" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveCard(deckCard.cardId)}
+                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="h-3 w-3 text-red-600" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <p className="text-gray-500">
+                    Aucune carte dans le mainboard. Ajoutez des cartes depuis la
+                    recherche.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
-        )}
+
+          {/* Sideboard */}
+          {sideboardCards.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">
+                Sideboard ({deckStatus?.sideboardCount || 0})
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {sideboardCards.map((deckCard) => (
+                  <Card
+                    key={deckCard.id}
+                    className="group relative overflow-hidden hover:shadow-xl transition-shadow"
+                  >
+                    <Link href={`/cards/${deckCard.card.id}`}>
+                      <div className="relative aspect-[5/7] bg-gray-100">
+                        {deckCard.card.imageUrl ? (
+                          <Image
+                            src={deckCard.card.imageUrl}
+                            alt={deckCard.card.name}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span className="text-xs text-center p-2">
+                              Image non disponible
+                            </span>
+                          </div>
+                        )}
+                        {deckCard.quantity > 1 && (
+                          <div className="absolute top-2 right-2 bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
+                            {deckCard.quantity}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                    <CardContent className="p-2">
+                      <p className="text-xs font-semibold truncate">
+                        {deckCard.card.name}
+                      </p>
+                      <div className="flex items-center justify-between mt-1">
+                        <ManaSymbols
+                          manaCost={deckCard.card.manaCost || ""}
+                          size={14}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveCard(deckCard.cardId)}
+                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <Trash2 className="h-3 w-3 text-red-600" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

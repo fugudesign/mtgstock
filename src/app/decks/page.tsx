@@ -1,5 +1,6 @@
 "use client";
 
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -161,191 +162,193 @@ export default function DecksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">
-              Mes Decks
-            </h1>
-            <p className="text-muted-foreground">
-              Construisez vos decks compétitifs (60-100 cartes, max 4 copies par
-              carte)
-            </p>
-          </div>
-          <Button
-            size="lg"
-            onClick={() => setShowNewDeckForm(!showNewDeckForm)}
-          >
-            <Plus className="mr-2 h-5 w-5" />
-            Nouveau deck
-          </Button>
-        </div>
-
-        {/* New Deck Form */}
-        {showNewDeckForm && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Créer un nouveau deck</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nom du deck
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="ex: Mon Deck Aggro Rouge"
-                    value={newDeckName}
-                    onChange={(e) => setNewDeckName(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description (optionnelle)
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Description de votre deck..."
-                    value={newDeckDescription}
-                    onChange={(e) => setNewDeckDescription(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Format
-                  </label>
-                  <select
-                    value={newDeckFormat}
-                    onChange={(e) => setNewDeckFormat(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="casual">Casual</option>
-                    <option value="standard">Standard</option>
-                    <option value="modern">Modern</option>
-                    <option value="commander">Commander</option>
-                    <option value="legacy">Legacy</option>
-                    <option value="vintage">Vintage</option>
-                    <option value="pauper">Pauper</option>
-                  </select>
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={handleCreateDeck}>Créer le deck</Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setShowNewDeckForm(false);
-                      setNewDeckName("");
-                      setNewDeckDescription("");
-                      setNewDeckFormat("casual");
-                    }}
-                  >
-                    Annuler
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Decks Grid */}
-        {decks.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {decks.map((deck) => {
-              const status = getDeckStatus(deck.cardCount);
-              const StatusIcon = status.icon;
-
-              return (
-                <Card
-                  key={deck.id}
-                  className="hover:shadow-lg transition-shadow"
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3 flex-1">
-                        <Layers className="h-6 w-6 text-purple-600 mt-1" />
-                        <div className="flex-1">
-                          <CardTitle className="text-xl mb-1">
-                            {deck.name}
-                          </CardTitle>
-                          {deck.description && (
-                            <p className="text-sm text-gray-600 line-clamp-2">
-                              {deck.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="capitalize">
-                          {deck.format}
-                        </Badge>
-                        <div
-                          className={`flex items-center gap-1 px-2 py-1 rounded text-xs border ${status.color}`}
-                        >
-                          <StatusIcon className="h-3 w-3" />
-                          <span>{status.label}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <Link href={`/decks/${deck.id}`} className="flex-1">
-                          <Button variant="outline" className="w-full">
-                            <Layers className="mr-2 h-4 w-4" />
-                            Voir
-                          </Button>
-                        </Link>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            console.log("Éditer deck:", deck.id);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteDeck(deck.id);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-600" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <Layers className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                Aucun deck
-              </h3>
-              <p className="text-gray-500 mb-6">
-                Créez votre premier deck pour commencer à construire votre
-                stratégie
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-foreground mb-2">
+                Mes Decks
+              </h1>
+              <p className="text-muted-foreground">
+                Construisez vos decks compétitifs (60-100 cartes, max 4 copies
+                par carte)
               </p>
-              <Button onClick={() => setShowNewDeckForm(true)}>
-                <Plus className="mr-2 h-5 w-5" />
-                Créer mon premier deck
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+            <Button
+              size="lg"
+              onClick={() => setShowNewDeckForm(!showNewDeckForm)}
+            >
+              <Plus className="mr-2 h-5 w-5" />
+              Nouveau deck
+            </Button>
+          </div>
+
+          {/* New Deck Form */}
+          {showNewDeckForm && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Créer un nouveau deck</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nom du deck
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="ex: Mon Deck Aggro Rouge"
+                      value={newDeckName}
+                      onChange={(e) => setNewDeckName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description (optionnelle)
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Description de votre deck..."
+                      value={newDeckDescription}
+                      onChange={(e) => setNewDeckDescription(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Format
+                    </label>
+                    <select
+                      value={newDeckFormat}
+                      onChange={(e) => setNewDeckFormat(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="casual">Casual</option>
+                      <option value="standard">Standard</option>
+                      <option value="modern">Modern</option>
+                      <option value="commander">Commander</option>
+                      <option value="legacy">Legacy</option>
+                      <option value="vintage">Vintage</option>
+                      <option value="pauper">Pauper</option>
+                    </select>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={handleCreateDeck}>Créer le deck</Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowNewDeckForm(false);
+                        setNewDeckName("");
+                        setNewDeckDescription("");
+                        setNewDeckFormat("casual");
+                      }}
+                    >
+                      Annuler
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Decks Grid */}
+          {decks.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {decks.map((deck) => {
+                const status = getDeckStatus(deck.cardCount);
+                const StatusIcon = status.icon;
+
+                return (
+                  <Card
+                    key={deck.id}
+                    className="hover:shadow-lg transition-shadow"
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1">
+                          <Layers className="h-6 w-6 text-purple-600 mt-1" />
+                          <div className="flex-1">
+                            <CardTitle className="text-xl mb-1">
+                              {deck.name}
+                            </CardTitle>
+                            {deck.description && (
+                              <p className="text-sm text-gray-600 line-clamp-2">
+                                {deck.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <Badge variant="outline" className="capitalize">
+                            {deck.format}
+                          </Badge>
+                          <div
+                            className={`flex items-center gap-1 px-2 py-1 rounded text-xs border ${status.color}`}
+                          >
+                            <StatusIcon className="h-3 w-3" />
+                            <span>{status.label}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Link href={`/decks/${deck.id}`} className="flex-1">
+                            <Button variant="outline" className="w-full">
+                              <Layers className="mr-2 h-4 w-4" />
+                              Voir
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              console.log("Éditer deck:", deck.id);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteDeck(deck.id);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-600" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Layers className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  Aucun deck
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  Créez votre premier deck pour commencer à construire votre
+                  stratégie
+                </p>
+                <Button onClick={() => setShowNewDeckForm(true)}>
+                  <Plus className="mr-2 h-5 w-5" />
+                  Créer mon premier deck
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

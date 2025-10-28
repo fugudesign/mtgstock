@@ -34,10 +34,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 h-lvh flex flex-col justify-center items-center bg-radial from-background to-neutral-950">
+      <section className="relative py-20 px-4 h-lvh flex flex-col justify-center items-center bg-radial from-background to-neutral-950 overflow-hidden">
         <MtgStockIcon
           size={800}
-          className="absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 mb-6 text-indigo-800"
+          className="absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 mb-6 text-indigo-800 blur-xs"
         />
         <div className="max-w-8xl mx-auto text-center">
           <h1 className="font-decorative text-9xl  text-purple-600 drop-shadow-md mb-2 text-shadow-lg text-shadow-indigo-950">
@@ -182,7 +182,7 @@ export default function Home() {
               {Array.from({ length: 8 }).map((_, i) => (
                 <div
                   key={i}
-                  className="aspect-[5/7] bg-muted rounded-lg animate-pulse"
+                  className="aspect-5/7 bg-muted rounded-lg animate-pulse"
                 />
               ))}
             </div>
@@ -203,7 +203,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-primary-dark text-primary-foreground">
+      <section className="py-20 px-4 bg-radial to-background from-purple-900 text-primary-foreground">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">
             Prêt à organiser votre collection ?

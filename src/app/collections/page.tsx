@@ -1,5 +1,6 @@
 "use client";
 
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -122,167 +123,172 @@ export default function CollectionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">
-              Mes Collections
-            </h1>
-            <p className="text-muted-foreground">
-              Organisez vos cartes en collections personnalisées
-            </p>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Header */}
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-foreground mb-2">
+                Mes Collections
+              </h1>
+              <p className="text-muted-foreground">
+                Organisez vos cartes en collections personnalisées
+              </p>
+            </div>
+            <Button
+              size="lg"
+              onClick={() => setShowNewCollectionForm(!showNewCollectionForm)}
+            >
+              <Plus className="mr-2 h-5 w-5" />
+              Nouvelle collection
+            </Button>
           </div>
-          <Button
-            size="lg"
-            onClick={() => setShowNewCollectionForm(!showNewCollectionForm)}
-          >
-            <Plus className="mr-2 h-5 w-5" />
-            Nouvelle collection
-          </Button>
-        </div>
 
-        {/* New Collection Form */}
-        {showNewCollectionForm && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Créer une nouvelle collection</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nom de la collection
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="ex: Ma Collection Modern"
-                    value={newCollectionName}
-                    onChange={(e) => setNewCollectionName(e.target.value)}
-                  />
+          {/* New Collection Form */}
+          {showNewCollectionForm && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Créer une nouvelle collection</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nom de la collection
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="ex: Ma Collection Modern"
+                      value={newCollectionName}
+                      onChange={(e) => setNewCollectionName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Description (optionnelle)
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Description de votre collection..."
+                      value={newCollectionDescription}
+                      onChange={(e) =>
+                        setNewCollectionDescription(e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handleCreateCollection}
+                      disabled={creating}
+                    >
+                      {creating ? "Création..." : "Créer la collection"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowNewCollectionForm(false);
+                        setNewCollectionName("");
+                        setNewCollectionDescription("");
+                      }}
+                    >
+                      Annuler
+                    </Button>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description (optionnelle)
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Description de votre collection..."
-                    value={newCollectionDescription}
-                    onChange={(e) =>
-                      setNewCollectionDescription(e.target.value)
-                    }
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={handleCreateCollection} disabled={creating}>
-                    {creating ? "Création..." : "Créer la collection"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setShowNewCollectionForm(false);
-                      setNewCollectionName("");
-                      setNewCollectionDescription("");
-                    }}
-                  >
-                    Annuler
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+          )}
 
-        {/* Collections Grid */}
-        {collections.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {collections.map((collection) => (
-              <Card
-                key={collection.id}
-                className="hover:shadow-lg transition-shadow cursor-pointer"
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3 flex-1">
-                      <BookOpen className="h-6 w-6 text-blue-600 mt-1" />
-                      <div className="flex-1">
-                        <CardTitle className="text-xl mb-1">
-                          {collection.name}
-                        </CardTitle>
-                        {collection.description && (
-                          <p className="text-sm text-gray-600 line-clamp-2">
-                            {collection.description}
-                          </p>
-                        )}
+          {/* Collections Grid */}
+          {collections.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {collections.map((collection) => (
+                <Card
+                  key={collection.id}
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        <BookOpen className="h-6 w-6 text-blue-600 mt-1" />
+                        <div className="flex-1">
+                          <CardTitle className="text-xl mb-1">
+                            {collection.name}
+                          </CardTitle>
+                          {collection.description && (
+                            <p className="text-sm text-gray-600 line-clamp-2">
+                              {collection.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm text-gray-600">
-                      <span className="font-medium">
-                        {collection._count.cards} carte
-                        {collection._count.cards !== 1 ? "s" : ""}
-                      </span>
-                      <span
-                        className={`px-2 py-1 rounded text-xs ${
-                          collection.isPublic
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-700"
-                        }`}
-                      >
-                        {collection.isPublic ? "Public" : "Privé"}
-                      </span>
-                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between text-sm text-gray-600">
+                        <span className="font-medium">
+                          {collection._count.cards} carte
+                          {collection._count.cards !== 1 ? "s" : ""}
+                        </span>
+                        <span
+                          className={`px-2 py-1 rounded text-xs ${
+                            collection.isPublic
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {collection.isPublic ? "Public" : "Privé"}
+                        </span>
+                      </div>
 
-                    <div className="flex gap-2">
-                      <Link
-                        href={`/collections/${collection.id}`}
-                        className="flex-1"
-                      >
-                        <Button variant="outline" className="w-full">
-                          <BookOpen className="mr-2 h-4 w-4" />
-                          Voir
+                      <div className="flex gap-2">
+                        <Link
+                          href={`/collections/${collection.id}`}
+                          className="flex-1"
+                        >
+                          <Button variant="outline" className="w-full">
+                            <BookOpen className="mr-2 h-4 w-4" />
+                            Voir
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteCollection(collection.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
                         </Button>
-                      </Link>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteCollection(collection.id);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                Aucune collection
-              </h3>
-              <p className="text-gray-500 mb-6">
-                Créez votre première collection pour commencer à organiser vos
-                cartes
-              </p>
-              <Button onClick={() => setShowNewCollectionForm(true)}>
-                <Plus className="mr-2 h-5 w-5" />
-                Créer ma première collection
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  Aucune collection
+                </h3>
+                <p className="text-gray-500 mb-6">
+                  Créez votre première collection pour commencer à organiser vos
+                  cartes
+                </p>
+                <Button onClick={() => setShowNewCollectionForm(true)}>
+                  <Plus className="mr-2 h-5 w-5" />
+                  Créer ma première collection
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
