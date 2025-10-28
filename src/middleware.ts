@@ -1,12 +1,12 @@
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/lib/auth";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  const token = await getToken({ req: request });
+  const session = await auth();
 
   // Si l'utilisateur n'est pas authentifié et essaie d'accéder à une route protégée
-  if (!token) {
+  if (!session) {
     const url = new URL("/auth/login", request.url);
     url.searchParams.set("callbackUrl", request.url);
     return NextResponse.redirect(url);
