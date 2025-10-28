@@ -1,6 +1,7 @@
 "use client";
 
 import { CardDisplay } from "@/components/CardDisplay";
+import { MtgStockIcon } from "@/components/icons/MtgStockIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
@@ -31,7 +32,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="py-20 px-4 h-lvh flex flex-col justify-center items-center bg-radial from-background to-neutral-950">
+      <section className="relative py-20 px-4 h-lvh flex flex-col justify-center items-center bg-radial from-background to-neutral-950">
+        <MtgStockIcon
+          size={800}
+          className="absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10  mb-6 text-indigo-600"
+        />
         <div className="max-w-8xl mx-auto text-center">
           <h1 className="font-decorative text-9xl  bg-clip-text bg-linear-to-br from-indigo-600 to-purple-700 text-transparent drop-shadow-md mb-2">
             Magic Stack
