@@ -32,3 +32,8 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
 }
+
+/* Masquer le badge reCAPTCHA v3 */
+.grecaptcha-badge {
+  visibility: hidden;
+}
