@@ -1,6 +1,6 @@
 "use client";
 
-import { CardDisplay } from "@/components/CardDisplay";
+import { CardGrid } from "@/components/CardGrid";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -105,13 +105,15 @@ export default function SearchPage() {
       const lang = searchParams.get("lang") || "";
       const page = searchParams.get("page") || "1";
 
+      const defaultLanguage = filters.language;
+
       setSearchQuery(query);
       setFilters({
         colors,
         type,
         rarity,
         set,
-        language: lang || filters.language, // Utilise la langue de l'URL ou celle par défaut
+        language: lang || defaultLanguage, // Utilise la langue de l'URL ou celle par défaut
       });
 
       // Si des paramètres sont présents, lancer la recherche automatiquement
@@ -119,13 +121,14 @@ export default function SearchPage() {
         setIsInitialized(true);
         handleSearchWithParams(
           query,
-          { colors, type, rarity, set, language: lang || filters.language },
+          { colors, type, rarity, set, language: lang || defaultLanguage },
           parseInt(page)
         );
       } else {
         setIsInitialized(true);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, isInitialized, userLanguage]);
 
   const fetchUserLanguage = async () => {
@@ -260,6 +263,13 @@ export default function SearchPage() {
     }
   };
 
+  const getEmptyDescription = () => {
+    if (searchQuery || Object.values(filters).some((f) => f)) {
+      return "Essayez avec des termes différents ou modifiez les filtres";
+    }
+    return "Commencez votre recherche en entrant un nom de carte";
+  };
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
@@ -271,10 +281,6 @@ export default function SearchPage() {
             </h1>
             <p className="text-muted-foreground">
               Recherchez parmi plus de 30 000 cartes Magic: The Gathering
-            </p>
-            <p className="text-sm text-primary mt-1">
-              💡 Astuce : Utilisez le filtre &quot;Langue&quot; pour rechercher
-              des cartes en français
             </p>
           </div>
 
@@ -524,64 +530,16 @@ export default function SearchPage() {
           )}
 
           {/* Results Grid */}
-          {cards.length > 0 ? (
-            <>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8">
-                {cards.map((card) => (
-                  <CardDisplay key={card.id} card={card} showActions={true} />
-                ))}
-              </div>
-
-              {/* Load More Button */}
-              {hasMore && (
-                <div className="text-center">
-                  <Button
-                    onClick={handleLoadMore}
-                    disabled={loading}
-                    variant="outline"
-                    size="lg"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Chargement...
-                      </>
-                    ) : (
-                      "Charger plus de cartes"
-                    )}
-                  </Button>
-                </div>
-              )}
-            </>
-          ) : (
-            !loading && (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    Aucun résultat
-                  </h3>
-                  <p className="text-muted-foreground">
-                    {searchQuery || Object.values(filters).some((f) => f)
-                      ? "Essayez avec des termes différents ou modifiez les filtres"
-                      : "Commencez votre recherche en entrant un nom de carte"}
-                  </p>
-                </CardContent>
-              </Card>
-            )
-          )}
-
-          {/* Loading State */}
-          {loading && cards.length === 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-5/7 bg-muted rounded-lg animate-pulse"
-                />
-              ))}
-            </div>
-          )}
+          <CardGrid
+            cards={cards}
+            loading={loading}
+            hasMore={hasMore}
+            onLoadMore={handleLoadMore}
+            emptyMessage="Aucun résultat"
+            emptyDescription={getEmptyDescription()}
+            showActions={true}
+            context="search"
+          />
         </div>
       </div>
     </ProtectedRoute>

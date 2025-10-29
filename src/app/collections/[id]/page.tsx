@@ -1,7 +1,7 @@
 "use client";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-import { CardDisplay } from "@/components/CardDisplay";
+import { CardGrid } from "@/components/CardGrid";
 import { DeckSelector } from "@/components/DeckSelector";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -131,6 +131,55 @@ export default function CollectionDetailPage({
     );
   }
 
+  // Fonction pour transformer une CollectionCard en MTGCard
+  const transformCollectionCardToMTGCard = (
+    collectionCard: CollectionCard
+  ): MTGCard => {
+    return {
+      id: collectionCard.card.id,
+      name: collectionCard.card.name,
+      image_uris: collectionCard.card.imageUrl
+        ? {
+            small: collectionCard.card.imageUrl,
+            normal: collectionCard.card.imageUrl,
+            large: collectionCard.card.imageUrl,
+            png: collectionCard.card.imageUrl,
+            art_crop: collectionCard.card.imageUrl,
+            border_crop: collectionCard.card.imageUrl,
+          }
+        : undefined,
+      set_name: collectionCard.card.setName || "",
+      rarity: collectionCard.card.rarity || "",
+      mana_cost: collectionCard.card.manaCost || "",
+      type_line: collectionCard.card.type || "",
+      cmc: 0,
+      // Ajouter les infos supplémentaires pour CardDisplay
+      quantity: collectionCard.quantity,
+      foil: collectionCard.foil,
+      condition: collectionCard.condition,
+    } as unknown as MTGCard;
+  };
+
+  // Handler pour la suppression d'une carte de la collection
+  const handleRemoveCard = async (cardId: string) => {
+    try {
+      const response = await fetch(`/api/collections/${collection.id}/cards`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cardId }),
+      });
+
+      if (response.ok) {
+        await fetchCollection();
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+    }
+  };
+
+  // Transformer les cartes pour le CardGrid
+  const mtgCards = collection.cards.map(transformCollectionCardToMTGCard);
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background py-8">
@@ -177,75 +226,14 @@ export default function CollectionDetailPage({
           </div>
 
           {/* Cards Grid */}
-          {collection.cards.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {collection.cards.map((collectionCard) => (
-                <CardDisplay
-                  key={collectionCard.id}
-                  card={
-                    {
-                      id: collectionCard.card.id,
-                      name: collectionCard.card.name,
-                      image_uris: collectionCard.card.imageUrl
-                        ? {
-                            small: collectionCard.card.imageUrl,
-                            normal: collectionCard.card.imageUrl,
-                            large: collectionCard.card.imageUrl,
-                            png: collectionCard.card.imageUrl,
-                            art_crop: collectionCard.card.imageUrl,
-                            border_crop: collectionCard.card.imageUrl,
-                          }
-                        : undefined,
-                      set_name: collectionCard.card.setName || "",
-                      rarity: collectionCard.card.rarity || "",
-                      mana_cost: collectionCard.card.manaCost || "",
-                      type_line: collectionCard.card.type || "",
-                      cmc: 0,
-                    } as MTGCard
-                  }
-                  context="collection"
-                  quantity={collectionCard.quantity}
-                  foil={collectionCard.foil}
-                  condition={collectionCard.condition}
-                  onRemove={async () => {
-                    try {
-                      const response = await fetch(
-                        `/api/collections/${collection.id}/cards`,
-                        {
-                          method: "DELETE",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            cardId: collectionCard.card.id,
-                          }),
-                        }
-                      );
-                      if (response.ok) {
-                        fetchCollection();
-                      }
-                    } catch (error) {
-                      console.error("Erreur lors de la suppression:", error);
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="p-12 text-center">
-                <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                  Collection vide
-                </h3>
-                <p className="text-gray-500 mb-6">
-                  Ajoutez des cartes à votre collection depuis la page de
-                  recherche
-                </p>
-                <Link href="/search">
-                  <Button>Rechercher des cartes</Button>
-                </Link>
-              </CardContent>
-            </Card>
-          )}
+          <CardGrid
+            cards={mtgCards}
+            context="collection"
+            showActions={true}
+            onCardRemove={handleRemoveCard}
+            emptyMessage="Collection vide"
+            emptyDescription="Ajoutez des cartes à votre collection depuis la page de recherche"
+          />
 
           {/* Deck Selector Modal */}
           {selectedCard && (

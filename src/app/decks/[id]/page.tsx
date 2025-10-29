@@ -1,7 +1,7 @@
 "use client";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-import { CardDisplay } from "@/components/CardDisplay";
+import { CardGrid } from "@/components/CardGrid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -152,6 +152,60 @@ export default function DeckDetailsPage() {
   const mainboardCards = deck.cards.filter((dc) => dc.isMainboard);
   const sideboardCards = deck.cards.filter((dc) => !dc.isMainboard);
 
+  // Fonction pour transformer une DeckCard en MTGCard
+  const transformDeckCardToMTGCard = (deckCard: DeckCard): MTGCard => {
+    return {
+      id: deckCard.card.id,
+      name: deckCard.card.name,
+      image_uris: deckCard.card.imageUrl
+        ? {
+            small: deckCard.card.imageUrl,
+            normal: deckCard.card.imageUrl,
+            large: deckCard.card.imageUrl,
+            png: deckCard.card.imageUrl,
+            art_crop: deckCard.card.imageUrl,
+            border_crop: deckCard.card.imageUrl,
+          }
+        : undefined,
+      set_name: "",
+      rarity: "",
+      mana_cost: deckCard.card.manaCost || "",
+      type_line: deckCard.card.type || "",
+      cmc: 0,
+      // Ajouter les infos de quantité pour le CardDisplay
+      quantity: deckCard.quantity,
+    } as unknown as MTGCard;
+  };
+
+  // Handler pour la suppression d'une carte du deck
+  const handleRemoveCard = async (cardId: string) => {
+    if (!confirm("Voulez-vous vraiment retirer cette carte du deck ?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/decks/${deckId}/cards`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cardId }),
+      });
+
+      if (response.ok) {
+        toast.success("Carte retirée du deck");
+        await fetchDeck();
+      } else {
+        toast.error("Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Error removing card:", error);
+      toast.error("Erreur lors de la suppression");
+    }
+  };
+
+  // Transformer les cartes pour le CardGrid
+  const mainboardMTGCards = mainboardCards.map(transformDeckCardToMTGCard);
+  const sideboardMTGCards = sideboardCards.map(transformDeckCardToMTGCard);
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
@@ -252,75 +306,14 @@ export default function DeckDetailsPage() {
             <h2 className="text-2xl font-bold text-foreground mb-4">
               Mainboard ({deckStatus?.mainboardCount || 0})
             </h2>
-            {mainboardCards.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {mainboardCards.map((deckCard) => (
-                  <CardDisplay
-                    key={deckCard.id}
-                    card={
-                      {
-                        id: deckCard.card.id,
-                        name: deckCard.card.name,
-                        image_uris: deckCard.card.imageUrl
-                          ? {
-                              small: deckCard.card.imageUrl,
-                              normal: deckCard.card.imageUrl,
-                              large: deckCard.card.imageUrl,
-                              png: deckCard.card.imageUrl,
-                              art_crop: deckCard.card.imageUrl,
-                              border_crop: deckCard.card.imageUrl,
-                            }
-                          : undefined,
-                        set_name: "",
-                        rarity: "",
-                        mana_cost: deckCard.card.manaCost || "",
-                        type_line: deckCard.card.type || "",
-                        cmc: 0,
-                      } as MTGCard
-                    }
-                    context="deck"
-                    quantity={deckCard.quantity}
-                    onRemove={async () => {
-                      if (
-                        !confirm(
-                          "Voulez-vous vraiment retirer cette carte du deck ?"
-                        )
-                      ) {
-                        return;
-                      }
-                      try {
-                        const response = await fetch(
-                          `/api/decks/${deckId}/cards`,
-                          {
-                            method: "DELETE",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ cardId: deckCard.cardId }),
-                          }
-                        );
-                        if (response.ok) {
-                          toast.success("Carte retirée du deck");
-                          fetchDeck();
-                        } else {
-                          toast.error("Erreur lors de la suppression");
-                        }
-                      } catch (error) {
-                        console.error("Error removing card:", error);
-                        toast.error("Erreur lors de la suppression");
-                      }
-                    }}
-                  />
-                ))}
-              </div>
-            ) : (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground">
-                    Aucune carte dans le mainboard. Ajoutez des cartes depuis la
-                    recherche.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+            <CardGrid
+              cards={mainboardMTGCards}
+              context="deck"
+              showActions={true}
+              onCardRemove={handleRemoveCard}
+              emptyMessage="Aucune carte dans le mainboard"
+              emptyDescription="Ajoutez des cartes depuis la recherche."
+            />
           </div>
 
           {/* Sideboard */}
@@ -329,64 +322,12 @@ export default function DeckDetailsPage() {
               <h2 className="text-2xl font-bold text-foreground mb-4">
                 Sideboard ({deckStatus?.sideboardCount || 0})
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {sideboardCards.map((deckCard) => (
-                  <CardDisplay
-                    key={deckCard.id}
-                    card={
-                      {
-                        id: deckCard.card.id,
-                        name: deckCard.card.name,
-                        image_uris: deckCard.card.imageUrl
-                          ? {
-                              small: deckCard.card.imageUrl,
-                              normal: deckCard.card.imageUrl,
-                              large: deckCard.card.imageUrl,
-                              png: deckCard.card.imageUrl,
-                              art_crop: deckCard.card.imageUrl,
-                              border_crop: deckCard.card.imageUrl,
-                            }
-                          : undefined,
-                        set_name: "",
-                        rarity: "",
-                        mana_cost: deckCard.card.manaCost || "",
-                        type_line: deckCard.card.type || "",
-                        cmc: 0,
-                      } as MTGCard
-                    }
-                    context="deck"
-                    quantity={deckCard.quantity}
-                    onRemove={async () => {
-                      if (
-                        !confirm(
-                          "Voulez-vous vraiment retirer cette carte du deck ?"
-                        )
-                      ) {
-                        return;
-                      }
-                      try {
-                        const response = await fetch(
-                          `/api/decks/${deckId}/cards`,
-                          {
-                            method: "DELETE",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ cardId: deckCard.cardId }),
-                          }
-                        );
-                        if (response.ok) {
-                          toast.success("Carte retirée du deck");
-                          fetchDeck();
-                        } else {
-                          toast.error("Erreur lors de la suppression");
-                        }
-                      } catch (error) {
-                        console.error("Error removing card:", error);
-                        toast.error("Erreur lors de la suppression");
-                      }
-                    }}
-                  />
-                ))}
-              </div>
+              <CardGrid
+                cards={sideboardMTGCards}
+                context="deck"
+                showActions={true}
+                onCardRemove={handleRemoveCard}
+              />
             </div>
           )}
         </div>
