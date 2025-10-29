@@ -51,7 +51,8 @@ export function CardGrid({
   };
 
   // Classes communes pour la grille
-  const gridClasses = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4";
+  const gridClasses =
+    "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3";
 
   // Affichage du loading skeleton (première charge)
   if (loading && cards.length === 0) {
