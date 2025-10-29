@@ -8,10 +8,13 @@ import { Input } from "@/components/ui/input";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
 import { Filter, Loader2, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 export default function SearchPage() {
   const { status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [cards, setCards] = useState<MTGCard[]>([]);
   const [loading, setLoading] = useState(false);
@@ -19,6 +22,13 @@ export default function SearchPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const [userLanguage, setUserLanguage] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const [filters, setFilters] = useState({
     colors: "",
@@ -30,12 +40,93 @@ export default function SearchPage() {
 
   const [showFilters, setShowFilters] = useState(false);
 
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target as Node) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch suggestions when user types
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
+
+      setSuggestionLoading(true);
+      try {
+        const response = await fetch(
+          `/api/scryfall/autocomplete?q=${encodeURIComponent(searchQuery)}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setSuggestions(data.data || []);
+          setShowSuggestions(true);
+        }
+      } catch (error) {
+        console.error("Error fetching suggestions:", error);
+      } finally {
+        setSuggestionLoading(false);
+      }
+    };
+
+    const timeoutId = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
   // Fetch user's default language
   useEffect(() => {
     if (status === "authenticated") {
       fetchUserLanguage();
     }
   }, [status]);
+
+  // Load search params from URL on mount
+  useEffect(() => {
+    if (!isInitialized && userLanguage !== "") {
+      const query = searchParams.get("q") || "";
+      const colors = searchParams.get("colors") || "";
+      const type = searchParams.get("type") || "";
+      const rarity = searchParams.get("rarity") || "";
+      const set = searchParams.get("set") || "";
+      const lang = searchParams.get("lang") || "";
+      const page = searchParams.get("page") || "1";
+
+      setSearchQuery(query);
+      setFilters({
+        colors,
+        type,
+        rarity,
+        set,
+        language: lang || filters.language, // Utilise la langue de l'URL ou celle par défaut
+      });
+
+      // Si des paramètres sont présents, lancer la recherche automatiquement
+      if (query || colors || type || rarity || set || lang) {
+        setIsInitialized(true);
+        handleSearchWithParams(
+          query,
+          { colors, type, rarity, set, language: lang || filters.language },
+          parseInt(page)
+        );
+      } else {
+        setIsInitialized(true);
+      }
+    }
+  }, [searchParams, isInitialized, userLanguage]);
 
   const fetchUserLanguage = async () => {
     try {
@@ -69,42 +160,68 @@ export default function SearchPage() {
     }
   };
 
-  const handleSearch = async (page = 1) => {
+  // Fonction pour mettre à jour l'URL avec les paramètres de recherche
+  const updateURL = (
+    query: string,
+    currentFilters: typeof filters,
+    page: number
+  ) => {
+    const params = new URLSearchParams();
+
+    if (query.trim()) params.set("q", query.trim());
+    if (currentFilters.colors) params.set("colors", currentFilters.colors);
+    if (currentFilters.type) params.set("type", currentFilters.type);
+    if (currentFilters.rarity) params.set("rarity", currentFilters.rarity);
+    if (currentFilters.set) params.set("set", currentFilters.set);
+    if (currentFilters.language) params.set("lang", currentFilters.language);
+    if (page > 1) params.set("page", page.toString());
+
+    router.push(`/search?${params.toString()}`, { scroll: false });
+  };
+
+  // Fonction pour effectuer la recherche avec des paramètres spécifiques
+  const handleSearchWithParams = async (
+    query: string,
+    currentFilters: typeof filters,
+    page = 1
+  ) => {
     if (
-      !searchQuery.trim() &&
-      !filters.colors &&
-      !filters.type &&
-      !filters.rarity &&
-      !filters.set &&
-      !filters.language
+      !query.trim() &&
+      !currentFilters.colors &&
+      !currentFilters.type &&
+      !currentFilters.rarity &&
+      !currentFilters.set &&
+      !currentFilters.language
     ) {
       return;
     }
 
+    setShowSuggestions(false);
     setLoading(true);
+
     try {
       const searchParams: Record<string, string | number> = {
         page,
         pageSize: 20,
       };
 
-      if (searchQuery.trim()) {
-        searchParams.name = searchQuery;
+      if (query.trim()) {
+        searchParams.name = query;
       }
-      if (filters.colors) {
-        searchParams.colors = filters.colors;
+      if (currentFilters.colors) {
+        searchParams.colors = currentFilters.colors;
       }
-      if (filters.type) {
-        searchParams.type = filters.type;
+      if (currentFilters.type) {
+        searchParams.type = currentFilters.type;
       }
-      if (filters.rarity) {
-        searchParams.rarity = filters.rarity;
+      if (currentFilters.rarity) {
+        searchParams.rarity = currentFilters.rarity;
       }
-      if (filters.set) {
-        searchParams.set = filters.set;
+      if (currentFilters.set) {
+        searchParams.set = currentFilters.set;
       }
-      if (filters.language) {
-        searchParams.language = filters.language;
+      if (currentFilters.language) {
+        searchParams.language = currentFilters.language;
       }
 
       const result = await mtgApiService.searchCards(searchParams);
@@ -118,11 +235,18 @@ export default function SearchPage() {
       setHasMore(result.hasMore);
       setTotalResults(result.total || 0);
       setCurrentPage(page);
+
+      // Mettre à jour l'URL
+      updateURL(query, currentFilters, page);
     } catch (error) {
       console.error("Erreur lors de la recherche:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async (page = 1) => {
+    await handleSearchWithParams(searchQuery, filters, page);
   };
 
   const handleLoadMore = () => {
@@ -161,13 +285,57 @@ export default function SearchPage() {
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
+                    ref={searchInputRef}
                     type="text"
                     placeholder="Nom de la carte (ex: Lightning Bolt, Ancestral Recall...)"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={handleKeyPress}
+                    onFocus={() => {
+                      setIsInputFocused(true);
+                      if (suggestions.length > 0) {
+                        setShowSuggestions(true);
+                      }
+                    }}
+                    onBlur={() => {
+                      // Delay to allow click on suggestions
+                      setTimeout(() => {
+                        setIsInputFocused(false);
+                        setShowSuggestions(false);
+                      }, 200);
+                    }}
                     className="pl-10 h-12 text-lg"
                   />
+
+                  {/* Suggestions dropdown */}
+                  {showSuggestions &&
+                    suggestions.length > 0 &&
+                    isInputFocused && (
+                      <div
+                        ref={suggestionsRef}
+                        className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
+                      >
+                        {suggestionLoading && (
+                          <div className="px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Chargement...
+                          </div>
+                        )}
+                        {suggestions.map((suggestion, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setSearchQuery(suggestion);
+                              setShowSuggestions(false);
+                              handleSearch(1);
+                            }}
+                            className="w-full px-4 py-3 text-left hover:bg-accent transition-colors text-foreground border-b border-border last:border-b-0"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                 </div>
                 <Button
                   onClick={() => handleSearch(1)}
