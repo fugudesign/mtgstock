@@ -1,20 +1,20 @@
 "use client";
 
+import { CreateModal } from "@/components/CreateModal";
+import { ItemCard } from "@/components/ItemCard";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   AlertCircle,
   CheckCircle2,
-  Edit,
+  ChevronDown,
   Layers,
   Plus,
-  Trash2,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -28,6 +28,8 @@ interface Deck {
   createdAt: string;
 }
 
+const defaultDeckFormat = "standard";
+
 export default function DecksPage() {
   const { status } = useSession();
   const router = useRouter();
@@ -36,7 +38,7 @@ export default function DecksPage() {
   const [showNewDeckForm, setShowNewDeckForm] = useState(false);
   const [newDeckName, setNewDeckName] = useState("");
   const [newDeckDescription, setNewDeckDescription] = useState("");
-  const [newDeckFormat, setNewDeckFormat] = useState("casual");
+  const [newDeckFormat, setNewDeckFormat] = useState(defaultDeckFormat);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -87,7 +89,7 @@ export default function DecksPage() {
         toast.success("Deck créé avec succès");
         setNewDeckName("");
         setNewDeckDescription("");
-        setNewDeckFormat("casual");
+        setNewDeckFormat(defaultDeckFormat);
         setShowNewDeckForm(false);
         fetchDecks();
       } else {
@@ -176,81 +178,11 @@ export default function DecksPage() {
                 par carte)
               </p>
             </div>
-            <Button
-              size="lg"
-              onClick={() => setShowNewDeckForm(!showNewDeckForm)}
-            >
+            <Button size="lg" onClick={() => setShowNewDeckForm(true)}>
               <Plus className="mr-2 h-5 w-5" />
               Nouveau deck
             </Button>
           </div>
-
-          {/* New Deck Form */}
-          {showNewDeckForm && (
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>Créer un nouveau deck</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Nom du deck
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="ex: Mon Deck Aggro Rouge"
-                      value={newDeckName}
-                      onChange={(e) => setNewDeckName(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description (optionnelle)
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="Description de votre deck..."
-                      value={newDeckDescription}
-                      onChange={(e) => setNewDeckDescription(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Format
-                    </label>
-                    <select
-                      value={newDeckFormat}
-                      onChange={(e) => setNewDeckFormat(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="casual">Casual</option>
-                      <option value="standard">Standard</option>
-                      <option value="modern">Modern</option>
-                      <option value="commander">Commander</option>
-                      <option value="legacy">Legacy</option>
-                      <option value="vintage">Vintage</option>
-                      <option value="pauper">Pauper</option>
-                    </select>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={handleCreateDeck}>Créer le deck</Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setShowNewDeckForm(false);
-                        setNewDeckName("");
-                        setNewDeckDescription("");
-                        setNewDeckFormat("casual");
-                      }}
-                    >
-                      Annuler
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Decks Grid */}
           {decks.length > 0 ? (
@@ -260,72 +192,33 @@ export default function DecksPage() {
                 const StatusIcon = status.icon;
 
                 return (
-                  <Card
+                  <ItemCard
                     key={deck.id}
-                    className="hover:shadow-lg transition-shadow"
-                  >
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3 flex-1">
-                          <Layers className="h-6 w-6 text-purple-600 mt-1" />
-                          <div className="flex-1">
-                            <CardTitle className="text-xl mb-1">
-                              {deck.name}
-                            </CardTitle>
-                            {deck.description && (
-                              <p className="text-sm text-gray-600 line-clamp-2">
-                                {deck.description}
-                              </p>
-                            )}
-                          </div>
+                    title={deck.name}
+                    description={deck.description}
+                    icon={Layers}
+                    iconColor="text-purple-600"
+                    href={`/decks/${deck.id}`}
+                    badges={
+                      <>
+                        <Badge variant="outline" className="capitalize">
+                          {deck.format}
+                        </Badge>
+                        <div
+                          className={`flex items-center gap-1 px-2 py-1 rounded text-xs border ${status.color}`}
+                        >
+                          <StatusIcon className="h-3 w-3" />
+                          <span>{status.label}</span>
                         </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <Badge variant="outline" className="capitalize">
-                            {deck.format}
-                          </Badge>
-                          <div
-                            className={`flex items-center gap-1 px-2 py-1 rounded text-xs border ${status.color}`}
-                          >
-                            <StatusIcon className="h-3 w-3" />
-                            <span>{status.label}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Link href={`/decks/${deck.id}`} className="flex-1">
-                            <Button variant="outline" className="w-full">
-                              <Layers className="mr-2 h-4 w-4" />
-                              Voir
-                            </Button>
-                          </Link>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log("Éditer deck:", deck.id);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteDeck(deck.id);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4 text-red-600" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </>
+                    }
+                    metadata={
+                      <span className="text-sm text-muted-foreground font-medium">
+                        {deck.cardCount} carte{deck.cardCount !== 1 ? "s" : ""}
+                      </span>
+                    }
+                    onDelete={() => handleDeleteDeck(deck.id)}
+                  />
                 );
               })}
             </div>
@@ -348,6 +241,65 @@ export default function DecksPage() {
             </Card>
           )}
         </div>
+
+        {/* Create Deck Modal */}
+        <CreateModal
+          isOpen={showNewDeckForm}
+          onClose={() => {
+            setShowNewDeckForm(false);
+            setNewDeckName("");
+            setNewDeckDescription("");
+            setNewDeckFormat("casual");
+          }}
+          title="Créer un nouveau deck"
+          onSubmit={handleCreateDeck}
+          submitLabel="Créer le deck"
+          isSubmitting={false}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Nom du deck
+              </label>
+              <Input
+                type="text"
+                placeholder="ex: Mon Deck Aggro Rouge"
+                value={newDeckName}
+                onChange={(e) => setNewDeckName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Description (optionnelle)
+              </label>
+              <Input
+                type="text"
+                placeholder="Description de votre deck..."
+                value={newDeckDescription}
+                onChange={(e) => setNewDeckDescription(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Format</label>
+              <div className="relative">
+                <select
+                  value={newDeckFormat}
+                  onChange={(e) => setNewDeckFormat(e.target.value)}
+                  className="w-full px-3 py-2 pr-10 border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring appearance-none"
+                >
+                  <option value="casual">Casual</option>
+                  <option value="standard">Standard</option>
+                  <option value="modern">Modern</option>
+                  <option value="commander">Commander</option>
+                  <option value="legacy">Legacy</option>
+                  <option value="vintage">Vintage</option>
+                  <option value="pauper">Pauper</option>
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              </div>
+            </div>
+          </div>
+        </CreateModal>
       </div>
     </ProtectedRoute>
   );
