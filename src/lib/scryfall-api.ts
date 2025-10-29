@@ -216,7 +216,7 @@ class ScryfallApiService {
     }
 
     if (params.set) {
-      queryParts.push(`s:${params.set.toLowerCase()}`);
+      queryParts.push(`set:${params.set.toLowerCase()}`);
     }
 
     if (params.lang) {

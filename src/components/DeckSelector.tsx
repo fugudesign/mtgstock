@@ -92,9 +92,9 @@ export function DeckSelector({
       <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />
 
       {/* Modal */}
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl border border-gray-200 z-50 w-full max-w-md mx-4">
-        <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="text-lg font-semibold">
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-card border border-border rounded-lg shadow-xl z-50 w-full max-w-md mx-4">
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <h3 className="text-lg font-semibold text-foreground">
             Ajouter {card.name} à un deck
           </h3>
           <Button
@@ -110,7 +110,7 @@ export function DeckSelector({
         <div className="p-4">
           {loading ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">Chargement des decks...</p>
+              <p className="text-muted-foreground">Chargement des decks...</p>
             </div>
           ) : decks.length > 0 ? (
             <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -119,12 +119,14 @@ export function DeckSelector({
                   key={deck.id}
                   onClick={() => handleAddToDeck(deck.id)}
                   disabled={addingToDeck}
-                  className="w-full px-4 py-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors flex items-center gap-3"
+                  className="w-full px-4 py-3 text-left border border-border rounded-lg hover:bg-accent disabled:opacity-50 transition-colors flex items-center gap-3"
                 >
-                  <Layers className="h-5 w-5 text-purple-600 flex-shrink-0" />
+                  <Layers className="h-5 w-5 text-purple-400 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{deck.name}</div>
-                    <div className="text-sm text-gray-500">
+                    <div className="font-medium truncate text-foreground">
+                      {deck.name}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
                       {deck.format} • {deck.cardCount} cartes
                     </div>
                   </div>
@@ -133,8 +135,10 @@ export function DeckSelector({
             </div>
           ) : (
             <div className="text-center py-8">
-              <Layers className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500 mb-4">Aucun deck disponible</p>
+              <Layers className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground mb-4">
+                Aucun deck disponible
+              </p>
               <Button onClick={() => (window.location.href = "/decks")}>
                 Créer un deck
               </Button>
@@ -142,7 +146,7 @@ export function DeckSelector({
           )}
         </div>
 
-        <div className="p-4 border-t">
+        <div className="p-4 border-t border-border">
           <Button variant="outline" className="w-full" onClick={onClose}>
             Annuler
           </Button>

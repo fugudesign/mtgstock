@@ -37,9 +37,9 @@ export default function Home() {
       <section className="relative py-20 px-4 h-lvh flex flex-col justify-center items-center bg-radial from-background to-neutral-950 overflow-hidden">
         <MtgStockIcon
           size={800}
-          className="absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 mb-6 text-indigo-800 blur-xs"
+          className="pointer-events-none absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 mb-6 text-indigo-800 blur-xs"
         />
-        <div className="max-w-8xl mx-auto text-center">
+        <div className="mx-auto text-center">
           <h1 className="font-decorative text-9xl  text-purple-600 drop-shadow-md mb-2 text-shadow-lg text-shadow-indigo-950">
             Magic Stack
           </h1>
@@ -52,7 +52,7 @@ export default function Home() {
             Recherchez parmi des milliers de cartes et organisez votre passion.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="z-10 flex flex-col sm:flex-row gap-4 justify-center">
             {status === "authenticated" ? (
               <>
                 <Link href="/search">
@@ -203,7 +203,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-radial to-background from-purple-900 text-primary-foreground">
+      <section className="py-20 px-4 bg-radial to-neutral-950 from-purple-900 text-primary-foreground">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">
             Prêt à organiser votre collection ?

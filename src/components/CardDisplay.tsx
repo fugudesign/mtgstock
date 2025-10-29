@@ -1,6 +1,5 @@
 "use client";
 
-import { DeckSelector } from "@/components/DeckSelector";
 import { ManaSymbols } from "@/components/ManaSymbol";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,11 +11,11 @@ import {
   getCardType,
   isDoubleFacedCard,
 } from "@/lib/scryfall-api";
-import { Eye, Heart, Layers } from "lucide-react";
+import { Eye, Heart, Layers, Loader2, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface CardDisplayProps {
@@ -24,6 +23,12 @@ interface CardDisplayProps {
   onAddToCollection?: (card: MTGCard) => void;
   onAddToDeck?: (card: MTGCard) => void;
   showActions?: boolean;
+  // Nouvelles props pour collection/deck
+  quantity?: number;
+  foil?: boolean;
+  condition?: string;
+  onRemove?: () => void;
+  context?: "search" | "collection" | "deck";
 }
 
 interface Collection {
@@ -31,23 +36,44 @@ interface Collection {
   name: string;
 }
 
+interface Deck {
+  id: string;
+  name: string;
+  format: string;
+  cardCount: number;
+}
+
 export function CardDisplay({
   card,
   onAddToCollection,
   onAddToDeck,
   showActions = true,
+  quantity,
+  foil,
+  condition,
+  onRemove,
+  context = "search",
 }: CardDisplayProps) {
   const { status } = useSession();
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
   const [showCollectionMenu, setShowCollectionMenu] = useState(false);
-  const [showDeckSelector, setShowDeckSelector] = useState(false);
+  const [showDeckMenu, setShowDeckMenu] = useState(false);
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [decks, setDecks] = useState<Deck[]>([]);
   const [adding, setAdding] = useState(false);
+  const [collectionMenuPosition, setCollectionMenuPosition] = useState({
+    top: 0,
+    left: 0,
+  });
+  const [deckMenuPosition, setDeckMenuPosition] = useState({ top: 0, left: 0 });
+  const collectionButtonRef = useRef<HTMLButtonElement>(null);
+  const deckButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (status === "authenticated") {
       fetchCollections();
+      fetchDecks();
     }
   }, [status]);
 
@@ -60,6 +86,18 @@ export function CardDisplay({
       }
     } catch (error) {
       console.error("Error fetching collections:", error);
+    }
+  };
+
+  const fetchDecks = async () => {
+    try {
+      const response = await fetch("/api/decks");
+      if (response.ok) {
+        const data = await response.json();
+        setDecks(data);
+      }
+    } catch (error) {
+      console.error("Error fetching decks:", error);
     }
   };
 
@@ -95,6 +133,37 @@ export function CardDisplay({
     }
   };
 
+  const handleAddToDeck = async (deckId: string) => {
+    setAdding(true);
+    try {
+      const response = await fetch(`/api/decks/${deckId}/cards`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cardData: card,
+          quantity: 1,
+          isMainboard: true,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(data.message);
+        setShowDeckMenu(false);
+        if (onAddToDeck) {
+          onAddToDeck(card);
+        }
+      }
+    } catch (error) {
+      console.error("Error adding card to deck:", error);
+      toast.error("Erreur lors de l'ajout de la carte");
+    } finally {
+      setAdding(false);
+    }
+  };
+
   const getImageUrl = () => {
     if (imageError) {
       return "/placeholder-card.svg";
@@ -118,16 +187,22 @@ export function CardDisplay({
   };
 
   return (
-    <Card className="relative group overflow-hidden transition-all duration-200 hover:shadow-lg">
-      {/* Menu collections en dehors du hover */}
+    <>
+      {/* Menu collections - en dehors de la Card */}
       {showCollectionMenu && (
         <>
           <div
             className="fixed inset-0 z-40"
             onClick={() => setShowCollectionMenu(false)}
           />
-          <div className="absolute top-12 right-2 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 min-w-[200px]">
-            <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b">
+          <div
+            className="fixed bg-card border border-border rounded-lg shadow-xl py-1 z-50 min-w-[200px]"
+            style={{
+              top: `${collectionMenuPosition.top}px`,
+              left: `${collectionMenuPosition.left}px`,
+            }}
+          >
+            <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border">
               Ajouter à une collection
             </div>
             {collections.length > 0 ? (
@@ -136,13 +211,14 @@ export function CardDisplay({
                   key={collection.id}
                   onClick={() => handleAddToCollection(collection.id)}
                   disabled={adding}
-                  className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 disabled:opacity-50 text-gray-900"
+                  className="w-full px-3 py-2 text-sm text-left hover:bg-accent disabled:opacity-50 text-foreground transition-colors flex items-center justify-between"
                 >
-                  {collection.name}
+                  <span>{collection.name}</span>
+                  {adding && <Loader2 className="h-4 w-4 animate-spin" />}
                 </button>
               ))
             ) : (
-              <div className="px-3 py-2 text-sm text-gray-500">
+              <div className="px-3 py-2 text-sm text-muted-foreground">
                 Aucune collection
               </div>
             )}
@@ -150,136 +226,288 @@ export function CardDisplay({
         </>
       )}
 
-      <div className="relative">
-        <div className="aspect-5/7 overflow-hidden bg-gray-100">
-          <Image
-            src={getImageUrl()}
-            alt={card.name}
-            fill
-            className="object-cover transition-transform duration-200 group-hover:scale-105"
-            onError={() => setImageError(true)}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      {/* Menu decks - en dehors de la Card */}
+      {showDeckMenu && (
+        <>
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setShowDeckMenu(false)}
           />
-        </div>
-
-        {/* Overlay avec les actions */}
-        {showActions && (
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
-            <div className="flex gap-3">
-              <div className="relative group/tooltip">
-                <Button
-                  size="icon"
-                  variant="default"
-                  onClick={() => router.push(`/cards/${card.id}`)}
-                  className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
+          <div
+            className="fixed bg-card border border-border rounded-lg shadow-xl py-1 z-50 min-w-60 max-h-96 overflow-y-auto"
+            style={{
+              top: `${deckMenuPosition.top}px`,
+              left: `${deckMenuPosition.left}px`,
+            }}
+          >
+            <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border">
+              Ajouter à un deck
+            </div>
+            {decks.length > 0 ? (
+              decks.map((deck) => (
+                <button
+                  key={deck.id}
+                  onClick={() => handleAddToDeck(deck.id)}
+                  disabled={adding}
+                  className="w-full px-3 py-2 text-left hover:bg-accent disabled:opacity-50 transition-colors"
                 >
-                  <Eye className="h-5 w-5" />
-                </Button>
-                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                  Voir les détails
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="font-medium text-sm text-foreground">
+                        {deck.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {deck.format} • {deck.cardCount} cartes
+                      </div>
+                    </div>
+                    {adding && (
+                      <Loader2 className="h-4 w-4 animate-spin ml-2 shrink-0" />
+                    )}
+                  </div>
+                </button>
+              ))
+            ) : (
+              <div className="px-3 py-2 text-sm text-muted-foreground">
+                Aucun deck
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      <Card className="relative group overflow-hidden transition-all duration-200 hover:shadow-lg">
+        <div className="relative">
+          <div className="aspect-5/7 overflow-hidden bg-muted">
+            <Image
+              src={getImageUrl()}
+              alt={card.name}
+              fill
+              className="object-cover transition-transform duration-200 group-hover:scale-105"
+              onError={() => setImageError(true)}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
+
+          {/* Badge quantité (pour collection/deck) */}
+          {quantity && quantity > 1 && (
+            <div className="absolute top-2 left-2 bg-black/75 text-white px-2 py-1 rounded-full text-sm font-bold">
+              x{quantity}
+            </div>
+          )}
+
+          {/* Badge foil */}
+          {foil && (
+            <Badge className="absolute top-2 left-2 bg-yellow-500 text-black border-0 font-bold mt-10">
+              FOIL
+            </Badge>
+          )}
+
+          {/* Badge condition */}
+          {condition && condition !== "nm" && (
+            <Badge className="absolute top-2 left-2 bg-orange-500 text-white border-0 mt-20">
+              {condition.toUpperCase()}
+            </Badge>
+          )}
+
+          {/* Overlay avec les actions */}
+          {showActions && context === "search" && (
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
+              <div className="flex gap-3">
+                <div className="relative group/tooltip">
+                  <Button
+                    size="icon"
+                    variant="default"
+                    onClick={() => router.push(`/cards/${card.id}`)}
+                    className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
+                  >
+                    <Eye className="h-5 w-5" />
+                  </Button>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    Voir les détails
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
+                  </div>
+                </div>
+
+                {status === "authenticated" && (
+                  <div className="relative group/tooltip">
+                    <Button
+                      ref={collectionButtonRef}
+                      size="icon"
+                      variant="default"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (collectionButtonRef.current) {
+                          const rect =
+                            collectionButtonRef.current.getBoundingClientRect();
+                          const menuWidth = 200;
+                          const menuHeight = 200; // hauteur max raisonnable
+
+                          // Position par défaut : en dessous du bouton
+                          let top = rect.bottom + 8;
+                          let left = rect.left;
+
+                          // Ajuster horizontalement si déborde à droite
+                          if (left + menuWidth > window.innerWidth) {
+                            left = rect.right - menuWidth;
+                          }
+
+                          // Ajuster verticalement si déborde en bas (seulement si vraiment nécessaire)
+                          if (
+                            top + menuHeight > window.innerHeight &&
+                            rect.top > menuHeight
+                          ) {
+                            top = rect.top - menuHeight - 8;
+                          }
+
+                          setCollectionMenuPosition({ top, left });
+                        }
+                        setShowCollectionMenu(!showCollectionMenu);
+                      }}
+                      className="h-12 w-12 rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
+                    >
+                      <Heart className="h-5 w-5" />
+                    </Button>
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                      Ajouter à une collection
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
+                )}
+
+                {status === "authenticated" && (
+                  <div className="relative group/tooltip">
+                    <Button
+                      ref={deckButtonRef}
+                      size="icon"
+                      variant="default"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (deckButtonRef.current) {
+                          const rect =
+                            deckButtonRef.current.getBoundingClientRect();
+                          const menuWidth = 240;
+                          const menuHeight = 300; // hauteur max raisonnable
+
+                          // Position par défaut : en dessous du bouton
+                          let top = rect.bottom + 8;
+                          let left = rect.left;
+
+                          // Ajuster horizontalement si déborde à droite
+                          if (left + menuWidth > window.innerWidth) {
+                            left = rect.right - menuWidth;
+                          }
+
+                          // Ajuster verticalement si déborde en bas (seulement si vraiment nécessaire)
+                          if (
+                            top + menuHeight > window.innerHeight &&
+                            rect.top > menuHeight
+                          ) {
+                            top = rect.top - menuHeight - 8;
+                          }
+
+                          setDeckMenuPosition({ top, left });
+                        }
+                        setShowDeckMenu(!showDeckMenu);
+                      }}
+                      className="h-12 w-12 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
+                    >
+                      <Layers className="h-5 w-5" />
+                    </Button>
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                      Ajouter à un deck
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Actions pour collection/deck (suppression) */}
+          {onRemove && (context === "collection" || context === "deck") && (
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
+              <div className="flex gap-3">
+                <div className="relative group/tooltip">
+                  <Button
+                    size="icon"
+                    variant="default"
+                    onClick={() => router.push(`/cards/${card.id}`)}
+                    className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
+                  >
+                    <Eye className="h-5 w-5" />
+                  </Button>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    Voir les détails
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
+                  </div>
+                </div>
+
+                <div className="relative group/tooltip">
+                  <Button
+                    size="icon"
+                    variant="default"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove();
+                    }}
+                    className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-700 shadow-lg"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    Supprimer
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
+                  </div>
                 </div>
               </div>
-
-              {status === "authenticated" && (
-                <div className="relative group/tooltip">
-                  <Button
-                    size="icon"
-                    variant="default"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowCollectionMenu(!showCollectionMenu);
-                    }}
-                    className="h-12 w-12 rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
-                  >
-                    <Heart className="h-5 w-5" />
-                  </Button>
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                    Ajouter à une collection
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </div>
-              )}
-
-              {status === "authenticated" && (
-                <div className="relative group/tooltip">
-                  <Button
-                    size="icon"
-                    variant="default"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowDeckSelector(true);
-                    }}
-                    className="h-12 w-12 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
-                  >
-                    <Layers className="h-5 w-5" />
-                  </Button>
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                    Ajouter à un deck
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Badge de rareté */}
-        {card.rarity && (
-          <Badge
-            className={`absolute top-2 right-2 ${getRarityColor(
-              card.rarity
-            )} text-white border-0`}
-          >
-            {card.rarity}
-          </Badge>
-        )}
-
-        {/* Badge pour cartes double-face */}
-        {isDoubleFacedCard(card) && (
-          <Badge className="absolute top-2 left-2 bg-purple-600 text-white border-0 flex items-center gap-1">
-            <Layers className="h-3 w-3" />
-            Double face
-          </Badge>
-        )}
-      </div>
-
-      <CardContent className="p-3">
-        <div className="space-y-1">
-          <h3 className="font-semibold text-sm leading-tight line-clamp-2">
-            {card.name}
-          </h3>
-
-          {getCardManaCost(card) && (
-            <div className="flex items-center gap-1">
-              <ManaSymbols manaCost={getCardManaCost(card)} size={16} />
             </div>
           )}
 
-          {getCardType(card) && (
-            <p className="text-xs text-gray-600 line-clamp-1">
-              {getCardType(card)}
-            </p>
+          {/* Badge de rareté */}
+          {card.rarity && (
+            <Badge
+              className={`absolute top-2 right-2 ${getRarityColor(
+                card.rarity
+              )} text-white border-0`}
+            >
+              {card.rarity}
+            </Badge>
           )}
 
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>{card.set_name || card.set}</span>
-            {card.cmc !== undefined && <span>CMC: {card.cmc}</span>}
-          </div>
+          {/* Badge pour cartes double-face */}
+          {isDoubleFacedCard(card) && (
+            <Badge className="absolute top-2 left-2 bg-purple-600 text-white border-0 flex items-center gap-1">
+              <Layers className="h-3 w-3" />
+              Double face
+            </Badge>
+          )}
         </div>
-      </CardContent>
 
-      {/* Deck Selector Modal */}
-      <DeckSelector
-        card={card}
-        isOpen={showDeckSelector}
-        onClose={() => setShowDeckSelector(false)}
-        onSuccess={() => {
-          if (onAddToDeck) {
-            onAddToDeck(card);
-          }
-        }}
-      />
-    </Card>
+        <CardContent className="p-3">
+          <div className="space-y-1">
+            <h3 className="font-semibold text-sm leading-tight line-clamp-2">
+              {card.name}
+            </h3>
+
+            {getCardManaCost(card) && (
+              <div className="flex items-center gap-1">
+                <ManaSymbols manaCost={getCardManaCost(card)} size={16} />
+              </div>
+            )}
+
+            {getCardType(card) && (
+              <p className="text-xs text-muted-foreground line-clamp-1">
+                {getCardType(card)}
+              </p>
+            )}
+
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{card.set_name || card.set}</span>
+              {card.cmc !== undefined && <span>CMC: {card.cmc}</span>}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 }

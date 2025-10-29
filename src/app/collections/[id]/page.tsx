@@ -1,17 +1,17 @@
 "use client";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
+import { CardDisplay } from "@/components/CardDisplay";
 import { DeckSelector } from "@/components/DeckSelector";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { MTGCard } from "@/lib/scryfall-api";
-import { ArrowLeft, BookOpen, Layers, Package, Trash2 } from "lucide-react";
+import { ArrowLeft, BookOpen, Package } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface CollectionCard {
   id: string;
@@ -61,18 +61,7 @@ export default function CollectionDetailPage({
     params.then(setResolvedParams);
   }, [params]);
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login");
-      return;
-    }
-
-    if (status === "authenticated" && resolvedParams) {
-      fetchCollection();
-    }
-  }, [status, router, resolvedParams]);
-
-  const fetchCollection = async () => {
+  const fetchCollection = useCallback(async () => {
     if (!resolvedParams) return;
 
     try {
@@ -88,44 +77,22 @@ export default function CollectionDetailPage({
     } finally {
       setLoading(false);
     }
-  };
+  }, [resolvedParams, router]);
 
-  const handleRemoveCard = async (cardId: string) => {
-    if (!resolvedParams || !confirm("Retirer cette carte de la collection ?")) {
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/login");
       return;
     }
 
-    try {
-      const response = await fetch(
-        `/api/collections/${resolvedParams.id}/cards?cardId=${cardId}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (response.ok) {
-        // Refresh collection
-        fetchCollection();
-      }
-    } catch (error) {
-      console.error("Error removing card:", error);
+    if (status === "authenticated" && resolvedParams) {
+      fetchCollection();
     }
-  };
+  }, [status, router, resolvedParams, fetchCollection]);
 
   const getTotalCards = () => {
     if (!collection) return 0;
     return collection.cards.reduce((sum, card) => sum + card.quantity, 0);
-  };
-
-  const getConditionLabel = (condition: string) => {
-    const labels: { [key: string]: string } = {
-      nm: "Near Mint",
-      lp: "Lightly Played",
-      mp: "Moderately Played",
-      hp: "Heavily Played",
-      dmg: "Damaged",
-    };
-    return labels[condition] || condition;
   };
 
   if (status === "loading" || loading || !resolvedParams) {
@@ -213,106 +180,53 @@ export default function CollectionDetailPage({
           {collection.cards.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {collection.cards.map((collectionCard) => (
-                <Card
+                <CardDisplay
                   key={collectionCard.id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow group"
-                >
-                  <Link href={`/cards/${collectionCard.card.id}`}>
-                    <div className="relative aspect-[5/7] bg-gray-100 cursor-pointer">
-                      {collectionCard.card.imageUrl ? (
-                        <Image
-                          src={collectionCard.card.imageUrl}
-                          alt={collectionCard.card.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-200"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <span className="text-gray-400">No image</span>
-                        </div>
-                      )}
-                      {collectionCard.quantity > 1 && (
-                        <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded-full text-sm font-bold">
-                          x{collectionCard.quantity}
-                        </div>
-                      )}
-                      {collectionCard.foil && (
-                        <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded text-xs font-bold">
-                          FOIL
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                  <CardHeader className="pb-3">
-                    <Link href={`/cards/${collectionCard.card.id}`}>
-                      <CardTitle className="text-lg line-clamp-2 hover:text-blue-600 transition-colors cursor-pointer">
-                        {collectionCard.card.name}
-                      </CardTitle>
-                    </Link>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-2 text-sm text-gray-600">
-                      {collectionCard.card.setName && (
-                        <div>{collectionCard.card.setName}</div>
-                      )}
-                      {collectionCard.card.rarity && (
-                        <Badge variant="outline" className="text-xs">
-                          {collectionCard.card.rarity}
-                        </Badge>
-                      )}
-                      <div className="text-xs">
-                        Condition: {getConditionLabel(collectionCard.condition)}
-                      </div>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          // Convertir la carte de collection en MTGCard pour DeckSelector
-                          const mtgCard: MTGCard = {
-                            id: collectionCard.card.id,
-                            name: collectionCard.card.name,
-                            type_line: collectionCard.card.type || "",
-                            mana_cost: collectionCard.card.manaCost || "",
-                            image_uris: collectionCard.card.imageUrl
-                              ? {
-                                  normal: collectionCard.card.imageUrl,
-                                  small: collectionCard.card.imageUrl,
-                                  png: collectionCard.card.imageUrl,
-                                  large: collectionCard.card.imageUrl,
-                                  art_crop: collectionCard.card.imageUrl,
-                                  border_crop: collectionCard.card.imageUrl,
-                                }
-                              : undefined,
-                            set_name: collectionCard.card.setName || "",
-                            rarity: collectionCard.card.rarity || "",
-                          } as MTGCard;
-                          setSelectedCard(mtgCard);
-                          setShowDeckSelector(true);
-                        }}
-                      >
-                        <Layers className="h-4 w-4 mr-2" />
-                        Deck
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleRemoveCard(collectionCard.card.id);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Retirer
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                  card={
+                    {
+                      id: collectionCard.card.id,
+                      name: collectionCard.card.name,
+                      image_uris: collectionCard.card.imageUrl
+                        ? {
+                            small: collectionCard.card.imageUrl,
+                            normal: collectionCard.card.imageUrl,
+                            large: collectionCard.card.imageUrl,
+                            png: collectionCard.card.imageUrl,
+                            art_crop: collectionCard.card.imageUrl,
+                            border_crop: collectionCard.card.imageUrl,
+                          }
+                        : undefined,
+                      set_name: collectionCard.card.setName || "",
+                      rarity: collectionCard.card.rarity || "",
+                      mana_cost: collectionCard.card.manaCost || "",
+                      type_line: collectionCard.card.type || "",
+                      cmc: 0,
+                    } as MTGCard
+                  }
+                  context="collection"
+                  quantity={collectionCard.quantity}
+                  foil={collectionCard.foil}
+                  condition={collectionCard.condition}
+                  onRemove={async () => {
+                    try {
+                      const response = await fetch(
+                        `/api/collections/${collection.id}/cards`,
+                        {
+                          method: "DELETE",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            cardId: collectionCard.card.id,
+                          }),
+                        }
+                      );
+                      if (response.ok) {
+                        fetchCollection();
+                      }
+                    } catch (error) {
+                      console.error("Erreur lors de la suppression:", error);
+                    }
+                  }}
+                />
               ))}
             </div>
           ) : (

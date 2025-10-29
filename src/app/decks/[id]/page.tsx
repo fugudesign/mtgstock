@@ -1,10 +1,11 @@
 "use client";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-import { ManaSymbols } from "@/components/ManaSymbol";
+import { CardDisplay } from "@/components/CardDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { MTGCard } from "@/lib/scryfall-api";
 import {
   AlertCircle,
   ArrowLeft,
@@ -12,13 +13,11 @@ import {
   Info,
   Layers,
   Plus,
-  Trash2,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface Card {
@@ -55,18 +54,7 @@ export default function DeckDetailsPage() {
   const [deck, setDeck] = useState<Deck | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/login");
-      return;
-    }
-
-    if (status === "authenticated" && deckId) {
-      fetchDeck();
-    }
-  }, [status, deckId, router]);
-
-  const fetchDeck = async () => {
+  const fetchDeck = useCallback(async () => {
     try {
       const response = await fetch(`/api/decks/${deckId}`);
       if (response.ok) {
@@ -82,33 +70,18 @@ export default function DeckDetailsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [deckId, router]);
 
-  const handleRemoveCard = async (cardId: string) => {
-    if (!confirm("Voulez-vous vraiment retirer cette carte du deck ?")) {
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/login");
       return;
     }
 
-    try {
-      const response = await fetch(
-        `/api/decks/${deckId}/cards?cardId=${cardId}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (response.ok) {
-        toast.success("Carte retirée du deck");
-        fetchDeck();
-      } else {
-        const error = await response.json();
-        toast.error(error.error || "Erreur lors de la suppression");
-      }
-    } catch (error) {
-      console.error("Error removing card:", error);
-      toast.error("Erreur lors de la suppression");
+    if (status === "authenticated" && deckId) {
+      fetchDeck();
     }
-  };
+  }, [status, deckId, router, fetchDeck]);
 
   const getDeckStatus = () => {
     if (!deck) return null;
@@ -276,66 +249,72 @@ export default function DeckDetailsPage() {
 
           {/* Mainboard */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-background mb-4">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
               Mainboard ({deckStatus?.mainboardCount || 0})
             </h2>
             {mainboardCards.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {mainboardCards.map((deckCard) => (
-                  <Card
+                  <CardDisplay
                     key={deckCard.id}
-                    className="group relative overflow-hidden hover:shadow-xl transition-shadow"
-                  >
-                    <Link href={`/cards/${deckCard.card.id}`}>
-                      <div className="relative aspect-5/7 bg-gray-100">
-                        {deckCard.card.imageUrl ? (
-                          <Image
-                            src={deckCard.card.imageUrl}
-                            alt={deckCard.card.name}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span className="text-xs text-center p-2">
-                              Image non disponible
-                            </span>
-                          </div>
-                        )}
-                        {deckCard.quantity > 1 && (
-                          <div className="absolute top-2 right-2 bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                            {deckCard.quantity}
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-                    <CardContent className="p-2">
-                      <p className="text-xs font-semibold truncate">
-                        {deckCard.card.name}
-                      </p>
-                      <div className="flex items-center justify-between mt-1">
-                        <ManaSymbols
-                          manaCost={deckCard.card.manaCost || ""}
-                          size={14}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveCard(deckCard.cardId)}
-                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <Trash2 className="h-3 w-3 text-red-600" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    card={
+                      {
+                        id: deckCard.card.id,
+                        name: deckCard.card.name,
+                        image_uris: deckCard.card.imageUrl
+                          ? {
+                              small: deckCard.card.imageUrl,
+                              normal: deckCard.card.imageUrl,
+                              large: deckCard.card.imageUrl,
+                              png: deckCard.card.imageUrl,
+                              art_crop: deckCard.card.imageUrl,
+                              border_crop: deckCard.card.imageUrl,
+                            }
+                          : undefined,
+                        set_name: "",
+                        rarity: "",
+                        mana_cost: deckCard.card.manaCost || "",
+                        type_line: deckCard.card.type || "",
+                        cmc: 0,
+                      } as MTGCard
+                    }
+                    context="deck"
+                    quantity={deckCard.quantity}
+                    onRemove={async () => {
+                      if (
+                        !confirm(
+                          "Voulez-vous vraiment retirer cette carte du deck ?"
+                        )
+                      ) {
+                        return;
+                      }
+                      try {
+                        const response = await fetch(
+                          `/api/decks/${deckId}/cards`,
+                          {
+                            method: "DELETE",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ cardId: deckCard.cardId }),
+                          }
+                        );
+                        if (response.ok) {
+                          toast.success("Carte retirée du deck");
+                          fetchDeck();
+                        } else {
+                          toast.error("Erreur lors de la suppression");
+                        }
+                      } catch (error) {
+                        console.error("Error removing card:", error);
+                        toast.error("Erreur lors de la suppression");
+                      }
+                    }}
+                  />
                 ))}
               </div>
             ) : (
               <Card>
                 <CardContent className="p-8 text-center">
-                  <p className="text-gray-500">
+                  <p className="text-muted-foreground">
                     Aucune carte dans le mainboard. Ajoutez des cartes depuis la
                     recherche.
                   </p>
@@ -347,59 +326,65 @@ export default function DeckDetailsPage() {
           {/* Sideboard */}
           {sideboardCards.length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-4">
+              <h2 className="text-2xl font-bold text-foreground mb-4">
                 Sideboard ({deckStatus?.sideboardCount || 0})
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {sideboardCards.map((deckCard) => (
-                  <Card
+                  <CardDisplay
                     key={deckCard.id}
-                    className="group relative overflow-hidden hover:shadow-xl transition-shadow"
-                  >
-                    <Link href={`/cards/${deckCard.card.id}`}>
-                      <div className="relative aspect-[5/7] bg-gray-100">
-                        {deckCard.card.imageUrl ? (
-                          <Image
-                            src={deckCard.card.imageUrl}
-                            alt={deckCard.card.name}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span className="text-xs text-center p-2">
-                              Image non disponible
-                            </span>
-                          </div>
-                        )}
-                        {deckCard.quantity > 1 && (
-                          <div className="absolute top-2 right-2 bg-black/80 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                            {deckCard.quantity}
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-                    <CardContent className="p-2">
-                      <p className="text-xs font-semibold truncate">
-                        {deckCard.card.name}
-                      </p>
-                      <div className="flex items-center justify-between mt-1">
-                        <ManaSymbols
-                          manaCost={deckCard.card.manaCost || ""}
-                          size={14}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemoveCard(deckCard.cardId)}
-                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <Trash2 className="h-3 w-3 text-red-600" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    card={
+                      {
+                        id: deckCard.card.id,
+                        name: deckCard.card.name,
+                        image_uris: deckCard.card.imageUrl
+                          ? {
+                              small: deckCard.card.imageUrl,
+                              normal: deckCard.card.imageUrl,
+                              large: deckCard.card.imageUrl,
+                              png: deckCard.card.imageUrl,
+                              art_crop: deckCard.card.imageUrl,
+                              border_crop: deckCard.card.imageUrl,
+                            }
+                          : undefined,
+                        set_name: "",
+                        rarity: "",
+                        mana_cost: deckCard.card.manaCost || "",
+                        type_line: deckCard.card.type || "",
+                        cmc: 0,
+                      } as MTGCard
+                    }
+                    context="deck"
+                    quantity={deckCard.quantity}
+                    onRemove={async () => {
+                      if (
+                        !confirm(
+                          "Voulez-vous vraiment retirer cette carte du deck ?"
+                        )
+                      ) {
+                        return;
+                      }
+                      try {
+                        const response = await fetch(
+                          `/api/decks/${deckId}/cards`,
+                          {
+                            method: "DELETE",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ cardId: deckCard.cardId }),
+                          }
+                        );
+                        if (response.ok) {
+                          toast.success("Carte retirée du deck");
+                          fetchDeck();
+                        } else {
+                          toast.error("Erreur lors de la suppression");
+                        }
+                      } catch (error) {
+                        console.error("Error removing card:", error);
+                        toast.error("Erreur lors de la suppression");
+                      }
+                    }}
+                  />
                 ))}
               </div>
             </div>
