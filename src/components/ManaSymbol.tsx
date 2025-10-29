@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 interface ManaSymbolProps {
@@ -68,7 +69,7 @@ export function ManaSymbol({
   if (error || (!svgUri && symbolsLoaded)) {
     return (
       <span
-        className={`inline-block font-bold text-xs ${className}`}
+        className={cn("inline-block font-bold text-xs", className)}
         style={{ fontSize: size * 0.8 }}
       >
         {symbol}
@@ -86,7 +87,7 @@ export function ManaSymbol({
       alt={symbol}
       width={size}
       height={size}
-      className={`inline-block ${className}`}
+      className={cn("inline-block", className)}
       style={{ verticalAlign: "middle" }}
       onError={() => setError(true)}
     />
@@ -114,7 +115,7 @@ export function ManaSymbols({
   const symbols = manaCost.match(/\{[^}]+\}/g) || [];
 
   return (
-    <span className={`inline-flex items-center gap-0.5 ${className}`}>
+    <span className={cn("inline-flex items-center gap-0.5", className)}>
       {symbols.map((symbol, index) => (
         <ManaSymbol key={`${symbol}-${index}`} symbol={symbol} size={size} />
       ))}

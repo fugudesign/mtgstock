@@ -9,9 +9,9 @@ import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
 import { Filter, Loader2, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
-export default function SearchPage() {
+function SearchPageContent() {
   const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -543,5 +543,29 @@ export default function SearchPage() {
         </div>
       </div>
     </ProtectedRoute>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background py-8">
+          <div className="container mx-auto px-4">
+            <div className="animate-pulse space-y-4">
+              <div className="h-12 bg-muted rounded w-1/3"></div>
+              <div className="h-10 bg-muted rounded"></div>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-96 bg-muted rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <SearchPageContent />
+    </Suspense>
   );
 }

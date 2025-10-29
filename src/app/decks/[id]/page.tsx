@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MTGCard } from "@/lib/scryfall-api";
+import { cn } from "@/lib/utils";
 import {
   AlertCircle,
   ArrowLeft,
@@ -236,11 +237,12 @@ export default function DeckDetailsPage() {
                   </Badge>
                   {deckStatus && (
                     <div
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded border ${
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-1.5 rounded border",
                         deckStatus.isValid
                           ? "bg-green-700/20 text-green-300 border-green-700"
                           : "bg-red-700/20 text-red-300 border-red-700"
-                      }`}
+                      )}
                     >
                       {deckStatus.isValid ? (
                         <CheckCircle2 className="h-4 w-4" />

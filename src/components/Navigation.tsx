@@ -26,6 +26,14 @@ export function Navigation() {
     await signOut({ callbackUrl: "/" });
   };
 
+  const handleToggleUserMenu = () => {
+    setShowUserMenu(!showUserMenu);
+  };
+
+  const handleCloseUserMenu = () => {
+    setShowUserMenu(false);
+  };
+
   return (
     <nav className="bg-background/60 fixed inset-x-0 backdrop-blur-xs top-0 z-50">
       <div className="mx-auto px-4">
@@ -69,7 +77,7 @@ export function Navigation() {
               ) : session ? (
                 <div className="relative">
                   <button
-                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    onClick={handleToggleUserMenu}
                     className="flex items-center gap-2 p-1 rounded-full hover:bg-accent transition-colors"
                   >
                     {session.user?.image ? (
@@ -89,7 +97,7 @@ export function Navigation() {
                     <>
                       <div
                         className="fixed inset-0 z-10"
-                        onClick={() => setShowUserMenu(false)}
+                        onClick={handleCloseUserMenu}
                       ></div>
                       <div className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border border-border py-1 z-20">
                         <div className="flex items-center justify-between px-4 py-2 text-md font-bold text-foreground">
@@ -99,7 +107,7 @@ export function Navigation() {
                         <Link
                           href="/profile"
                           className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-accent"
-                          onClick={() => setShowUserMenu(false)}
+                          onClick={handleCloseUserMenu}
                         >
                           <User className="h-4 w-4" />
                           Mon profil

@@ -11,6 +11,7 @@ import {
   getCardType,
   isDoubleFacedCard,
 } from "@/lib/scryfall-api";
+import { cn } from "@/lib/utils";
 import { BookOpen, Eye, Layers, Loader2, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -178,11 +179,76 @@ export function CardDisplay({
       case "uncommon":
         return "bg-green-500";
       case "rare":
-        return "bg-yellow-500";
-      case "mythic rare":
-        return "bg-red-500";
+        return "bg-blue-500";
+      case "mythic":
+        return "bg-orange-500";
       default:
         return "bg-gray-400";
+    }
+  };
+
+  const handleCloseCollectionMenu = () => {
+    setShowCollectionMenu(false);
+  };
+
+  const handleCloseDeckMenu = () => {
+    setShowDeckMenu(false);
+  };
+
+  const handleViewCard = () => {
+    router.push(`/cards/${card.id}`);
+  };
+
+  const handleToggleCollectionMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (collectionButtonRef.current) {
+      const rect = collectionButtonRef.current.getBoundingClientRect();
+      const menuWidth = 200;
+      const menuHeight = 200;
+
+      let top = rect.bottom + 8;
+      let left = rect.left;
+
+      if (left + menuWidth > window.innerWidth) {
+        left = rect.right - menuWidth;
+      }
+
+      if (top + menuHeight > window.innerHeight && rect.top > menuHeight) {
+        top = rect.top - menuHeight - 8;
+      }
+
+      setCollectionMenuPosition({ top, left });
+    }
+    setShowCollectionMenu(!showCollectionMenu);
+  };
+
+  const handleToggleDeckMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (deckButtonRef.current) {
+      const rect = deckButtonRef.current.getBoundingClientRect();
+      const menuWidth = 240;
+      const menuHeight = 300;
+
+      let top = rect.bottom + 8;
+      let left = rect.left;
+
+      if (left + menuWidth > window.innerWidth) {
+        left = rect.right - menuWidth;
+      }
+
+      if (top + menuHeight > window.innerHeight && rect.top > menuHeight) {
+        top = rect.top - menuHeight - 8;
+      }
+
+      setDeckMenuPosition({ top, left });
+    }
+    setShowDeckMenu(!showDeckMenu);
+  };
+
+  const handleRemoveCard = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRemove) {
+      onRemove();
     }
   };
 
@@ -193,7 +259,7 @@ export function CardDisplay({
         <>
           <div
             className="fixed inset-0 z-40"
-            onClick={() => setShowCollectionMenu(false)}
+            onClick={handleCloseCollectionMenu}
           />
           <div
             className="fixed bg-card border border-border rounded-lg shadow-xl py-1 z-50 min-w-[200px]"
@@ -229,10 +295,7 @@ export function CardDisplay({
       {/* Menu decks - en dehors de la Card */}
       {showDeckMenu && (
         <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setShowDeckMenu(false)}
-          />
+          <div className="fixed inset-0 z-40" onClick={handleCloseDeckMenu} />
           <div
             className="fixed bg-card border border-border rounded-lg shadow-xl py-1 z-50 min-w-60 max-h-96 overflow-y-auto"
             style={{
@@ -317,7 +380,7 @@ export function CardDisplay({
                   <Button
                     size="icon"
                     variant="default"
-                    onClick={() => router.push(`/cards/${card.id}`)}
+                    onClick={handleViewCard}
                     className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
                   >
                     <Eye className="h-5 w-5" />
@@ -334,35 +397,7 @@ export function CardDisplay({
                       ref={collectionButtonRef}
                       size="icon"
                       variant="default"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (collectionButtonRef.current) {
-                          const rect =
-                            collectionButtonRef.current.getBoundingClientRect();
-                          const menuWidth = 200;
-                          const menuHeight = 200; // hauteur max raisonnable
-
-                          // Position par défaut : en dessous du bouton
-                          let top = rect.bottom + 8;
-                          let left = rect.left;
-
-                          // Ajuster horizontalement si déborde à droite
-                          if (left + menuWidth > window.innerWidth) {
-                            left = rect.right - menuWidth;
-                          }
-
-                          // Ajuster verticalement si déborde en bas (seulement si vraiment nécessaire)
-                          if (
-                            top + menuHeight > window.innerHeight &&
-                            rect.top > menuHeight
-                          ) {
-                            top = rect.top - menuHeight - 8;
-                          }
-
-                          setCollectionMenuPosition({ top, left });
-                        }
-                        setShowCollectionMenu(!showCollectionMenu);
-                      }}
+                      onClick={handleToggleCollectionMenu}
                       className="h-12 w-12 rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
                     >
                       <BookOpen className="h-5 w-5" />
@@ -380,35 +415,7 @@ export function CardDisplay({
                       ref={deckButtonRef}
                       size="icon"
                       variant="default"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (deckButtonRef.current) {
-                          const rect =
-                            deckButtonRef.current.getBoundingClientRect();
-                          const menuWidth = 240;
-                          const menuHeight = 300; // hauteur max raisonnable
-
-                          // Position par défaut : en dessous du bouton
-                          let top = rect.bottom + 8;
-                          let left = rect.left;
-
-                          // Ajuster horizontalement si déborde à droite
-                          if (left + menuWidth > window.innerWidth) {
-                            left = rect.right - menuWidth;
-                          }
-
-                          // Ajuster verticalement si déborde en bas (seulement si vraiment nécessaire)
-                          if (
-                            top + menuHeight > window.innerHeight &&
-                            rect.top > menuHeight
-                          ) {
-                            top = rect.top - menuHeight - 8;
-                          }
-
-                          setDeckMenuPosition({ top, left });
-                        }
-                        setShowDeckMenu(!showDeckMenu);
-                      }}
+                      onClick={handleToggleDeckMenu}
                       className="h-12 w-12 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
                     >
                       <Layers className="h-5 w-5" />
@@ -431,7 +438,7 @@ export function CardDisplay({
                   <Button
                     size="icon"
                     variant="default"
-                    onClick={() => router.push(`/cards/${card.id}`)}
+                    onClick={handleViewCard}
                     className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
                   >
                     <Eye className="h-5 w-5" />
@@ -446,10 +453,7 @@ export function CardDisplay({
                   <Button
                     size="icon"
                     variant="default"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRemove();
-                    }}
+                    onClick={handleRemoveCard}
                     className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-700 shadow-lg"
                   >
                     <Trash2 className="h-5 w-5" />
@@ -467,9 +471,10 @@ export function CardDisplay({
           {/* Badge de rareté */}
           {card.rarity && (
             <Badge
-              className={`absolute top-2 right-2 ${getRarityColor(
-                card.rarity
-              )} text-white border-0`}
+              className={cn(
+                "absolute top-2 right-2 text-white border-0",
+                getRarityColor(card.rarity)
+              )}
             >
               {card.rarity}
             </Badge>

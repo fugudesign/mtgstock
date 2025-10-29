@@ -14,6 +14,7 @@ import {
   getCardTypeLine,
   isDoubleFacedCard,
 } from "@/lib/scryfall-api";
+import { cn } from "@/lib/utils";
 import {
   ArrowLeft,
   ExternalLink,
@@ -328,11 +329,12 @@ export default function CardDetailPage() {
                           <button
                             key={index}
                             onClick={() => setCurrentFaceIndex(index)}
-                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                            className={cn(
+                              "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
                               currentFaceIndex === index
                                 ? "bg-primary text-white shadow-lg"
                                 : "bg-white/90 text-gray-700 hover:bg-white"
-                            }`}
+                            )}
                           >
                             Face {index + 1}
                           </button>
@@ -664,10 +666,11 @@ export default function CardDetailPage() {
                           return (
                             <div
                               key={format}
-                              className={`px-3 py-2 rounded-md border ${
+                              className={cn(
+                                "px-3 py-2 rounded-md border",
                                 statusColors[status] ||
-                                "bg-gray-100 text-gray-700 border-gray-300"
-                              }`}
+                                  "bg-gray-100 text-gray-700 border-gray-300"
+                              )}
                             >
                               <p className="font-semibold text-xs uppercase">
                                 {format.replace("_", " ")}
