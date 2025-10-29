@@ -11,7 +11,7 @@ import {
   getCardType,
   isDoubleFacedCard,
 } from "@/lib/scryfall-api";
-import { Eye, Heart, Layers, Loader2, Trash2 } from "lucide-react";
+import { BookOpen, Eye, Layers, Loader2, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -276,8 +276,8 @@ export function CardDisplay({
       )}
 
       <Card className="relative group overflow-hidden transition-all duration-200 hover:shadow-lg">
-        <div className="relative">
-          <div className="aspect-5/7 overflow-hidden bg-muted">
+        <div className="relative overflow-hidden">
+          <div className="aspect-5/7 bg-muted ">
             <Image
               src={getImageUrl()}
               alt={card.name}
@@ -365,7 +365,7 @@ export function CardDisplay({
                       }}
                       className="h-12 w-12 rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
                     >
-                      <Heart className="h-5 w-5" />
+                      <BookOpen className="h-5 w-5" />
                     </Button>
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                       Ajouter à une collection
@@ -455,7 +455,8 @@ export function CardDisplay({
                     <Trash2 className="h-5 w-5" />
                   </Button>
                   <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                    Supprimer
+                    Retirer{" "}
+                    {context === "collection" ? "de la collection" : "du deck"}
                     <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
                   </div>
                 </div>
