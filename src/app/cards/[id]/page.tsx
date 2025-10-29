@@ -75,9 +75,7 @@ export default function CardDetailPage() {
 
       try {
         // Récupérer la carte par son ID
-        const response = await fetch(
-          `https://api.scryfall.com/cards/${params.id}`
-        );
+        const response = await fetch(`/api/scryfall/cards/${params.id}`);
         if (!response.ok) {
           toast.error("Carte introuvable");
           router.push("/search");
@@ -109,7 +107,7 @@ export default function CardDetailPage() {
             await new Promise((resolve) => setTimeout(resolve, 100));
 
             // Chercher la version dans la langue de l'utilisateur via l'oracle_id
-            const searchUrl = `https://api.scryfall.com/cards/search?q=oracleid:${fetchedCard.oracle_id}+lang:${userLang}&unique=prints`;
+            const searchUrl = `/api/scryfall/search?q=oracleid:${fetchedCard.oracle_id}+lang:${userLang}&unique=prints`;
             console.log("Recherche URL:", searchUrl);
 
             const localizedResponse = await fetch(searchUrl);

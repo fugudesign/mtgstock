@@ -36,7 +36,7 @@ export function ManaSymbol({
       // Si les symboles ne sont pas encore chargés, les charger
       if (!symbolsLoaded) {
         try {
-          const response = await fetch("https://api.scryfall.com/symbology");
+          const response = await fetch("/api/scryfall/symbology");
           if (response.ok) {
             const data = await response.json();
             // Mettre en cache tous les symboles
