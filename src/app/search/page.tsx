@@ -370,53 +370,6 @@ function SearchPageContent() {
                 </Button>
               </div>
 
-              {/* Quick examples */}
-              {!showFilters && cards.length === 0 && (
-                <div className="mt-4 pt-4 border-t border-border">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Exemples de recherche :
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => {
-                        setSearchQuery("Jace");
-                        handleSearch(1);
-                      }}
-                      className="px-3 py-1 text-xs bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors"
-                    >
-                      Jace
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSearchQuery("Lightning Bolt");
-                        handleSearch(1);
-                      }}
-                      className="px-3 py-1 text-xs bg-destructive/10 text-destructive rounded-full hover:bg-destructive/20 transition-colors"
-                    >
-                      Lightning Bolt
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSearchQuery("Black Lotus");
-                        handleSearch(1);
-                      }}
-                      className="px-3 py-1 text-xs bg-purple-500/10 text-purple-400 rounded-full hover:bg-purple-500/20 transition-colors"
-                    >
-                      Black Lotus
-                    </button>
-                    <button
-                      onClick={() => {
-                        setFilters({ ...filters, language: "French" });
-                        setShowFilters(true);
-                      }}
-                      className="px-3 py-1 text-xs bg-green-500/10 text-green-400 rounded-full hover:bg-green-500/20 transition-colors"
-                    >
-                      🇫🇷 Rechercher en français
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {/* Filters */}
               {showFilters && (
                 <div className="mt-6 pt-6 border-t border-border grid grid-cols-1 md:grid-cols-5 gap-4">
