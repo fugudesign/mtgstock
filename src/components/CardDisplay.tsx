@@ -486,7 +486,7 @@ export function CardDisplay({
         <CardContent className="p-3">
           <div className="space-y-1">
             <h3 className="font-semibold text-sm leading-tight line-clamp-2">
-              {card.name}
+              {card.printed_name || card.name}
             </h3>
 
             {getCardManaCost(card) && (
@@ -497,7 +497,7 @@ export function CardDisplay({
 
             {getCardType(card) && (
               <p className="text-xs text-muted-foreground line-clamp-1">
-                {getCardType(card)}
+                {card.printed_type_line || getCardType(card)}
               </p>
             )}
 
