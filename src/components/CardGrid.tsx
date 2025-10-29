@@ -4,6 +4,7 @@ import { CardDisplay } from "@/components/CardDisplay";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MTGCard } from "@/lib/scryfall-api";
+import { cn } from "@/lib/utils";
 import { Loader2, Search } from "lucide-react";
 
 interface CardGridProps {
@@ -84,7 +85,7 @@ export function CardGrid({
   // Affichage de la grille de cartes
   return (
     <>
-      <div className={`${gridClasses} mb-8`}>
+      <div className={cn(gridClasses, "mb-8")}>
         {cards.map((card) => (
           <CardDisplay
             key={card.id}
