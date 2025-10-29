@@ -49,10 +49,13 @@ export function CardGrid({
     }
   };
 
+  // Classes communes pour la grille
+  const gridClasses = "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4";
+
   // Affichage du loading skeleton (première charge)
   if (loading && cards.length === 0) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className={gridClasses}>
         {Array.from({ length: skeletonCount }).map((_, i) => (
           <div
             key={i}
@@ -81,7 +84,7 @@ export function CardGrid({
   // Affichage de la grille de cartes
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+      <div className={`${gridClasses} mb-8`}>
         {cards.map((card) => (
           <CardDisplay
             key={card.id}
