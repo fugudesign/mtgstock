@@ -33,6 +33,93 @@ body {
   color: var(--color-foreground);
 }
 
+/* PWA et Mobile optimizations */
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  /* Support des safe areas pour les appareils avec encoche */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Empêcher le zoom sur les inputs sur iOS */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+textarea,
+select {
+  font-size: 16px !important;
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+/* Navigation avec safe areas */
+.navigation {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Main content avec safe areas */
+main {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Améliorer le touch sur mobile */
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"],
+a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Optimiser les cartes sur mobile */
+.card-container {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Scroll smooth sur mobile */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optimiser les images */
+img {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Optimisations PWA standalone */
+@media (display-mode: standalone) {
+  body {
+    /* Masquer la barre d'adresse virtuelle sur certains navigateurs */
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* Navigation en mode standalone */
+  .navigation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+  }
+}
+
 /* Masquer le badge reCAPTCHA v3 */
 .grecaptcha-badge {
   visibility: hidden;

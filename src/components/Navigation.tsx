@@ -36,7 +36,7 @@ export function Navigation() {
 
   return (
     <>
-      <nav className="bg-background/60 fixed inset-x-0 backdrop-blur-xs top-0 z-50">
+      <nav className="navigation bg-background/60 fixed inset-x-0 backdrop-blur-xs top-0 z-50">
         <div className="mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="w-full h-full grid grid-cols-2 md:grid-cols-[1fr_auto_1fr] gap-8">
