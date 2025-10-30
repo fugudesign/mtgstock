@@ -2,6 +2,7 @@
 
 import { CreateModal } from "@/components/CreateModal";
 import { ItemCard } from "@/components/ItemCard";
+import { PageHeader } from "@/components/PageHeader";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -128,21 +129,26 @@ export default function CollectionsPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         <div className=" mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">
-                Mes Collections
-              </h1>
-              <p className="text-muted-foreground">
-                Organisez vos cartes en collections personnalisées
-              </p>
-            </div>
-            <Button size="lg" onClick={() => setShowNewCollectionForm(true)}>
+          <PageHeader
+            title="Mes Collections"
+            subtitle="Organisez vos cartes en collections personnalisées"
+          >
+            <Button
+              size="lg"
+              className="hidden md:flex"
+              onClick={() => setShowNewCollectionForm(true)}
+            >
               <Plus className="mr-2 h-5 w-5" />
               Nouvelle collection
             </Button>
-          </div>
+            <Button
+              size="icon"
+              className="flex md:hidden"
+              onClick={() => setShowNewCollectionForm(true)}
+            >
+              <Plus />
+            </Button>
+          </PageHeader>
 
           {/* Collections Grid */}
           {collections.length > 0 ? (
@@ -175,11 +181,11 @@ export default function CollectionsPage() {
           ) : (
             <Card>
               <CardContent className="p-12 text-center">
-                <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                <BookOpen className="h-16 w-16 text-accent mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-accent mb-2">
                   Aucune collection
                 </h3>
-                <p className="text-gray-500 mb-6">
+                <p className="text-muted-foreground mb-6">
                   Créez votre première collection pour commencer à organiser vos
                   cartes
                 </p>

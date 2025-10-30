@@ -2,6 +2,7 @@
 
 import { CreateModal } from "@/components/CreateModal";
 import { ItemCard } from "@/components/ItemCard";
+import { PageHeader } from "@/components/PageHeader";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -167,22 +168,26 @@ export default function DecksPage() {
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         <div className=" mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">
-                Mes Decks
-              </h1>
-              <p className="text-muted-foreground">
-                Construisez vos decks compétitifs (60-100 cartes, max 4 copies
-                par carte)
-              </p>
-            </div>
-            <Button size="lg" onClick={() => setShowNewDeckForm(true)}>
+          <PageHeader
+            title="Mes Decks"
+            subtitle="Construisez vos decks compétitifs (60-100 cartes, max 4 copies par carte)"
+          >
+            <Button
+              size="lg"
+              className="hidden md:flex"
+              onClick={() => setShowNewDeckForm(true)}
+            >
               <Plus className="mr-2 h-5 w-5" />
               Nouveau deck
             </Button>
-          </div>
+            <Button
+              size="icon"
+              className="flex md:hidden"
+              onClick={() => setShowNewDeckForm(true)}
+            >
+              <Plus />
+            </Button>
+          </PageHeader>
 
           {/* Decks Grid */}
           {decks.length > 0 ? (
@@ -225,11 +230,11 @@ export default function DecksPage() {
           ) : (
             <Card>
               <CardContent className="p-12 text-center">
-                <Layers className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                <Layers className="h-16 w-16 text-accent mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-accent mb-2">
                   Aucun deck
                 </h3>
-                <p className="text-gray-500 mb-6">
+                <p className="text-muted-foreground mb-6">
                   Créez votre premier deck pour commencer à construire votre
                   stratégie
                 </p>

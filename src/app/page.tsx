@@ -35,20 +35,16 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative py-20 px-4 h-lvh flex flex-col justify-center items-center bg-radial from-background to-neutral-950 overflow-hidden">
-        <MtgStockIcon
-          size={800}
-          className="pointer-events-none absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 mb-6 text-indigo-800 blur-xs"
-        />
+        <MtgStockIcon className="size-[500px] md:size-[800px] pointer-events-none absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 mb-6 text-indigo-800 blur-xs" />
         <div className="mx-auto text-center">
-          <h1 className="font-decorative text-9xl  text-purple-600 drop-shadow-md mb-2 text-shadow-lg text-shadow-indigo-950">
+          <h1 className="font-decorative text-7xl md:text-9xl text-purple-600 drop-shadow-md mb-2 text-shadow-lg text-shadow-indigo-950">
             Magic Stack
           </h1>
-          <p className="text-xs tracking-[14px] text-foreground uppercase mb-8">
+          <p className="text-xs tracking-[6px] md:tracking-[14px] text-foreground uppercase mb-8">
             The cards gathering
           </p>
-          <p className="text-lg text-accent-foreground/40 mb-8 max-w-2xl mx-auto">
+          <p className="text-sm md:text-lg text-accent-foreground/40 mb-8 max-w-2xl mx-auto">
             Gérez vos collections et decks Magic The Gathering avec style.
-            <br />
             Recherchez parmi des milliers de cartes et organisez votre passion.
           </p>
 
