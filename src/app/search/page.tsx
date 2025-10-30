@@ -38,6 +38,9 @@ function SearchPageContent() {
     language: "",
   });
 
+  // Configuration de pagination
+  const PAGE_SIZE = 15;
+
   const [showFilters, setShowFilters] = useState(false);
 
   // Close suggestions when clicking outside
@@ -205,7 +208,7 @@ function SearchPageContent() {
     try {
       const searchParams: Record<string, string | number> = {
         page,
-        pageSize: 20,
+        pageSize: PAGE_SIZE,
       };
 
       if (query.trim()) {
@@ -471,9 +474,16 @@ function SearchPageContent() {
 
           {/* Results Count */}
           {totalResults > 0 && (
-            <div className="mb-4 text-sm text-muted-foreground">
-              {totalResults} résultat{totalResults > 1 ? "s" : ""} trouvé
-              {totalResults > 1 ? "s" : ""}
+            <div className="mb-4 flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Affichage de {cards.length} sur {totalResults} résultat
+                {totalResults > 1 ? "s" : ""}
+              </div>
+              {hasMore && (
+                <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                  Plus de cartes disponibles
+                </div>
+              )}
             </div>
           )}
 
@@ -487,6 +497,7 @@ function SearchPageContent() {
             emptyDescription={getEmptyDescription()}
             showActions={true}
             context="search"
+            pageSize={PAGE_SIZE}
           />
         </div>
       </div>

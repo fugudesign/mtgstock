@@ -53,6 +53,14 @@ Database (Prisma) → API Routes → Components
 // Conditional rendering based on auth status
 const { status } = useSession();
 if (status === "authenticated") { /* show actions */ }
+
+// Pagination with load more pattern
+<CardGrid
+  cards={cards}
+  hasMore={hasMore}
+  onLoadMore={handleLoadMore}
+  pageSize={PAGE_SIZE}
+/>
 ```
 
 ### Mobile-First Responsive Design

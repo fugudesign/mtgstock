@@ -18,6 +18,7 @@ interface CardGridProps {
   context?: "search" | "collection" | "deck";
   onCardRemove?: (cardId: string) => Promise<void>;
   skeletonCount?: number;
+  pageSize?: number; // Pour afficher combien de cartes seront chargées
 }
 
 /**
@@ -35,6 +36,7 @@ export function CardGrid({
   context = "search",
   onCardRemove,
   skeletonCount = 10,
+  pageSize = 12,
 }: CardGridProps) {
   // Handler pour le bouton Load More
   const handleLoadMore = () => {
@@ -115,7 +117,7 @@ export function CardGrid({
                 Chargement...
               </>
             ) : (
-              "Charger plus de cartes"
+              <>Charger {pageSize} cartes supplémentaires</>
             )}
           </Button>
         </div>

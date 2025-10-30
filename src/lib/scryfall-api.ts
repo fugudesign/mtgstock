@@ -244,6 +244,14 @@ class ScryfallApiService {
     return queryParts.join(" ");
   }
 
+  // Cache pour la pagination côté client
+  private currentSearch: {
+    query: string;
+    allCards: MTGCard[];
+    total: number;
+    hasMoreFromApi: boolean;
+  } | null = null;
+
   async searchCards(params: {
     name?: string;
     colors?: string;
@@ -270,24 +278,94 @@ class ScryfallApiService {
         return { cards: [], hasMore: false, total: 0 };
       }
 
-      const searchParams = new URLSearchParams({
-        q: query,
-        unique: "prints",
-        order: "name",
-        page: (params.page || 1).toString(),
-      });
+      const pageSize = params.pageSize || 12;
+      const currentPage = params.page || 1;
 
-      const url =
-        typeof window !== "undefined"
-          ? `/api/scryfall/search?${searchParams}`
-          : `${this.baseUrl}/cards/search?${searchParams}`;
+      // Si c'est une nouvelle recherche (page 1) ou si la query a changé
+      if (
+        currentPage === 1 ||
+        !this.currentSearch ||
+        this.currentSearch.query !== query
+      ) {
+        // Réinitialiser le cache et faire une nouvelle requête API
+        this.currentSearch = null;
 
-      const response = await axios.get<ScryfallSearchResponse>(url);
+        const searchParams = new URLSearchParams({
+          q: query,
+          unique: "prints",
+          order: "name",
+          page: "1", // Toujours commencer par la page 1 de l'API
+        });
+
+        const url =
+          typeof window !== "undefined"
+            ? `/api/scryfall/search?${searchParams}`
+            : `${this.baseUrl}/cards/search?${searchParams}`;
+
+        const response = await axios.get<ScryfallSearchResponse>(url);
+
+        // Sauvegarder dans le cache
+        this.currentSearch = {
+          query,
+          allCards: response.data.data,
+          total: response.data.total_cards,
+          hasMoreFromApi: response.data.has_more,
+        };
+      }
+
+      // Calculer les cartes pour cette page côté client
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const cardsForPage = this.currentSearch.allCards.slice(
+        startIndex,
+        endIndex
+      );
+
+      // Si on n'a pas assez de cartes et qu'il y en a plus côté API, charger plus
+      if (cardsForPage.length < pageSize && this.currentSearch.hasMoreFromApi) {
+        // Charger la page suivante de l'API
+        const nextApiPage =
+          Math.floor(this.currentSearch.allCards.length / 175) + 1; // Scryfall renvoie ~175 cartes par page
+
+        const searchParams = new URLSearchParams({
+          q: query,
+          unique: "prints",
+          order: "name",
+          page: (nextApiPage + 1).toString(),
+        });
+
+        const url =
+          typeof window !== "undefined"
+            ? `/api/scryfall/search?${searchParams}`
+            : `${this.baseUrl}/cards/search?${searchParams}`;
+
+        const response = await axios.get<ScryfallSearchResponse>(url);
+
+        // Ajouter les nouvelles cartes au cache
+        this.currentSearch.allCards.push(...response.data.data);
+        this.currentSearch.hasMoreFromApi = response.data.has_more;
+
+        // Recalculer les cartes pour cette page
+        const updatedCardsForPage = this.currentSearch.allCards.slice(
+          startIndex,
+          endIndex
+        );
+
+        return {
+          cards: updatedCardsForPage,
+          hasMore:
+            endIndex < this.currentSearch.allCards.length ||
+            this.currentSearch.hasMoreFromApi,
+          total: this.currentSearch.total,
+        };
+      }
 
       return {
-        cards: response.data.data,
-        hasMore: response.data.has_more,
-        total: response.data.total_cards,
+        cards: cardsForPage,
+        hasMore:
+          endIndex < this.currentSearch.allCards.length ||
+          this.currentSearch.hasMoreFromApi,
+        total: this.currentSearch.total,
       };
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
