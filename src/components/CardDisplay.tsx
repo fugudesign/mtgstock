@@ -338,7 +338,10 @@ export function CardDisplay({
         </>
       )}
 
-      <Card className="relative group overflow-hidden transition-all duration-200 hover:shadow-lg">
+      <Card
+        className="relative group overflow-hidden transition-all duration-200 hover:shadow-lg cursor-pointer"
+        onClick={handleViewCard}
+      >
         <div className="relative overflow-hidden">
           <div className="aspect-5/7 bg-muted ">
             <Image
@@ -372,15 +375,18 @@ export function CardDisplay({
             </Badge>
           )}
 
-          {/* Overlay avec les actions */}
+          {/* Overlay avec les actions sur desktop au hover */}
           {showActions && context === "search" && (
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
+            <div className="hidden md:absolute md:inset-0 md:bg-black/50 md:opacity-0 md:group-hover:opacity-100 md:transition-all md:duration-200 md:flex md:items-center md:justify-center">
               <div className="flex gap-3">
                 <div className="relative group/tooltip">
                   <Button
                     size="icon"
                     variant="default"
-                    onClick={handleViewCard}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewCard();
+                    }}
                     className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
                   >
                     <Eye className="h-5 w-5" />
@@ -397,7 +403,10 @@ export function CardDisplay({
                       ref={collectionButtonRef}
                       size="icon"
                       variant="default"
-                      onClick={handleToggleCollectionMenu}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleCollectionMenu(e);
+                      }}
                       className="h-12 w-12 rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
                     >
                       <BookOpen className="h-5 w-5" />
@@ -415,7 +424,10 @@ export function CardDisplay({
                       ref={deckButtonRef}
                       size="icon"
                       variant="default"
-                      onClick={handleToggleDeckMenu}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleDeckMenu(e);
+                      }}
                       className="h-12 w-12 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
                     >
                       <Layers className="h-5 w-5" />
@@ -430,15 +442,18 @@ export function CardDisplay({
             </div>
           )}
 
-          {/* Actions pour collection/deck (suppression) */}
+          {/* Actions pour collection/deck (suppression) sur desktop au hover */}
           {onRemove && (context === "collection" || context === "deck") && (
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
+            <div className="hidden md:absolute md:inset-0 md:bg-black/50 md:opacity-0 md:group-hover:opacity-100 md:transition-all md:duration-200 md:flex md:items-center md:justify-center">
               <div className="flex gap-3">
                 <div className="relative group/tooltip">
                   <Button
                     size="icon"
                     variant="default"
-                    onClick={handleViewCard}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewCard();
+                    }}
                     className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
                   >
                     <Eye className="h-5 w-5" />
@@ -453,7 +468,10 @@ export function CardDisplay({
                   <Button
                     size="icon"
                     variant="default"
-                    onClick={handleRemoveCard}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveCard(e);
+                    }}
                     className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-700 shadow-lg"
                   >
                     <Trash2 className="h-5 w-5" />

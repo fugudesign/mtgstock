@@ -156,7 +156,9 @@ class ScryfallApiService {
   private requestQueue: Promise<unknown> = Promise.resolve();
 
   constructor() {
-    this.baseUrl = SCRYFALL_API_BASE;
+    // Utiliser le proxy API en développement/production
+    this.baseUrl =
+      typeof window !== "undefined" ? "/api/scryfall" : SCRYFALL_API_BASE;
   }
 
   // Rate limiting: Scryfall demande 50-100ms entre chaque requête
@@ -252,7 +254,7 @@ class ScryfallApiService {
     page?: number;
     pageSize?: number;
   }): Promise<{ cards: MTGCard[]; hasMore: boolean; total?: number }> {
-    await this.throttle();
+    // Le throttling est maintenant géré côté serveur dans les routes proxy
 
     try {
       const query = this.buildScryfallQuery({
@@ -275,9 +277,12 @@ class ScryfallApiService {
         page: (params.page || 1).toString(),
       });
 
-      const response = await axios.get<ScryfallSearchResponse>(
-        `${this.baseUrl}/cards/search?${searchParams}`
-      );
+      const url =
+        typeof window !== "undefined"
+          ? `/api/scryfall/search?${searchParams}`
+          : `${this.baseUrl}/cards/search?${searchParams}`;
+
+      const response = await axios.get<ScryfallSearchResponse>(url);
 
       return {
         cards: response.data.data,
@@ -313,10 +318,15 @@ class ScryfallApiService {
   }
 
   async getCardById(id: string): Promise<MTGCard | null> {
-    await this.throttle();
+    // Le throttling est maintenant géré côté serveur dans les routes proxy
 
     try {
-      const response = await axios.get<MTGCard>(`${this.baseUrl}/cards/${id}`);
+      const url =
+        typeof window !== "undefined"
+          ? `/api/scryfall/cards/${id}`
+          : `${this.baseUrl}/cards/${id}`;
+
+      const response = await axios.get<MTGCard>(url);
       return response.data;
     } catch (error) {
       console.error(
@@ -349,14 +359,19 @@ class ScryfallApiService {
   }
 
   async autocomplete(query: string): Promise<string[]> {
-    await this.throttle();
+    // Le throttling est maintenant géré côté serveur dans les routes proxy
 
     try {
+      const url =
+        typeof window !== "undefined"
+          ? `/api/scryfall/autocomplete?q=${encodeURIComponent(query)}`
+          : `${this.baseUrl}/cards/autocomplete?q=${encodeURIComponent(query)}`;
+
       const response = await axios.get<{
         object: string;
         total_values: number;
         data: string[];
-      }>(`${this.baseUrl}/cards/autocomplete?q=${encodeURIComponent(query)}`);
+      }>(url);
       return response.data.data;
     } catch (error) {
       console.error("Erreur lors de l'autocomplétion:", error);

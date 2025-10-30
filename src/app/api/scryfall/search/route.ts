@@ -1,3 +1,4 @@
+import { fetchWithRetry } from "@/lib/rate-limiter";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -18,7 +19,8 @@ export async function GET(request: NextRequest) {
       url.searchParams.append(key, value);
     });
 
-    const response = await fetch(url.toString());
+    // Utiliser fetchWithRetry qui inclut le throttling et la gestion des 429
+    const response = await fetchWithRetry(url.toString());
 
     if (!response.ok) {
       // 404 = pas de résultats

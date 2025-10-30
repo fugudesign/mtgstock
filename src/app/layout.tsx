@@ -69,7 +69,7 @@ export default function RootLayout({
         <Providers>
           <RecaptchaProvider>
             <Navigation />
-            <main className="pt-12">{children}</main>
+            <main className="pt-12 mb-16 md:pb-8">{children}</main>
             <Toaster position="top-right" richColors />
           </RecaptchaProvider>
         </Providers>

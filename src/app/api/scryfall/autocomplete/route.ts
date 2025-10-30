@@ -1,3 +1,4 @@
+import { fetchWithRetry } from "@/lib/rate-limiter";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -12,7 +13,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const response = await fetch(
+    // Utiliser fetchWithRetry qui inclut le throttling et la gestion des 429
+    const response = await fetchWithRetry(
       `https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(
         query
       )}`
