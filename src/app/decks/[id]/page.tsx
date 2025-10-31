@@ -163,25 +163,29 @@ export default function DeckDetailsPage() {
   // Handler pour la suppression d'une carte du deck
   const handleRemoveCard = async (cardId: string) => {
     if (!confirm("Voulez-vous vraiment retirer cette carte du deck ?")) {
-      return;
+      throw new Error("Suppression annulée par l'utilisateur");
     }
 
     try {
-      const response = await fetch(`/api/decks/${deckId}/cards`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardId }),
-      });
+      const response = await fetch(
+        `/api/decks/${deckId}/cards?cardId=${encodeURIComponent(cardId)}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (response.ok) {
-        toast.success("Carte retirée du deck");
         await fetchDeck();
       } else {
-        toast.error("Erreur lors de la suppression");
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: "Erreur de suppression" }));
+        throw new Error(errorData.error || `Erreur HTTP ${response.status}`);
       }
     } catch (error) {
       console.error("Error removing card:", error);
-      toast.error("Erreur lors de la suppression");
+      throw error; // Re-throw pour que CardDisplay puisse l'attraper
     }
   };
 

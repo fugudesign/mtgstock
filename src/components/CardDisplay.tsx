@@ -288,10 +288,28 @@ export function CardDisplay({
     setShowDeckMenu(!showDeckMenu);
   };
 
-  const handleRemoveCard = (e: React.MouseEvent) => {
+  const handleRemoveCard = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onRemove) {
-      onRemove();
+      try {
+        await onRemove();
+        // Fermer l'overlay mobile après suppression réussie
+        setShowMobileOverlay(false);
+        toast.success(
+          `Carte retirée ${
+            context === "collection" ? "de la collection" : "du deck"
+          }`
+        );
+      } catch (error) {
+        console.error("Error removing card:", error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Erreur inconnue";
+
+        // Ne pas afficher d'erreur si l'utilisateur a annulé
+        if (!errorMessage.includes("annulée par l'utilisateur")) {
+          toast.error("Erreur lors de la suppression de la carte");
+        }
+      }
     }
   };
 
@@ -422,6 +440,9 @@ export function CardDisplay({
           {/* Overlay avec les actions - Desktop au hover, Mobile au tap */}
           {showActions && context === "search" && (
             <div
+              // Empêcher la propagation des interactions depuis l'overlay vers la Card parent
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               className={`absolute inset-0 bg-black/50 transition-all duration-200 flex items-center justify-center ${
                 showMobileOverlay
                   ? "opacity-100 pointer-events-auto"
@@ -495,6 +516,9 @@ export function CardDisplay({
           {/* Actions pour collection/deck - Desktop au hover, Mobile au tap */}
           {onRemove && (context === "collection" || context === "deck") && (
             <div
+              // Empêcher la propagation des interactions depuis l'overlay vers la Card parent
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
               className={`absolute inset-0 bg-black/50 transition-all duration-200 flex items-center justify-center ${
                 showMobileOverlay
                   ? "opacity-100 pointer-events-auto"

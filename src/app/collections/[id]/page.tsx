@@ -166,17 +166,27 @@ export default function CollectionDetailPage({
   // Handler pour la suppression d'une carte de la collection
   const handleRemoveCard = async (cardId: string) => {
     try {
-      const response = await fetch(`/api/collections/${collection.id}/cards`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cardId }),
-      });
+      const response = await fetch(
+        `/api/collections/${collection.id}/cards?cardId=${encodeURIComponent(
+          cardId
+        )}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (response.ok) {
         await fetchCollection();
+      } else {
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: "Erreur de suppression" }));
+        throw new Error(errorData.error || `Erreur HTTP ${response.status}`);
       }
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
+      throw error; // Re-throw pour que CardDisplay puisse l'attraper et afficher l'erreur
     }
   };
 
