@@ -27,7 +27,6 @@ interface DeckCard {
   id: string;
   cardId: string;
   quantity: number;
-  isMainboard: boolean;
   card: Card;
 }
 
@@ -81,21 +80,13 @@ export default function DeckDetailsPage() {
   const getDeckStatus = () => {
     if (!deck) return null;
 
-    const mainboardCount = deck.cards
-      .filter((dc) => dc.isMainboard)
-      .reduce((sum, dc) => sum + dc.quantity, 0);
-
-    const sideboardCount = deck.cards
-      .filter((dc) => !dc.isMainboard)
-      .reduce((sum, dc) => sum + dc.quantity, 0);
+    const totalCards = deck.cards.reduce((sum, dc) => sum + dc.quantity, 0);
 
     const cardCopies: { [key: string]: number } = {};
-    deck.cards
-      .filter((dc) => dc.isMainboard)
-      .forEach((dc) => {
-        const cardName = dc.card.name;
-        cardCopies[cardName] = (cardCopies[cardName] || 0) + dc.quantity;
-      });
+    deck.cards.forEach((dc) => {
+      const cardName = dc.card.name;
+      cardCopies[cardName] = (cardCopies[cardName] || 0) + dc.quantity;
+    });
 
     const basicLands = [
       "Plains",
@@ -110,13 +101,10 @@ export default function DeckDetailsPage() {
     );
 
     const isValid =
-      mainboardCount >= 60 &&
-      mainboardCount <= 100 &&
-      duplicateIssues.length === 0;
+      totalCards >= 40 && totalCards <= 100 && duplicateIssues.length === 0;
 
     return {
-      mainboardCount,
-      sideboardCount,
+      totalCards,
       duplicateIssues,
       isValid,
     };
@@ -144,8 +132,6 @@ export default function DeckDetailsPage() {
   }
 
   const deckStatus = getDeckStatus();
-  const mainboardCards = deck.cards.filter((dc) => dc.isMainboard);
-  const sideboardCards = deck.cards.filter((dc) => !dc.isMainboard);
 
   // Fonction pour transformer une DeckCard en MTGCard
   const transformDeckCardToMTGCard = (deckCard: DeckCard): MTGCard => {
@@ -198,8 +184,7 @@ export default function DeckDetailsPage() {
   };
 
   // Transformer les cartes pour le CardGrid
-  const mainboardMTGCards = mainboardCards.map(transformDeckCardToMTGCard);
-  const sideboardMTGCards = sideboardCards.map(transformDeckCardToMTGCard);
+  const deckMTGCards = deck.cards.map(transformDeckCardToMTGCard);
 
   return (
     <ProtectedRoute>
@@ -228,9 +213,7 @@ export default function DeckDetailsPage() {
                       <AlertCircle className="h-4 w-4" />
                     )}
                     <span className="font-medium">
-                      {deckStatus.mainboardCount} cartes mainboard
-                      {deckStatus.sideboardCount > 0 &&
-                        ` + ${deckStatus.sideboardCount} sideboard`}
+                      {deckStatus.totalCards} cartes
                     </span>
                   </div>
                 )}
@@ -267,16 +250,16 @@ export default function DeckDetailsPage() {
                       Ce deck n’est pas encore valide.
                     </h3>
                     <ul className="space-y-1 text-sm text-orange-500">
-                      {deckStatus.mainboardCount < 60 && (
+                      {deckStatus.totalCards < 40 && (
                         <li>
-                          • Minimum 60 cartes requises (actuellement{" "}
-                          {deckStatus.mainboardCount})
+                          • Minimum 40 cartes requises (actuellement{" "}
+                          {deckStatus.totalCards})
                         </li>
                       )}
-                      {deckStatus.mainboardCount > 100 && (
+                      {deckStatus.totalCards > 100 && (
                         <li>
                           • Maximum 100 cartes autorisées (actuellement{" "}
-                          {deckStatus.mainboardCount})
+                          {deckStatus.totalCards})
                         </li>
                       )}
                       {deckStatus.duplicateIssues.map(([name, count]) => (
@@ -291,35 +274,20 @@ export default function DeckDetailsPage() {
             </Card>
           )}
 
-          {/* Mainboard */}
+          {/* Cartes du deck */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-foreground mb-4">
-              Mainboard ({deckStatus?.mainboardCount || 0})
+              Cartes ({deckStatus?.totalCards || 0})
             </h2>
             <CardGrid
-              cards={mainboardMTGCards}
+              cards={deckMTGCards}
               context="deck"
               showActions={true}
               onCardRemove={handleRemoveCard}
-              emptyMessage="Aucune carte dans le mainboard"
+              emptyMessage="Aucune carte dans ce deck"
               emptyDescription="Ajoutez des cartes depuis la recherche."
             />
           </div>
-
-          {/* Sideboard */}
-          {sideboardCards.length > 0 && (
-            <div>
-              <h2 className="text-2xl font-bold text-foreground mb-4">
-                Sideboard ({deckStatus?.sideboardCount || 0})
-              </h2>
-              <CardGrid
-                cards={sideboardMTGCards}
-                context="deck"
-                showActions={true}
-                onCardRemove={handleRemoveCard}
-              />
-            </div>
-          )}
         </div>
       </div>
     </ProtectedRoute>

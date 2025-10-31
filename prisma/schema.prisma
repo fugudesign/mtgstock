@@ -161,11 +161,9 @@ model CollectionCard {
 }
 
 model DeckCard {
-  id           String @id @default(cuid())
-  quantity     Int    @default(1)
-  isMainboard  Boolean @default(true) // true for mainboard, false for sideboard
-  category     String  @default("main") // main, side, maybe
-  notes        String?
+  id       String @id @default(cuid())
+  quantity Int    @default(1)
+  notes    String?
 
   deckId String
   deck   Deck   @relation(fields: [deckId], references: [id], onDelete: Cascade)
@@ -173,7 +171,7 @@ model DeckCard {
   cardId String
   card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
-  @@unique([deckId, cardId, isMainboard])
+  @@unique([deckId, cardId])
   @@index([deckId])
   @@index([cardId])
 }

@@ -54,7 +54,7 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { cardData, quantity = 1, isSideboard = false } = body;
+    const { cardData, quantity = 1 } = body;
 
     console.log("POST /api/decks/[id]/cards - cardData received:", {
       hasCardData: !!cardData,
@@ -69,18 +69,13 @@ export async function POST(
       );
     }
 
-    // Calculer le nombre total de cartes dans le deck (mainboard uniquement pour la limite)
+    // Calculer le nombre total de cartes dans le deck
     const currentTotalCards = deck.cards
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((c: any) => c.isMainboard)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .reduce((sum: number, card: any) => sum + card.quantity, 0);
 
-    // Vérifier la limite maximale de cartes (si on ajoute au mainboard)
-    if (
-      isSideboard === false &&
-      currentTotalCards + quantity > DECK_RULES.MAX_CARDS
-    ) {
+    // Vérifier la limite maximale de cartes
+    if (currentTotalCards + quantity > DECK_RULES.MAX_CARDS) {
       return NextResponse.json(
         {
           error: `Un deck ne peut pas contenir plus de ${DECK_RULES.MAX_CARDS} cartes`,
@@ -99,7 +94,7 @@ export async function POST(
     // Vérifier la carte existe déjà dans le deck
     const existingDeckCard = deck.cards.find(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (c: any) => c.card.id === cardData.id && c.isMainboard === !isSideboard
+      (c: any) => c.card.id === cardData.id
     );
 
     if (existingDeckCard) {
@@ -176,7 +171,6 @@ export async function POST(
         deckId: id,
         cardId: card.id,
         quantity,
-        isMainboard: !isSideboard, // Inverser car isMainboard est l'opposé de isSideboard
       },
       include: {
         card: true,

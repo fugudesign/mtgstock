@@ -149,7 +149,6 @@ export function CardDisplay({
         body: JSON.stringify({
           cardData: card,
           quantity: 1,
-          isMainboard: true,
         }),
       });
 
