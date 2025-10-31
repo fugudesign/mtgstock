@@ -23,7 +23,7 @@ Pour activer reCAPTCHA v3, suivez ces étapes :
 1. Allez sur [Google reCAPTCHA Admin](https://www.google.com/recaptcha/admin)
 2. Cliquez sur "+" pour créer un nouveau site
 3. Remplissez le formulaire :
-   - **Label** : MTG Stock (ou le nom de votre choix)
+   - **Label** : Magic Stack (ou le nom de votre choix)
    - **Type de reCAPTCHA** : Sélectionnez "Score based (v3)"
    - **Domaines** : Ajoutez vos domaines (ex: `localhost` pour le dev, `votresite.com` pour la prod)
 4. Acceptez les conditions et cliquez sur "Envoyer"

@@ -1,4 +1,4 @@
-// Service Worker pour MTG Stock PWA
+// Service Worker pour Magic Stack PWA
 const CACHE_NAME = "mtg-stock-v1";
 const urlsToCache = [
   "/",

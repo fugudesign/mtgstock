@@ -1,8 +1,8 @@
-# MTG Stock - AI Agent Instructions
+# Magic Stack - AI Agent Instructions
 
 ## 🎯 Project Overview
 
-MTG Stock is a French Magic: The Gathering collection management app built with Next.js 15, TypeScript, Prisma, and NextAuth v5. It uses the Scryfall API for card data and supports multi-language card searches.
+Magic Stack is a French Magic: The Gathering collection management app built with Next.js 15, TypeScript, Prisma, and NextAuth v5. It uses the Scryfall API for card data and supports multi-language card searches.
 
 ## 🏗️ Architecture Patterns
 

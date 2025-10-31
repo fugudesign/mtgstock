@@ -99,7 +99,7 @@ function LoginForm() {
             Connexion
           </CardTitle>
           <CardDescription className="text-center">
-            Connectez-vous à votre compte MTG Stock
+            Connectez-vous à votre compte Magic Stack
           </CardDescription>
         </CardHeader>
         <CardContent>

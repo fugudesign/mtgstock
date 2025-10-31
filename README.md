@@ -1,4 +1,4 @@
-# MTG Stock
+# Magic Stack
 
 Une application moderne de gestion de collections et decks Magic: The Gathering, construite avec Next.js, TypeScript et Tailwind CSS.
 
@@ -26,7 +26,7 @@ Une application moderne de gestion de collections et decks Magic: The Gathering,
 
 ```bash
 git clone <your-repo-url>
-cd mtgstock
+cd magicstack
 npm install
 ```
 

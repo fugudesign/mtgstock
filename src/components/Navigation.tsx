@@ -1,6 +1,6 @@
 "use client";
 
-import { MtgStockIcon } from "@/components/icons/MtgStockIcon";
+import { MagicStackIcon } from "@/components/icons/MagicStackIcon";
 import { cn } from "@/lib/utils";
 import { BookOpen, Home, Layers, LogOut, Search, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
@@ -42,7 +42,7 @@ export function Navigation() {
             <div className="w-full h-full grid grid-cols-2 md:grid-cols-[1fr_auto_1fr] gap-8">
               <Link href="/" className="flex items-center gap-2">
                 <div className="size-10 bg-linear-to-br from-purple-600 to-blue-600 text-primary-foreground rounded-lg flex items-center justify-center">
-                  <MtgStockIcon size={32} />
+                  <MagicStackIcon size={32} />
                 </div>
                 {!!session && (
                   <span className="text-xl tracking-tight font-semibold text-foreground">
@@ -145,7 +145,7 @@ export function Navigation() {
       </nav>
 
       {/* Mobile Navigation */}
-      <div className="fixed bottom-0 inset-x-0 z-50 bg-neutral-950/80 md:hidden border-t border-border backdrop-blur-xs">
+      <div className="fixed bottom-0 inset-x-0 z-50 bg-background-dark/80 md:hidden border-t border-border backdrop-blur-xs">
         <div className="flex items-center justify-around py-2">
           {navigation.map((item) => {
             const Icon = item.icon;

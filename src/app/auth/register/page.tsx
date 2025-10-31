@@ -151,7 +151,7 @@ export default function RegisterPage() {
             Créer un compte
           </CardTitle>
           <CardDescription className="text-center">
-            Rejoignez MTG Stock pour gérer vos cartes Magic
+            Rejoignez Magic Stack pour gérer vos cartes Magic
           </CardDescription>
         </CardHeader>
         <CardContent>

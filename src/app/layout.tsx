@@ -35,7 +35,7 @@ const gloock = Gloock({
 });
 
 export const metadata: Metadata = {
-  title: "MTG Stock - Gérez vos cartes Magic: The Gathering",
+  title: "Magic Stack - Gérez vos cartes Magic: The Gathering",
   description:
     "Application de gestion de collections et decks Magic: The Gathering",
   viewport: {
@@ -46,11 +46,11 @@ export const metadata: Metadata = {
     viewportFit: "cover",
   },
   manifest: "/manifest.json",
-  themeColor: "#1f2937",
+  themeColor: "#171717",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Magic Stock",
+    title: "Magic Stack",
   },
   formatDetection: {
     telephone: false,
@@ -71,7 +71,7 @@ export default function RootLayout({
           name="apple-mobile-web-app-status-bar-style"
           content="black-translucent"
         />
-        <meta name="apple-mobile-web-app-title" content="MTG Stock" />
+        <meta name="apple-mobile-web-app-title" content="Magic Stack" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <link
           rel="icon"

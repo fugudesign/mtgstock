@@ -36,7 +36,7 @@
 
    - Allez sur https://vercel.com/new
    - Importez votre repository GitHub
-   - Sélectionnez le projet mtgstock
+   - Sélectionnez le projet magicstack
 
 2. **Configurer le projet**
 

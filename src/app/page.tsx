@@ -1,7 +1,7 @@
 "use client";
 
 import { CardDisplay } from "@/components/CardDisplay";
-import { MtgStockIcon } from "@/components/icons/MtgStockIcon";
+import { MagicStackIcon } from "@/components/icons/MagicStackIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
@@ -34,8 +34,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 h-lvh flex flex-col justify-center items-center bg-radial from-background to-neutral-950 overflow-hidden">
-        <MtgStockIcon className="size-[500px] md:size-[800px] pointer-events-none absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 mb-6 text-indigo-800 blur-xs" />
+      <section className="relative py-20 px-4 h-[calc(100vh-100px)] md:h-lvh flex flex-col justify-center items-center bg-radial from-background to-background-dark overflow-hidden">
+        <MagicStackIcon className="size-[500px] md:size-[800px] pointer-events-none absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 text-indigo-800 blur-xs" />
         <div className="mx-auto text-center">
           <h1 className="font-decorative text-7xl md:text-9xl text-purple-600 drop-shadow-md mb-2 text-shadow-lg text-shadow-indigo-950">
             Magic Stack
@@ -199,13 +199,13 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-radial to-neutral-950 from-purple-900 text-primary-foreground">
+      <section className="py-20 px-4 bg-radial to-background-dark from-purple-900 text-primary-foreground">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">
             Prêt à organiser votre collection ?
           </h2>
           <p className="text-xl text-primary-foreground/80 mb-8">
-            Rejoignez MTG Stock dès aujourd&apos;hui et donnez une nouvelle
+            Rejoignez Magic Stack dès aujourd&apos;hui et donnez une nouvelle
             dimension à votre passion pour Magic: The Gathering.
           </p>
           <Link href="/api/auth/signin">

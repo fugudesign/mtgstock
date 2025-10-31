@@ -239,7 +239,9 @@ export default function ProfilePage() {
             <Card>
               <CardHeader>
                 <CardTitle>Statistiques</CardTitle>
-                <CardDescription>Votre activité sur MTG Stock</CardDescription>
+                <CardDescription>
+                  Votre activité sur Magic Stack
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 gap-4">

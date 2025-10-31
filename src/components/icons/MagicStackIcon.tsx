@@ -2,14 +2,14 @@ import { LucideProps } from "lucide-react";
 import { forwardRef } from "react";
 
 /**
- * MTG Stock Logo Icon - Compatible avec Lucide
+ * Magic Stack Logo Icon - Compatible avec Lucide
  *
  * Utilisation:
- * <MtgStockIcon className="h-6 w-6" />
- * <MtgStockIcon size={24} />
- * <MtgStockIcon className="text-purple-600" />
+ * <MagicStack className="h-6 w-6" />
+ * <MagicStack size={24} />
+ * <MagicStack className="text-purple-600" />
  */
-export const MtgStockIcon = forwardRef<SVGSVGElement, LucideProps>(
+export const MagicStackIcon = forwardRef<SVGSVGElement, LucideProps>(
   ({ color = "currentColor", size = 24, className = "", ...props }, ref) => {
     return (
       <svg
@@ -29,4 +29,4 @@ export const MtgStockIcon = forwardRef<SVGSVGElement, LucideProps>(
   }
 );
 
-MtgStockIcon.displayName = "MtgStockIcon";
+MagicStackIcon.displayName = "MagicStack";
