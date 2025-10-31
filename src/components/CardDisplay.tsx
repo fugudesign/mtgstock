@@ -569,8 +569,9 @@ export function CardDisplay({
           {/* Badge de rareté */}
           {card.rarity && (
             <Badge
+              size="sm"
               className={cn(
-                "absolute top-2 right-2 text-white border-0",
+                "absolute top-2 right-2 text-white border-0 capitalize",
                 getRarityColor(card.rarity)
               )}
             >

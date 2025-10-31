@@ -128,14 +128,12 @@ export function Navigation() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Link href="/auth/login">
-                      <Button variant="ghost" size="sm">
-                        Connexion
-                      </Button>
-                    </Link>
-                    <Link href="/auth/register">
-                      <Button size="sm">Inscription</Button>
-                    </Link>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href="/auth/login">Connexion</Link>
+                    </Button>
+                    <Button size="sm" asChild>
+                      <Link href="/auth/register">Inscription</Link>
+                    </Button>
                   </div>
                 )}
               </div>
