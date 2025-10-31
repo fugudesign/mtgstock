@@ -449,7 +449,7 @@ export function CardDisplay({
                   : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:pointer-events-auto"
               }`}
             >
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <div className="relative group/tooltip">
                   <Button
                     size="icon"
@@ -458,9 +458,9 @@ export function CardDisplay({
                       e.stopPropagation();
                       handleViewCard();
                     }}
-                    className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg pointer-events-auto"
+                    className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg pointer-events-auto"
                   >
-                    <Eye className="h-5 w-5" />
+                    <Eye />
                   </Button>
                   <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                     Voir les détails
@@ -478,9 +478,9 @@ export function CardDisplay({
                         e.stopPropagation();
                         handleToggleCollectionMenu(e);
                       }}
-                      className="h-12 w-12 rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg pointer-events-auto"
+                      className="rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg pointer-events-auto"
                     >
-                      <BookOpen className="h-5 w-5" />
+                      <BookOpen />
                     </Button>
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                       Ajouter à une collection
@@ -499,9 +499,9 @@ export function CardDisplay({
                         e.stopPropagation();
                         handleToggleDeckMenu(e);
                       }}
-                      className="h-12 w-12 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg pointer-events-auto"
+                      className="rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg pointer-events-auto"
                     >
-                      <Layers className="h-5 w-5" />
+                      <Layers />
                     </Button>
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                       Ajouter à un deck
@@ -525,7 +525,7 @@ export function CardDisplay({
                   : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:pointer-events-auto"
               }`}
             >
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <div className="relative group/tooltip">
                   <Button
                     size="icon"
@@ -534,9 +534,9 @@ export function CardDisplay({
                       e.stopPropagation();
                       handleViewCard();
                     }}
-                    className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg pointer-events-auto"
+                    className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg pointer-events-auto"
                   >
-                    <Eye className="h-5 w-5" />
+                    <Eye />
                   </Button>
                   <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                     Voir les détails
@@ -552,9 +552,9 @@ export function CardDisplay({
                       e.stopPropagation();
                       handleRemoveCard(e);
                     }}
-                    className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-700 shadow-lg pointer-events-auto"
+                    className="rounded-full bg-red-600 hover:bg-red-700 shadow-lg pointer-events-auto"
                   >
-                    <Trash2 className="h-5 w-5" />
+                    <Trash2 />
                   </Button>
                   <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                     Retirer{" "}

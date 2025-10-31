@@ -270,7 +270,7 @@ function SearchPageContent() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen mx-auto p-4">
+      <div className="min-h-screen mx-auto p-4 space-y-4">
         <PageHeader
           title="Recherche de cartes"
           subtitle="Recherchez parmi plus de 30 000 cartes Magic: The Gathering"

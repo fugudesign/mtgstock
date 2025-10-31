@@ -25,7 +25,7 @@ const buttonVariants = cva(
           "h-10 rounded-md p-0 md:p-4 [&_svg:not([class*='size-'])]:size-5",
         sm: "h-9 rounded-md p-0 md:p-3 [&_svg:not([class*='size-'])]:size-4",
         lg: "h-11 rounded-lg p-0 md:p-5 [&_svg:not([class*='size-'])]:size-6",
-        icon: "size-9 aspect-square",
+        icon: "size-10 aspect-square [&_svg:not([class*='size-'])]:size-5",
       },
     },
     defaultVariants: {
