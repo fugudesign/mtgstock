@@ -2,6 +2,7 @@
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 import { CardGrid } from "@/components/CardGrid";
+import { EditModal } from "@/components/EditModal";
 import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,7 @@ export default function DeckDetailsPage() {
 
   const [deck, setDeck] = useState<Deck | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const fetchDeck = useCallback(async () => {
     try {
@@ -227,7 +229,7 @@ export default function DeckDetailsPage() {
                 <span data-slot="text">Ajouter des cartes</span>
               </Link>
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={() => setShowEditModal(true)}>
               <Edit />
               <span data-slot="text">Modifier</span>
             </Button>
@@ -288,6 +290,17 @@ export default function DeckDetailsPage() {
               emptyDescription="Ajoutez des cartes depuis la recherche."
             />
           </div>
+
+          {/* Edit Deck Modal */}
+          {deck && (
+            <EditModal
+              isOpen={showEditModal}
+              onClose={() => setShowEditModal(false)}
+              onSuccess={fetchDeck}
+              type="deck"
+              item={deck}
+            />
+          )}
         </div>
       </div>
     </ProtectedRoute>

@@ -3,6 +3,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 import { CardGrid } from "@/components/CardGrid";
 import { DeckSelector } from "@/components/DeckSelector";
+import { EditModal } from "@/components/EditModal";
 import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,7 @@ export default function CollectionDetailPage({
   );
   const [showDeckSelector, setShowDeckSelector] = useState(false);
   const [selectedCard, setSelectedCard] = useState<MTGCard | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     params.then(setResolvedParams);
@@ -203,7 +205,7 @@ export default function CollectionDetailPage({
             }
             className="mb-4"
           >
-            <Button size="sm">
+            <Button size="sm" onClick={() => setShowEditModal(true)}>
               <Edit />
               <span data-slot="text">Modifier</span>
             </Button>
@@ -234,6 +236,17 @@ export default function CollectionDetailPage({
                 setShowDeckSelector(false);
                 setSelectedCard(null);
               }}
+            />
+          )}
+
+          {/* Edit Collection Modal */}
+          {collection && (
+            <EditModal
+              isOpen={showEditModal}
+              onClose={() => setShowEditModal(false)}
+              onSuccess={fetchCollection}
+              type="collection"
+              item={collection}
             />
           )}
         </div>

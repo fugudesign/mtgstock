@@ -28,7 +28,7 @@ export function PageHeader({
         </h1>
         <div className="flex justify-end gap-2">{children}</div>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-4">
         {!!subtitle && (
           <p className="text-xs md:text-sm text-muted-foreground">{subtitle}</p>
         )}
