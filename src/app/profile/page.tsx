@@ -107,7 +107,7 @@ export default function ProfilePage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-background py-8">
+      <div className="min-h-screen py-8">
         <div className="max-w-4xl mx-auto px-4 space-y-4">
           <div className="h-8 bg-muted rounded w-1/3"></div>
           <div className="h-64 bg-muted rounded"></div>
@@ -118,7 +118,7 @@ export default function ProfilePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background py-8">
+      <div className="min-h-screen py-8">
         <div className="max-w-4xl mx-auto px-4">
           <h1 className="text-3xl font-bold text-foreground mb-8">
             Mon profil

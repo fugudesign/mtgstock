@@ -115,13 +115,13 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${lexendSans.variable} ${geistMono.variable} ${cinzelDecorative.variable} ${gloock.variable} antialiased`}
+        className={`${lexendSans.variable} ${geistMono.variable} ${cinzelDecorative.variable} ${gloock.variable} antialiased bg-radial from-background to-background-dark bg-fixed`}
         suppressHydrationWarning
       >
         <Providers>
           <RecaptchaProvider>
             <Navigation />
-            <main className="pt-12 mb-16 md:pb-8">{children}</main>
+            <main className="pt-16 mb-16 md:pb-8">{children}</main>
             <PWAInstallPrompt />
             <Toaster position="top-right" richColors />
           </RecaptchaProvider>

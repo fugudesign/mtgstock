@@ -3,11 +3,12 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 import { CardGrid } from "@/components/CardGrid";
 import { DeckSelector } from "@/components/DeckSelector";
+import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MTGCard } from "@/lib/scryfall-api";
-import { ArrowLeft, BookOpen, Package } from "lucide-react";
+import { Edit, Package, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -95,42 +96,6 @@ export default function CollectionDetailPage({
     return collection.cards.reduce((sum, card) => sum + card.quantity, 0);
   };
 
-  if (status === "loading" || loading || !resolvedParams) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className=" mx-auto px-4">
-          <div className="animate-pulse space-y-4">
-            <div className="h-12 bg-neutral-800 rounded w-1/3"></div>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                <div key={i} className="h-96 bg-neutral-800 rounded"></div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!collection) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className=" mx-auto px-4">
-          <Card>
-            <CardContent className="p-12 text-center">
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                Collection non trouvée
-              </h3>
-              <Link href="/collections">
-                <Button>Retour aux collections</Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   // Fonction pour transformer une CollectionCard en MTGCard
   const transformCollectionCardToMTGCard = (
     collectionCard: CollectionCard
@@ -160,6 +125,42 @@ export default function CollectionDetailPage({
     } as unknown as MTGCard;
   };
 
+  if (status === "loading" || loading || !resolvedParams) {
+    return (
+      <div className="min-h-screen py-8">
+        <div className=" mx-auto px-4">
+          <div className="animate-pulse space-y-4">
+            <div className="h-12 bg-background rounded w-1/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div key={i} className="h-96 bg-background rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!collection) {
+    return (
+      <div className="min-h-screen  py-8">
+        <div className=" mx-auto px-4">
+          <Card>
+            <CardContent className="p-12 text-center">
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                Collection non trouvée
+              </h3>
+              <Link href="/collections">
+                <Button>Retour aux collections</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   // Handler pour la suppression d'une carte de la collection
   const handleRemoveCard = async (cardId: string) => {
     try {
@@ -182,48 +183,37 @@ export default function CollectionDetailPage({
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background py-8">
+      <div className="min-h-screen py-4">
         <div className=" mx-auto px-4">
-          {/* Header */}
-          <div className="mb-8">
-            <Link href="/collections">
-              <Button variant="outline" className="mb-4">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Retour aux collections
-              </Button>
-            </Link>
-
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-muted rounded-lg">
-                  <BookOpen className="h-8 w-8 text-blue-600" />
-                </div>
-                <div>
-                  <h1 className="text-4xl font-bold text-foreground mb-2">
-                    {collection.name}
-                  </h1>
-                  {collection.description && (
-                    <p className="text-slate-600 mb-3">
-                      {collection.description}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4" />
-                      <span className="font-medium">
-                        {getTotalCards()} cartes
-                      </span>
-                    </div>
-                    <Badge
-                      variant={collection.isPublic ? "default" : "secondary"}
-                    >
-                      {collection.isPublic ? "Public" : "Privé"}
-                    </Badge>
-                  </div>
+          <PageHeader
+            title={collection.name}
+            subtitle={collection.description}
+            infos={
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <Badge variant={collection.isPublic ? "default" : "secondary"}>
+                  {collection.isPublic
+                    ? "Collection publique"
+                    : "Collection privée"}
+                </Badge>
+                <div className="flex items-center gap-2">
+                  <Package className="size-4" />
+                  <span className="font-medium">{getTotalCards()} cartes</span>
                 </div>
               </div>
-            </div>
-          </div>
+            }
+            className="mb-4"
+          >
+            <Button size="sm">
+              <Edit />
+              <span data-slot="text">Modifier</span>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/collections">
+                <X />
+                <span data-slot="text">Retour</span>
+              </Link>
+            </Button>
+          </PageHeader>
 
           {/* Cards Grid */}
           <CardGrid

@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg:not([class*='size-'])]:aspect-square aspect-square md:aspect-square [&_[data-slot='text']]:hidden md:[&_[data-slot='text']]:inline-flex",
   {
     variants: {
       variant: {
@@ -21,9 +21,10 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        default:
+          "h-10 rounded-md p-0 md:p-4 [&_svg:not([class*='size-'])]:size-5",
+        sm: "h-9 rounded-md p-0 md:p-3 [&_svg:not([class*='size-'])]:size-4",
+        lg: "h-11 rounded-lg p-0 md:p-5 [&_svg:not([class*='size-'])]:size-6",
         icon: "size-9 aspect-square",
       },
     },

@@ -2,19 +2,13 @@
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 import { CardGrid } from "@/components/CardGrid";
+import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MTGCard } from "@/lib/scryfall-api";
 import { cn } from "@/lib/utils";
-import {
-  AlertCircle,
-  ArrowLeft,
-  CheckCircle2,
-  Info,
-  Layers,
-  Plus,
-} from "lucide-react";
+import { AlertCircle, CheckCircle2, Edit, Info, Plus, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -130,7 +124,7 @@ export default function DeckDetailsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-background py-8">
+      <div className="min-h-screen py-8">
         <div className=" mx-auto px-4">
           <div className="animate-pulse space-y-4">
             <div className="h-12 bg-muted rounded w-1/3"></div>
@@ -209,64 +203,58 @@ export default function DeckDetailsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <div className=" mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="mb-6">
-            <Link href="/decks">
-              <Button variant="outline" className="mb-4">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Retour aux decks
-              </Button>
-            </Link>
-
-            <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
-                  <Layers className="h-10 w-10 text-purple-600" />
-                  {deck.name}
-                </h1>
-                {deck.description && (
-                  <p className="text-muted-foreground text-lg mb-3">
-                    {deck.description}
-                  </p>
+          <PageHeader
+            title={deck.name}
+            subtitle={deck.description}
+            infos={
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <Badge variant="outline" size="sm">
+                  Deck {deck.format}
+                </Badge>
+                {deckStatus && (
+                  <div
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-1.5 rounded border",
+                      deckStatus.isValid
+                        ? "bg-green-700/20 text-green-300 border-green-700"
+                        : "bg-red-700/20 text-red-300 border-red-700"
+                    )}
+                  >
+                    {deckStatus.isValid ? (
+                      <CheckCircle2 className="h-4 w-4" />
+                    ) : (
+                      <AlertCircle className="h-4 w-4" />
+                    )}
+                    <span className="font-medium">
+                      {deckStatus.mainboardCount} cartes mainboard
+                      {deckStatus.sideboardCount > 0 &&
+                        ` + ${deckStatus.sideboardCount} sideboard`}
+                    </span>
+                  </div>
                 )}
-                <div className="flex items-center gap-3">
-                  <Badge variant="outline" className="capitalize text-base">
-                    {deck.format}
-                  </Badge>
-                  {deckStatus && (
-                    <div
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-1.5 rounded border",
-                        deckStatus.isValid
-                          ? "bg-green-700/20 text-green-300 border-green-700"
-                          : "bg-red-700/20 text-red-300 border-red-700"
-                      )}
-                    >
-                      {deckStatus.isValid ? (
-                        <CheckCircle2 className="h-4 w-4" />
-                      ) : (
-                        <AlertCircle className="h-4 w-4" />
-                      )}
-                      <span className="font-medium">
-                        {deckStatus.mainboardCount} cartes mainboard
-                        {deckStatus.sideboardCount > 0 &&
-                          ` + ${deckStatus.sideboardCount} sideboard`}
-                      </span>
-                    </div>
-                  )}
-                </div>
               </div>
-
+            }
+            className="mb-4"
+          >
+            <Button size="sm" asChild>
               <Link href="/cards">
-                <Button size="lg">
-                  <Plus className="mr-2 h-5 w-5" />
-                  Ajouter des cartes
-                </Button>
+                <Plus />
+                <span data-slot="text">Ajouter des cartes</span>
               </Link>
-            </div>
-          </div>
+            </Button>
+            <Button size="sm">
+              <Edit />
+              <span data-slot="text">Modifier</span>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/decks">
+                <X />
+                <span data-slot="text">Retour</span>
+              </Link>
+            </Button>
+          </PageHeader>
 
           {/* Validation Warnings */}
           {deckStatus && !deckStatus.isValid && (

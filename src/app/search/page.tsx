@@ -275,7 +275,7 @@ function SearchPageContent() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <div className="mx-auto px-4 py-8">
           <PageHeader
             title="Recherche de cartes"
@@ -509,7 +509,7 @@ export default function SearchPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-background py-8">
+        <div className="min-h-screen py-8">
           <div className="container mx-auto px-4">
             <div className="animate-pulse space-y-4">
               <div className="h-12 bg-muted rounded w-1/3"></div>

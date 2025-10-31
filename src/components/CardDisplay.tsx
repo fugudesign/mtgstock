@@ -71,6 +71,10 @@ export function CardDisplay({
   const collectionButtonRef = useRef<HTMLButtonElement>(null);
   const deckButtonRef = useRef<HTMLButtonElement>(null);
 
+  // État pour l'overlay mobile
+  const [showMobileOverlay, setShowMobileOverlay] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (status === "authenticated") {
       fetchCollections();
@@ -198,6 +202,46 @@ export function CardDisplay({
   const handleViewCard = () => {
     router.push(`/cards/${card.id}`);
   };
+
+  // Handler pour le clic sur la carte (mobile/desktop)
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // Détecter si on est sur mobile (approximatif mais suffisant)
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile && showActions) {
+      // Sur mobile : toggle l'overlay des actions
+      setShowMobileOverlay(!showMobileOverlay);
+    } else {
+      // Sur desktop : navigation directe
+      handleViewCard();
+    }
+  };
+
+  // Fermer l'overlay mobile quand on clique en dehors
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        showMobileOverlay &&
+        cardRef.current &&
+        !cardRef.current.contains(event.target as Node)
+      ) {
+        setShowMobileOverlay(false);
+      }
+    };
+
+    if (showMobileOverlay) {
+      // Ajouter un petit délai pour éviter que le clic qui ouvre ferme immédiatement
+      setTimeout(() => {
+        document.addEventListener("click", handleClickOutside);
+      }, 100);
+
+      return () => {
+        document.removeEventListener("click", handleClickOutside);
+      };
+    }
+  }, [showMobileOverlay]);
 
   const handleToggleCollectionMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -339,8 +383,9 @@ export function CardDisplay({
       )}
 
       <Card
+        ref={cardRef}
         className="relative group overflow-hidden transition-all duration-200 hover:shadow-lg cursor-pointer"
-        onClick={handleViewCard}
+        onClick={handleCardClick}
       >
         <div className="relative overflow-hidden">
           <div className="aspect-5/7 bg-muted ">
@@ -375,9 +420,15 @@ export function CardDisplay({
             </Badge>
           )}
 
-          {/* Overlay avec les actions sur desktop au hover */}
+          {/* Overlay avec les actions - Desktop au hover, Mobile au tap */}
           {showActions && context === "search" && (
-            <div className="hidden md:absolute md:inset-0 md:bg-black/50 md:opacity-0 md:group-hover:opacity-100 md:transition-all md:duration-200 md:flex md:items-center md:justify-center">
+            <div
+              className={`absolute inset-0 bg-black/50 transition-all duration-200 flex items-center justify-center ${
+                showMobileOverlay
+                  ? "opacity-100 pointer-events-auto"
+                  : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:pointer-events-auto"
+              }`}
+            >
               <div className="flex gap-3">
                 <div className="relative group/tooltip">
                   <Button
@@ -387,7 +438,7 @@ export function CardDisplay({
                       e.stopPropagation();
                       handleViewCard();
                     }}
-                    className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
+                    className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg pointer-events-auto"
                   >
                     <Eye className="h-5 w-5" />
                   </Button>
@@ -407,7 +458,7 @@ export function CardDisplay({
                         e.stopPropagation();
                         handleToggleCollectionMenu(e);
                       }}
-                      className="h-12 w-12 rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
+                      className="h-12 w-12 rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg pointer-events-auto"
                     >
                       <BookOpen className="h-5 w-5" />
                     </Button>
@@ -428,7 +479,7 @@ export function CardDisplay({
                         e.stopPropagation();
                         handleToggleDeckMenu(e);
                       }}
-                      className="h-12 w-12 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
+                      className="h-12 w-12 rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg pointer-events-auto"
                     >
                       <Layers className="h-5 w-5" />
                     </Button>
@@ -442,9 +493,15 @@ export function CardDisplay({
             </div>
           )}
 
-          {/* Actions pour collection/deck (suppression) sur desktop au hover */}
+          {/* Actions pour collection/deck - Desktop au hover, Mobile au tap */}
           {onRemove && (context === "collection" || context === "deck") && (
-            <div className="hidden md:absolute md:inset-0 md:bg-black/50 md:opacity-0 md:group-hover:opacity-100 md:transition-all md:duration-200 md:flex md:items-center md:justify-center">
+            <div
+              className={`absolute inset-0 bg-black/50 transition-all duration-200 flex items-center justify-center ${
+                showMobileOverlay
+                  ? "opacity-100 pointer-events-auto"
+                  : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:pointer-events-auto"
+              }`}
+            >
               <div className="flex gap-3">
                 <div className="relative group/tooltip">
                   <Button
@@ -454,7 +511,7 @@ export function CardDisplay({
                       e.stopPropagation();
                       handleViewCard();
                     }}
-                    className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
+                    className="h-12 w-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg pointer-events-auto"
                   >
                     <Eye className="h-5 w-5" />
                   </Button>
@@ -472,7 +529,7 @@ export function CardDisplay({
                       e.stopPropagation();
                       handleRemoveCard(e);
                     }}
-                    className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-700 shadow-lg"
+                    className="h-12 w-12 rounded-full bg-red-600 hover:bg-red-700 shadow-lg pointer-events-auto"
                   >
                     <Trash2 className="h-5 w-5" />
                   </Button>

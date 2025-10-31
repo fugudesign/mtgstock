@@ -149,7 +149,7 @@ export default function DecksPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-background py-8">
+      <div className="min-h-screen py-8">
         <div className=" mx-auto px-4">
           <div className="animate-pulse space-y-4">
             <div className="h-12 bg-neutral-800 rounded w-1/3"></div>
@@ -166,26 +166,15 @@ export default function DecksPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background">
-        <div className=" mx-auto px-4 py-8">
+      <div className="min-h-screen">
+        <div className="space-y-4 mx-auto px-4 py-4">
           <PageHeader
             title="Mes Decks"
             subtitle="Construisez vos decks compétitifs (60-100 cartes, max 4 copies par carte)"
           >
-            <Button
-              size="lg"
-              className="hidden md:flex"
-              onClick={() => setShowNewDeckForm(true)}
-            >
-              <Plus className="mr-2 h-5 w-5" />
-              Nouveau deck
-            </Button>
-            <Button
-              size="icon"
-              className="flex md:hidden"
-              onClick={() => setShowNewDeckForm(true)}
-            >
+            <Button size="sm" onClick={() => setShowNewDeckForm(true)}>
               <Plus />
+              <span data-slot="text">Nouveau deck</span>
             </Button>
           </PageHeader>
 

@@ -1,40 +1,37 @@
 "use client";
 
-import { CardDisplay } from "@/components/CardDisplay";
 import { MagicStackIcon } from "@/components/icons/MagicStackIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
 import { BookOpen, Layers, LogIn, Search, Sparkles } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 export default function Home() {
   const { status } = useSession();
-  const [featuredCards, setFeaturedCards] = useState<MTGCard[]>([]);
-  const [loading, setLoading] = useState(true);
+  // const [featuredCards, setFeaturedCards] = useState<MTGCard[]>([]);
+  // const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadFeaturedCards = async () => {
-      try {
-        setLoading(true);
-        const cards = await mtgApiService.getRandomCards(8);
-        setFeaturedCards(cards);
-      } catch (error) {
-        console.error("Erreur lors du chargement des cartes:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const loadFeaturedCards = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const cards = await mtgApiService.getRandomCards(8);
+  //       setFeaturedCards(cards);
+  //     } catch (error) {
+  //       console.error("Erreur lors du chargement des cartes:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    loadFeaturedCards();
-  }, []);
+  //   loadFeaturedCards();
+  // }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 h-[calc(100vh-100px)] md:h-lvh flex flex-col justify-center items-center bg-radial from-background to-background-dark overflow-hidden">
+      <section className="relative py-20 px-4 h-[calc(100vh-100px)] md:h-lvh flex flex-col justify-center items-center overflow-hidden">
         <MagicStackIcon className="size-[500px] md:size-[800px] pointer-events-none absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 text-indigo-800 blur-xs" />
         <div className="mx-auto text-center">
           <h1 className="font-decorative text-7xl md:text-9xl text-purple-600 drop-shadow-md mb-2 text-shadow-lg text-shadow-indigo-950">
@@ -164,7 +161,7 @@ export default function Home() {
       </section>
 
       {/* Featured Cards Section */}
-      <section className="py-16 px-4 bg-card">
+      {/* <section className="py-16 px-4 bg-card">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center mb-12">
             <Sparkles className="h-6 w-6 text-yellow-500 mr-2" />
@@ -196,7 +193,7 @@ export default function Home() {
             </Link>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section className="py-20 px-4 bg-radial to-background-dark from-purple-900 text-primary-foreground">

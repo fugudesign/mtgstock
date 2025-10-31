@@ -110,7 +110,7 @@ export default function CollectionsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <div className=" mx-auto px-4 py-8">
           <div className="animate-pulse space-y-4">
             <div className="h-12 bg-neutral-800 rounded w-1/3"></div>
@@ -127,26 +127,15 @@ export default function CollectionsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background">
-        <div className=" mx-auto px-4 py-8">
+      <div className="min-h-screen ">
+        <div className="space-y-4 mx-auto px-4 py-4">
           <PageHeader
             title="Mes Collections"
             subtitle="Organisez vos cartes en collections personnalisées"
           >
-            <Button
-              size="lg"
-              className="hidden md:flex"
-              onClick={() => setShowNewCollectionForm(true)}
-            >
-              <Plus className="mr-2 h-5 w-5" />
-              Nouvelle collection
-            </Button>
-            <Button
-              size="icon"
-              className="flex md:hidden"
-              onClick={() => setShowNewCollectionForm(true)}
-            >
+            <Button size="sm" onClick={() => setShowNewCollectionForm(true)}>
               <Plus />
+              <span data-slot="text">Nouvelle collection</span>
             </Button>
           </PageHeader>
 
