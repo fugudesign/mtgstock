@@ -167,7 +167,7 @@ export default function DecksPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen">
-        <div className="space-y-4 mx-auto px-4 py-4">
+        <div className="space-y-4 mx-auto p-4">
           <PageHeader
             title="Mes Decks"
             subtitle="Construisez vos decks compétitifs (60-100 cartes, max 4 copies par carte)"

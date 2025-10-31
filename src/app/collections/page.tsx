@@ -128,7 +128,7 @@ export default function CollectionsPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen ">
-        <div className="space-y-4 mx-auto px-4 py-4">
+        <div className="space-y-4 mx-auto p4">
           <PageHeader
             title="Mes Collections"
             subtitle="Organisez vos cartes en collections personnalisées"

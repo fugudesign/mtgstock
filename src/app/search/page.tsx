@@ -5,6 +5,10 @@ import { PageHeader } from "@/components/PageHeader";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  getAvailableLanguages,
+  getLanguageNameByCode,
+} from "@/lib/language-mapper";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
 import { Filter, Loader2, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -71,9 +75,13 @@ function SearchPageContent() {
 
       setSuggestionLoading(true);
       try {
-        const response = await fetch(
-          `/api/scryfall/autocomplete?q=${encodeURIComponent(searchQuery)}`
-        );
+        // Note: L'autosuggestion Scryfall ne supporte que l'anglais
+        // Les suggestions sont toujours en anglais, mais la recherche finale respecte la langue
+        const url = `/api/scryfall/autocomplete?q=${encodeURIComponent(
+          searchQuery
+        )}`;
+
+        const response = await fetch(url);
         if (response.ok) {
           const data = await response.json();
           setSuggestions(data.data || []);
@@ -88,7 +96,7 @@ function SearchPageContent() {
 
     const timeoutId = setTimeout(fetchSuggestions, 300);
     return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+  }, [searchQuery, filters.language, userLanguage]);
 
   // Fetch user's default language
   useEffect(() => {
@@ -142,21 +150,8 @@ function SearchPageContent() {
         const langCode = data.language || "en";
         setUserLanguage(langCode);
 
-        // Convert language code to full name for Scryfall
-        const languageMap: { [key: string]: string } = {
-          en: "English",
-          fr: "French",
-          de: "German",
-          es: "Spanish",
-          it: "Italian",
-          pt: "Portuguese (Brazil)",
-          ja: "Japanese",
-          ko: "Korean",
-          ru: "Russian",
-          zh: "Chinese Simplified",
-        };
-
-        const fullLanguageName = languageMap[langCode] || "English";
+        // Utiliser le mapper centralisé
+        const fullLanguageName = getLanguageNameByCode(langCode);
 
         // Set the language filter to user's default
         setFilters((prev) => ({ ...prev, language: fullLanguageName }));
@@ -275,231 +270,215 @@ function SearchPageContent() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen">
-        <div className="mx-auto px-4 py-8">
-          <PageHeader
-            title="Recherche de cartes"
-            subtitle="Recherchez parmi plus de 30 000 cartes Magic: The Gathering"
-          />
+      <div className="min-h-screen mx-auto p-4">
+        <PageHeader
+          title="Recherche de cartes"
+          subtitle="Recherchez parmi plus de 30 000 cartes Magic: The Gathering"
+        />
 
-          {/* Search Bar */}
-          <div className="mb-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Nom de la carte (ex: Lightning Bolt, Ancestral Recall...)"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  onFocus={() => {
-                    setIsInputFocused(true);
-                    if (suggestions.length > 0) {
-                      setShowSuggestions(true);
-                    }
-                  }}
-                  onBlur={() => {
-                    // Delay to allow click on suggestions
-                    setTimeout(() => {
-                      setIsInputFocused(false);
-                      setShowSuggestions(false);
-                    }, 200);
-                  }}
-                  className="pl-10 h-12 text-lg"
-                />
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Nom de la carte (ex: Lightning Bolt, Ancestral Recall...)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleKeyPress}
+                onFocus={() => {
+                  setIsInputFocused(true);
+                  if (suggestions.length > 0) {
+                    setShowSuggestions(true);
+                  }
+                }}
+                onBlur={() => {
+                  // Delay to allow click on suggestions
+                  setTimeout(() => {
+                    setIsInputFocused(false);
+                    setShowSuggestions(false);
+                  }, 200);
+                }}
+                className="pl-10 h-12 text-lg"
+              />
 
-                {/* Suggestions dropdown */}
-                {showSuggestions &&
-                  suggestions.length > 0 &&
-                  isInputFocused && (
-                    <div
-                      ref={suggestionsRef}
-                      className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
-                    >
-                      {suggestionLoading && (
-                        <div className="px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Chargement...
-                        </div>
-                      )}
-                      {suggestions.map((suggestion, index) => (
-                        <button
-                          key={index}
-                          onClick={() => {
-                            setSearchQuery(suggestion);
-                            setShowSuggestions(false);
-                            handleSearch(1);
-                          }}
-                          className="w-full px-4 py-3 text-left hover:bg-accent transition-colors text-foreground border-b border-border last:border-b-0"
-                        >
-                          {suggestion}
-                        </button>
-                      ))}
+              {/* Suggestions dropdown */}
+              {showSuggestions && suggestions.length > 0 && isInputFocused && (
+                <div
+                  ref={suggestionsRef}
+                  className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
+                >
+                  {suggestionLoading && (
+                    <div className="px-4 py-3 text-sm text-muted-foreground flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Chargement...
                     </div>
                   )}
-              </div>
-              <div className="flex gap-4">
-                <Button
-                  onClick={() => handleSearch(1)}
-                  disabled={loading}
-                  size="lg"
-                  className="flex-1"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Recherche...
-                    </>
-                  ) : (
-                    <>
-                      <Search className="mr-2 h-5 w-5" />
-                      Rechercher
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <Filter className="h-5 w-5" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Filters */}
-            {showFilters && (
-              <div className="mt-6 pt-6 border-t border-border grid grid-cols-1 md:grid-cols-5 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Langue{" "}
-                    {userLanguage && filters.language && (
-                      <span className="text-xs text-primary ml-1">
-                        (par défaut)
-                      </span>
-                    )}
-                  </label>
-                  <select
-                    value={filters.language}
-                    onChange={(e) =>
-                      setFilters({ ...filters, language: e.target.value })
-                    }
-                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground"
-                  >
-                    <option value="">Toutes les langues</option>
-                    <option value="French">Français</option>
-                    <option value="English">Anglais</option>
-                    <option value="German">Allemand</option>
-                    <option value="Spanish">Espagnol</option>
-                    <option value="Italian">Italien</option>
-                    <option value="Portuguese (Brazil)">
-                      Portugais (Brésil)
-                    </option>
-                    <option value="Japanese">Japonais</option>
-                    <option value="Chinese Simplified">
-                      Chinois Simplifié
-                    </option>
-                    <option value="Chinese Traditional">
-                      Chinois Traditionnel
-                    </option>
-                    <option value="Korean">Coréen</option>
-                    <option value="Russian">Russe</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Couleurs
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="ex: red, blue"
-                    value={filters.colors}
-                    onChange={(e) =>
-                      setFilters({ ...filters, colors: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Type
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="ex: creature, instant"
-                    value={filters.type}
-                    onChange={(e) =>
-                      setFilters({ ...filters, type: e.target.value })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Rareté
-                  </label>
-                  <select
-                    value={filters.rarity}
-                    onChange={(e) =>
-                      setFilters({ ...filters, rarity: e.target.value })
-                    }
-                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground"
-                  >
-                    <option value="">Toutes</option>
-                    <option value="common">Common</option>
-                    <option value="uncommon">Uncommon</option>
-                    <option value="rare">Rare</option>
-                    <option value="mythic rare">Mythic Rare</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Extension (code)
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="ex: KTK, M15"
-                    value={filters.set}
-                    onChange={(e) =>
-                      setFilters({
-                        ...filters,
-                        set: e.target.value.toUpperCase(),
-                      })
-                    }
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Results Count */}
-          {totalResults > 0 && (
-            <div className="mb-4 flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                Affichage de {cards.length} sur {totalResults} résultat
-                {totalResults > 1 ? "s" : ""}
-              </div>
-              {hasMore && (
-                <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-                  Plus de cartes disponibles
+                  {suggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setSearchQuery(suggestion);
+                        setShowSuggestions(false);
+                        handleSearch(1);
+                      }}
+                      className="w-full px-4 py-3 text-left hover:bg-accent transition-colors text-foreground border-b border-border last:border-b-0"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
-          )}
+            <div className="flex gap-4">
+              <Button
+                onClick={() => handleSearch(1)}
+                disabled={loading}
+                size="lg"
+                className="flex-1"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Recherche...
+                  </>
+                ) : (
+                  <>
+                    <Search className="mr-2 h-5 w-5" />
+                    Rechercher
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <Filter className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
 
-          {/* Results Grid */}
-          <CardGrid
-            cards={cards}
-            loading={loading}
-            hasMore={hasMore}
-            onLoadMore={handleLoadMore}
-            emptyMessage="Aucun résultat"
-            emptyDescription={getEmptyDescription()}
-            showActions={true}
-            context="search"
-            pageSize={PAGE_SIZE}
-          />
+          {/* Filters */}
+          {showFilters && (
+            <div className="mt-6 pt-6 border-t border-border grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Langue{" "}
+                  {userLanguage && filters.language && (
+                    <span className="text-xs text-primary ml-1">
+                      (par défaut)
+                    </span>
+                  )}
+                </label>
+                <select
+                  value={filters.language}
+                  onChange={(e) =>
+                    setFilters({ ...filters, language: e.target.value })
+                  }
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground"
+                >
+                  <option value="">Toutes les langues</option>
+                  {getAvailableLanguages().map((lang) => (
+                    <option key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Couleurs
+                </label>
+                <Input
+                  type="text"
+                  placeholder="ex: red, blue"
+                  value={filters.colors}
+                  onChange={(e) =>
+                    setFilters({ ...filters, colors: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Type
+                </label>
+                <Input
+                  type="text"
+                  placeholder="ex: creature, instant"
+                  value={filters.type}
+                  onChange={(e) =>
+                    setFilters({ ...filters, type: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Rareté
+                </label>
+                <select
+                  value={filters.rarity}
+                  onChange={(e) =>
+                    setFilters({ ...filters, rarity: e.target.value })
+                  }
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground"
+                >
+                  <option value="">Toutes</option>
+                  <option value="common">Common</option>
+                  <option value="uncommon">Uncommon</option>
+                  <option value="rare">Rare</option>
+                  <option value="mythic rare">Mythic Rare</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Extension (code)
+                </label>
+                <Input
+                  type="text"
+                  placeholder="ex: KTK, M15"
+                  value={filters.set}
+                  onChange={(e) =>
+                    setFilters({
+                      ...filters,
+                      set: e.target.value.toUpperCase(),
+                    })
+                  }
+                />
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Results Count */}
+        {totalResults > 0 && (
+          <div className="mb-4 flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Affichage de {cards.length} sur {totalResults} résultat
+              {totalResults > 1 ? "s" : ""}
+            </div>
+            {hasMore && (
+              <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                Plus de cartes disponibles
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Results Grid */}
+        <CardGrid
+          cards={cards}
+          loading={loading}
+          hasMore={hasMore}
+          onLoadMore={handleLoadMore}
+          emptyMessage="Aucun résultat"
+          emptyDescription={getEmptyDescription()}
+          showActions={true}
+          context="search"
+          pageSize={PAGE_SIZE}
+        />
       </div>
     </ProtectedRoute>
   );

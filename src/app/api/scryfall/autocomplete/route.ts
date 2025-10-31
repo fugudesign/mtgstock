@@ -1,6 +1,12 @@
 import { fetchWithRetry } from "@/lib/rate-limiter";
 import { NextRequest, NextResponse } from "next/server";
 
+/**
+ * Proxy pour l'API autocomplete de Scryfall
+ * Note: L'API Scryfall autocomplete ne supporte pas la multilinguisme.
+ * Elle retourne uniquement des noms de cartes en anglais.
+ * Pour une autosuggestion multilingue, il faudrait créer notre propre index.
+ */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -13,12 +19,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // L'API Scryfall autocomplete ne supporte que l'anglais
+    const autocompleteUrl = `https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(
+      query
+    )}`;
+
     // Utiliser fetchWithRetry qui inclut le throttling et la gestion des 429
-    const response = await fetchWithRetry(
-      `https://api.scryfall.com/cards/autocomplete?q=${encodeURIComponent(
-        query
-      )}`
-    );
+    const response = await fetchWithRetry(autocompleteUrl);
 
     if (!response.ok) {
       return NextResponse.json(
