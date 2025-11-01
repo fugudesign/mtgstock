@@ -15,6 +15,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   MTGCard,
   getCardImageUrl,
   getCardManaCost,
@@ -68,18 +76,9 @@ export function CardDisplay({
   const { status } = useSession();
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
-  const [showCollectionMenu, setShowCollectionMenu] = useState(false);
-  const [showDeckMenu, setShowDeckMenu] = useState(false);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [decks, setDecks] = useState<Deck[]>([]);
   const [adding, setAdding] = useState(false);
-  const [collectionMenuPosition, setCollectionMenuPosition] = useState({
-    top: 0,
-    left: 0,
-  });
-  const [deckMenuPosition, setDeckMenuPosition] = useState({ top: 0, left: 0 });
-  const collectionButtonRef = useRef<HTMLButtonElement>(null);
-  const deckButtonRef = useRef<HTMLButtonElement>(null);
 
   // État pour l'overlay mobile
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
@@ -88,6 +87,11 @@ export function CardDisplay({
   // État pour l'AlertDialog de suppression
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // État pour contrôler quel dropdown est ouvert
+  const [openDropdown, setOpenDropdown] = useState<
+    "collection" | "deck" | null
+  >(null);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -131,15 +135,12 @@ export function CardDisplay({
         body: JSON.stringify({
           cardData: card,
           quantity: 1,
-          foil: false,
-          condition: "nm",
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
         toast.success(data.message);
-        setShowCollectionMenu(false);
         if (onAddToCollection) {
           onAddToCollection(card);
         }
@@ -169,7 +170,6 @@ export function CardDisplay({
       if (response.ok) {
         const data = await response.json();
         toast.success(data.message);
-        setShowDeckMenu(false);
         if (onAddToDeck) {
           onAddToDeck(card);
         }
@@ -202,14 +202,6 @@ export function CardDisplay({
       default:
         return "bg-gray-400";
     }
-  };
-
-  const handleCloseCollectionMenu = () => {
-    setShowCollectionMenu(false);
-  };
-
-  const handleCloseDeckMenu = () => {
-    setShowDeckMenu(false);
   };
 
   const handleViewCard = () => {
@@ -262,52 +254,6 @@ export function CardDisplay({
     }
   }, [showMobileOverlay]);
 
-  const handleToggleCollectionMenu = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (collectionButtonRef.current) {
-      const rect = collectionButtonRef.current.getBoundingClientRect();
-      const menuWidth = 200;
-      const menuHeight = 200;
-
-      let top = rect.bottom + 8;
-      let left = rect.left;
-
-      if (left + menuWidth > window.innerWidth) {
-        left = rect.right - menuWidth;
-      }
-
-      if (top + menuHeight > window.innerHeight && rect.top > menuHeight) {
-        top = rect.top - menuHeight - 8;
-      }
-
-      setCollectionMenuPosition({ top, left });
-    }
-    setShowCollectionMenu(!showCollectionMenu);
-  };
-
-  const handleToggleDeckMenu = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (deckButtonRef.current) {
-      const rect = deckButtonRef.current.getBoundingClientRect();
-      const menuWidth = 240;
-      const menuHeight = 300;
-
-      let top = rect.bottom + 8;
-      let left = rect.left;
-
-      if (left + menuWidth > window.innerWidth) {
-        left = rect.right - menuWidth;
-      }
-
-      if (top + menuHeight > window.innerHeight && rect.top > menuHeight) {
-        top = rect.top - menuHeight - 8;
-      }
-
-      setDeckMenuPosition({ top, left });
-    }
-    setShowDeckMenu(!showDeckMenu);
-  };
-
   const handleRemoveCard = async (e: React.MouseEvent) => {
     e.stopPropagation();
     // Ouvrir l'AlertDialog de confirmation
@@ -344,90 +290,6 @@ export function CardDisplay({
 
   return (
     <>
-      {/* Menu collections - en dehors de la Card */}
-      {showCollectionMenu && (
-        <>
-          <div
-            className="fixed inset-0 z-40"
-            onClick={handleCloseCollectionMenu}
-          />
-          <div
-            className="fixed bg-card border border-border rounded-lg shadow-xl py-1 z-50 min-w-[200px]"
-            style={{
-              top: `${collectionMenuPosition.top}px`,
-              left: `${collectionMenuPosition.left}px`,
-            }}
-          >
-            <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border">
-              Ajouter à une collection
-            </div>
-            {collections.length > 0 ? (
-              collections.map((collection) => (
-                <button
-                  key={collection.id}
-                  onClick={() => handleAddToCollection(collection.id)}
-                  disabled={adding}
-                  className="w-full px-3 py-2 text-sm text-left hover:bg-accent disabled:opacity-50 text-foreground transition-colors flex items-center justify-between"
-                >
-                  <span>{collection.name}</span>
-                  {adding && <Loader2 className="h-4 w-4 animate-spin" />}
-                </button>
-              ))
-            ) : (
-              <div className="px-3 py-2 text-sm text-muted-foreground">
-                Aucune collection
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      {/* Menu decks - en dehors de la Card */}
-      {showDeckMenu && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={handleCloseDeckMenu} />
-          <div
-            className="fixed bg-card border border-border rounded-lg shadow-xl py-1 z-50 min-w-60 max-h-96 overflow-y-auto"
-            style={{
-              top: `${deckMenuPosition.top}px`,
-              left: `${deckMenuPosition.left}px`,
-            }}
-          >
-            <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border">
-              Ajouter à un deck
-            </div>
-            {decks.length > 0 ? (
-              decks.map((deck) => (
-                <button
-                  key={deck.id}
-                  onClick={() => handleAddToDeck(deck.id)}
-                  disabled={adding}
-                  className="w-full px-3 py-2 text-left hover:bg-accent disabled:opacity-50 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm text-foreground">
-                        {deck.name}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
-                        {deck.format} • {deck.cardCount} cartes
-                      </div>
-                    </div>
-                    {adding && (
-                      <Loader2 className="h-4 w-4 animate-spin ml-2 shrink-0" />
-                    )}
-                  </div>
-                </button>
-              ))
-            ) : (
-              <div className="px-3 py-2 text-sm text-muted-foreground">
-                Aucun deck
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
       <Card
         ref={cardRef}
         className="relative group overflow-hidden transition-all duration-200 hover:shadow-lg cursor-pointer"
@@ -498,45 +360,108 @@ export function CardDisplay({
                 </div>
 
                 {status === "authenticated" && (
-                  <div className="relative group/tooltip">
-                    <Button
-                      ref={collectionButtonRef}
-                      size="icon"
-                      variant="default"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleCollectionMenu(e);
-                      }}
-                      className="rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
-                    >
-                      <BookOpen />
-                    </Button>
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                      Ajouter à une collection
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
+                  <DropdownMenu
+                    open={openDropdown === "collection"}
+                    onOpenChange={(open) =>
+                      setOpenDropdown(open ? "collection" : null)
+                    }
+                  >
+                    <div className="relative group/tooltip">
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="default"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          className="rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
+                        >
+                          <BookOpen />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                        Ajouter à une collection
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
+                      </div>
                     </div>
-                  </div>
+                    <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenuLabel>
+                        Ajouter à une collection
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {collections.length > 0 ? (
+                        collections.map((collection) => (
+                          <DropdownMenuItem
+                            key={collection.id}
+                            onClick={() => handleAddToCollection(collection.id)}
+                            disabled={adding}
+                          >
+                            <span>{collection.name}</span>
+                            {adding && (
+                              <Loader2 className="ml-auto h-4 w-4 animate-spin" />
+                            )}
+                          </DropdownMenuItem>
+                        ))
+                      ) : (
+                        <DropdownMenuItem disabled>
+                          Aucune collection
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
 
                 {status === "authenticated" && (
-                  <div className="relative group/tooltip">
-                    <Button
-                      ref={deckButtonRef}
-                      size="icon"
-                      variant="default"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleDeckMenu(e);
-                      }}
-                      className="rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
-                    >
-                      <Layers />
-                    </Button>
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                      Ajouter à un deck
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
+                  <DropdownMenu
+                    open={openDropdown === "deck"}
+                    onOpenChange={(open) =>
+                      setOpenDropdown(open ? "deck" : null)
+                    }
+                  >
+                    <div className="relative group/tooltip">
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="default"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                          className="rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
+                        >
+                          <Layers />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                        Ajouter à un deck
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
+                      </div>
                     </div>
-                  </div>
+                    <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenuLabel>Ajouter à un deck</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      {decks.length > 0 ? (
+                        decks.map((deck) => (
+                          <DropdownMenuItem
+                            key={deck.id}
+                            onClick={() => handleAddToDeck(deck.id)}
+                            disabled={adding}
+                          >
+                            <div className="flex flex-col">
+                              <span className="font-medium">{deck.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {deck.format} • {deck.cardCount} cartes
+                              </span>
+                            </div>
+                            {adding && (
+                              <Loader2 className="ml-auto h-4 w-4 animate-spin" />
+                            )}
+                          </DropdownMenuItem>
+                        ))
+                      ) : (
+                        <DropdownMenuItem disabled>Aucun deck</DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
               </div>
             </div>
