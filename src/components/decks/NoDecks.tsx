@@ -24,9 +24,9 @@ export function NoDecks({ onCreateDeck }: { onCreateDeck: () => void }) {
       </EmptyHeader>
       <EmptyContent>
         <div className="flex gap-2">
-          <Button size="iconSm" onClick={onCreateDeck}>
+          <Button size="sm" onClick={onCreateDeck}>
             <Plus />
-            <span data-slot="text">Nouveau deck</span>
+            Nouveau deck
           </Button>
         </div>
       </EmptyContent>

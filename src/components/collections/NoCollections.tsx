@@ -29,9 +29,9 @@ export function NoCollections({
       </EmptyHeader>
       <EmptyContent>
         <div className="flex gap-2">
-          <Button size="iconSm" onClick={onCreateCollection}>
+          <Button size="sm" onClick={onCreateCollection}>
             <Plus />
-            <span data-slot="text">Nouvelle collection</span>
+            Nouvelle collection
           </Button>
         </div>
       </EmptyContent>
