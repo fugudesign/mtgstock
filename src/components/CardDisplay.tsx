@@ -1,6 +1,16 @@
 "use client";
 
 import { ManaSymbols } from "@/components/ManaSymbol";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -74,6 +84,10 @@ export function CardDisplay({
   // État pour l'overlay mobile
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // État pour l'AlertDialog de suppression
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -204,6 +218,12 @@ export function CardDisplay({
 
   // Handler pour le clic sur la carte (mobile/desktop)
   const handleCardClick = (e: React.MouseEvent) => {
+    // Ne rien faire si on clique directement sur un bouton (vérifier la cible)
+    const target = e.target as HTMLElement;
+    if (target.closest("button")) {
+      return;
+    }
+
     e.stopPropagation();
 
     // Détecter si on est sur mobile (approximatif mais suffisant)
@@ -290,11 +310,18 @@ export function CardDisplay({
 
   const handleRemoveCard = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    // Ouvrir l'AlertDialog de confirmation
+    setShowDeleteAlert(true);
+  };
+
+  const handleConfirmDelete = async () => {
     if (onRemove) {
+      setIsDeleting(true);
       try {
         await onRemove();
-        // Fermer l'overlay mobile après suppression réussie
+        // Fermer l'overlay mobile et l'alert après suppression réussie
         setShowMobileOverlay(false);
+        setShowDeleteAlert(false);
         toast.success(
           `Carte retirée ${
             context === "collection" ? "de la collection" : "du deck"
@@ -309,6 +336,8 @@ export function CardDisplay({
         if (!errorMessage.includes("annulée par l'utilisateur")) {
           toast.error("Erreur lors de la suppression de la carte");
         }
+      } finally {
+        setIsDeleting(false);
       }
     }
   };
@@ -446,7 +475,7 @@ export function CardDisplay({
               className={`absolute inset-0 bg-black/50 transition-all duration-200 flex items-center justify-center ${
                 showMobileOverlay
                   ? "opacity-100 pointer-events-auto"
-                  : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:pointer-events-auto"
+                  : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:group-hover:pointer-events-auto"
               }`}
             >
               <div className="flex gap-2">
@@ -458,7 +487,7 @@ export function CardDisplay({
                       e.stopPropagation();
                       handleViewCard();
                     }}
-                    className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg pointer-events-auto"
+                    className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
                   >
                     <Eye />
                   </Button>
@@ -478,7 +507,7 @@ export function CardDisplay({
                         e.stopPropagation();
                         handleToggleCollectionMenu(e);
                       }}
-                      className="rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg pointer-events-auto"
+                      className="rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
                     >
                       <BookOpen />
                     </Button>
@@ -499,7 +528,7 @@ export function CardDisplay({
                         e.stopPropagation();
                         handleToggleDeckMenu(e);
                       }}
-                      className="rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg pointer-events-auto"
+                      className="rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
                     >
                       <Layers />
                     </Button>
@@ -522,7 +551,7 @@ export function CardDisplay({
               className={`absolute inset-0 bg-black/50 transition-all duration-200 flex items-center justify-center ${
                 showMobileOverlay
                   ? "opacity-100 pointer-events-auto"
-                  : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:pointer-events-auto"
+                  : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:group-hover:pointer-events-auto"
               }`}
             >
               <div className="flex gap-2">
@@ -534,7 +563,7 @@ export function CardDisplay({
                       e.stopPropagation();
                       handleViewCard();
                     }}
-                    className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg pointer-events-auto"
+                    className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
                   >
                     <Eye />
                   </Button>
@@ -552,7 +581,7 @@ export function CardDisplay({
                       e.stopPropagation();
                       handleRemoveCard(e);
                     }}
-                    className="rounded-full bg-red-600 hover:bg-red-700 shadow-lg pointer-events-auto"
+                    className="rounded-full bg-red-600 hover:bg-red-700 shadow-lg"
                   >
                     <Trash2 />
                   </Button>
@@ -613,6 +642,33 @@ export function CardDisplay({
           </div>
         </CardContent>
       </Card>
+
+      {/* AlertDialog de confirmation de suppression */}
+      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Retirer la carte</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir retirer{" "}
+              <strong>&ldquo;{card.name}&rdquo;</strong>{" "}
+              {context === "collection" ? "de la collection" : "du deck"} ?
+              <br />
+              <br />
+              Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Suppression..." : "Retirer"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
