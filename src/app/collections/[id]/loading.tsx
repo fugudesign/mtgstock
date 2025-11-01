@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Edit, Package, X } from "lucide-react";
 
 export default function CollectionDetailLoading() {
   return (
-    <div className="min-h-screen px-4">
+    <Container>
       {/* Page Header Skeleton */}
       <div className="mb-4 space-y-4">
         <div className="flex items-start justify-between">
@@ -47,6 +48,6 @@ export default function CollectionDetailLoading() {
           </div>
         ))}
       </div>
-    </div>
+    </Container>
   );
 }

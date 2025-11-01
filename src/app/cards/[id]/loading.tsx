@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 
 export default function CardDetailLoading() {
   return (
-    <div className="min-h-screen mx-auto p-4">
+    <Container>
       {/* Header */}
       <div className="mb-6">
         <Button variant="outline" disabled className="mb-4">
@@ -109,6 +110,6 @@ export default function CardDetailLoading() {
           </Card>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

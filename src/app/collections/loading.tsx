@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 
 export default function CollectionsLoading() {
   return (
-    <div className="space-y-4 px-4">
+    <Container>
       {/* Page Header Skeleton */}
       <div className="flex items-center justify-between">
         <div className="space-y-2">
@@ -18,7 +19,7 @@ export default function CollectionsLoading() {
       </div>
 
       {/* Collections Grid Skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
@@ -47,6 +48,6 @@ export default function CollectionsLoading() {
           </div>
         ))}
       </div>
-    </div>
+    </Container>
   );
 }
