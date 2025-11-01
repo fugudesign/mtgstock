@@ -1,6 +1,6 @@
 "use client";
 
-import { CardGrid } from "@/components/CardGrid";
+import { CardGrid } from "@/components/cards/CardGrid";
 import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

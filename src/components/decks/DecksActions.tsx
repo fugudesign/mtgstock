@@ -1,6 +1,6 @@
 "use client";
 
-import { ItemCard } from "@/components/ItemCard";
+import { ItemCard } from "@/components/shared/ItemCard";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, CheckCircle2, Layers } from "lucide-react";
 import { useRouter } from "next/navigation";

@@ -1,6 +1,6 @@
 "use client";
 
-import { CardGrid } from "@/components/CardGrid";
+import { CardGrid } from "@/components/cards/CardGrid";
 import { Button } from "@/components/ui/button";
 import { getLanguageNameByCode } from "@/lib/language-mapper";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";

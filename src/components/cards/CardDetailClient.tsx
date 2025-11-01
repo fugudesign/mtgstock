@@ -1,6 +1,6 @@
 "use client";
 
-import { DeckSelector } from "@/components/DeckSelector";
+import { DeckSelector } from "@/components/decks/DeckSelector";
 import { ManaSymbols, ManaText } from "@/components/ManaSymbol";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

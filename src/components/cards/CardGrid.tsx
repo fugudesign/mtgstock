@@ -1,6 +1,6 @@
 "use client";
 
-import { CardDisplay } from "@/components/CardDisplay";
+import { CardDisplay } from "@/components/cards/CardDisplay";
 import { Button } from "@/components/ui/button";
 import {
   Empty,

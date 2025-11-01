@@ -5,7 +5,7 @@ import {
   DeleteCollectionAlert,
   NoCollections,
 } from "@/components/collections";
-import { ItemCard } from "@/components/ItemCard";
+import { ItemCard } from "@/components/shared/ItemCard";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
