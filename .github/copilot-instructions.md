@@ -89,13 +89,72 @@ npx prisma generate          # Regenerate client after schema changes
 - **Optional**: `GITHUB_CLIENT_ID/SECRET`, `GOOGLE_CLIENT_ID/SECRET`
 - **Development**: Use local PostgreSQL or Neon cloud database
 
+## 🎯 **MANDATORY Architecture Patterns** (Updated Nov 2025)
+
+### **ALWAYS use these patterns for ALL pages:**
+
+#### 1. **shadcn/ui Components MAXIMUM Usage**
+
+```tsx
+// REQUIRED: Use shadcn components instead of custom ones
+- Form, FormField, FormControl, FormItem, FormLabel, FormMessage
+- Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+- Card, CardHeader, CardContent, CardDescription, CardTitle
+- Button, Input, Skeleton
+- Dialog, AlertDialog (instead of custom modals)
+- Sonner toasts (instead of Alert components)
+```
+
+#### 2. **Server Components PRIORITY**
+
+```tsx
+// REQUIRED: Load data server-side whenever possible
+export default async function PageName() {
+  const session = await auth();
+  if (!session) redirect("/auth/login");
+
+  const data = await prisma.model.findMany({ ... });
+  return <PageContent data={data} />;
+}
+```
+
+#### 3. **loading.tsx Pattern MANDATORY**
+
+```tsx
+// REQUIRED: Create loading.tsx in every route directory
+export default function Loading() {
+  return <Skeleton />; // Use shadcn Skeleton components
+}
+```
+
+#### 4. **Sonner Notifications ONLY**
+
+```tsx
+// REQUIRED: Use Sonner instead of Alert components
+import { toast } from "sonner";
+toast.success("Success message");
+toast.error("Error message");
+```
+
+### **Standard Architecture Structure:**
+
+```
+/app/[page]/
+├── page.tsx          (Server Component - data loading + structure)
+├── loading.tsx       (Skeleton - automatic Next.js loading)
+└── /components/[page]/
+    ├── [Page]Form.tsx    (Client Component - interactivity only)
+    └── [Page]Stats.tsx   (Server Component - data display)
+```
+
 ### Component Creation Guidelines
 
-1. Use `"use client"` directive for interactive components
-2. Import UI components from `@/components/ui/`
-3. Use `MTGCard` type from `scryfall-api.ts`, not custom interfaces
-4. Implement loading states with skeleton placeholders
-5. Add error boundaries and fallback states
+1. **Server Component by default** - only use `"use client"` when absolutely necessary
+2. **Import UI components from `@/components/ui/`** - always prefer shadcn
+3. **Use `MTGCard` type from `scryfall-api.ts`** - not custom interfaces
+4. **Implement loading with `loading.tsx`** - not inline loading states
+5. **Use `auth()` server-side** - not `useSession()` for data fetching
+6. **Add Sonner toasts** - not Alert components for notifications
 
 ### API Route Patterns
 

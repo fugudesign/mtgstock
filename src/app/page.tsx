@@ -29,12 +29,12 @@ export default function Home() {
   // }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="space-y-4">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 h-[calc(100vh-100px)] md:h-lvh flex flex-col justify-center items-center overflow-hidden">
-        <MagicStackIcon className="size-[500px] md:size-[800px] pointer-events-none absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 text-indigo-800 blur-xs" />
-        <div className="mx-auto text-center">
-          <h1 className="font-decorative text-7xl md:text-9xl text-purple-600 drop-shadow-md mb-2 text-shadow-lg text-shadow-indigo-950">
+      <section className="px-4 relative h-[calc(100vh-150px)] md:h-[calc(100vh-100px)]  flex flex-col justify-center items-center overflow-hidden">
+        <MagicStackIcon className="size-[500px] md:size-[800px] pointer-events-none absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 text-primary-dark/60 blur-xs" />
+        <div className="z-10 mx-auto text-center">
+          <h1 className="font-decorative text-7xl md:text-9xl text-highlight1 drop-shadow-md mb-2 text-shadow-lg text-shadow-indigo-950">
             Magic Stack
           </h1>
           <p className="text-xs tracking-[6px] md:tracking-[14px] text-foreground uppercase mb-8">
@@ -49,23 +49,9 @@ export default function Home() {
             {status === "authenticated" ? (
               <>
                 <Link href="/search">
-                  <Button
-                    size="lg"
-                    variant="magic"
-                    className="w-full sm:w-auto"
-                  >
-                    <Search className="mr-2 h-5 w-5" />
+                  <Button size="lg" variant="magic">
+                    <Search className="size-4" />
                     Rechercher des cartes
-                  </Button>
-                </Link>
-                <Link href="/collections">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full sm:w-auto "
-                  >
-                    <BookOpen className="mr-2 h-5 w-5" />
-                    Mes collections
                   </Button>
                 </Link>
               </>
@@ -77,7 +63,7 @@ export default function Home() {
                     variant="magic"
                     className="w-full sm:w-auto"
                   >
-                    <LogIn className="mr-2 h-5 w-5" />
+                    <LogIn />
                     Se connecter
                   </Button>
                 </Link>
@@ -87,7 +73,7 @@ export default function Home() {
                     size="lg"
                     className="w-full sm:w-auto "
                   >
-                    <Sparkles className="mr-2 h-5 w-5" />
+                    <Sparkles />
                     Créer un compte
                   </Button>
                 </Link>
@@ -119,11 +105,11 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
-              <CardHeader>
+              <CardHeader className="items-center">
                 <Search className="h-10 w-10 text-indigo-600 mb-4" />
                 <CardTitle>Recherche avancée</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-center">
                 <p className="text-muted-foreground">
                   Recherchez parmi plus de 30 000 cartes Magic avec des filtres
                   avancés par nom, coût, couleur, rareté et plus encore.
@@ -132,11 +118,11 @@ export default function Home() {
             </Card>
 
             <Card>
-              <CardHeader>
-                <BookOpen className="h-10 w-10 text-green-600 mb-4" />
+              <CardHeader className="items-center">
+                <BookOpen className="h-10 w-10 text-blue-600 mb-4" />
                 <CardTitle>Collections personnelles</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-center">
                 <p className="text-muted-foreground">
                   Organisez vos cartes en collections personnalisées. Suivez vos
                   cartes par état, quantité et notes personnelles.
@@ -145,11 +131,11 @@ export default function Home() {
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="items-center">
                 <Layers className="h-10 w-10 text-purple-600 mb-4" />
                 <CardTitle>Gestion de decks</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-center">
                 <p className="text-muted-foreground">
                   Créez et gérez vos decks pour différents formats. Mainboard,
                   sideboard et notes stratégiques incluses.
@@ -196,7 +182,7 @@ export default function Home() {
       </section> */}
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-radial to-background-dark from-purple-900 text-primary-foreground">
+      <section className="py-40 px-4 bg-radial to-background-dark from-purple-900 text-primary-foreground">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">
             Prêt à organiser votre collection ?

@@ -2,6 +2,8 @@ import { Navigation } from "@/components/Navigation";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { Providers } from "@/components/Providers";
 import { RecaptchaProvider } from "@/components/RecaptchaProvider";
+import { Toaster } from "@/components/ui/sonner";
+import { auth } from "@/lib/auth";
 import type { Metadata } from "next";
 import {
   Cinzel_Decorative,
@@ -9,7 +11,6 @@ import {
   Gloock,
   Lexend,
 } from "next/font/google";
-import { Toaster } from "sonner";
 import "./globals.css";
 
 const lexendSans = Lexend({
@@ -38,15 +39,7 @@ export const metadata: Metadata = {
   title: "Magic Stack - Gérez vos cartes Magic: The Gathering",
   description:
     "Application de gestion de collections et decks Magic: The Gathering",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: "cover",
-  },
   manifest: "/manifest.json",
-  themeColor: "#171717",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -57,13 +50,22 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
-    <html lang="fr">
+    <html lang="fr" className="dark">
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -85,43 +87,17 @@ export default function RootLayout({
           sizes="16x16"
           href="/icons/icon-16.png"
         />
-
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Remove browser extension attributes before React hydration
-                if (typeof window !== 'undefined') {
-                  window.addEventListener('DOMContentLoaded', function() {
-                    document.body.removeAttribute('cz-shortcut-listen');
-                  });
-                }
-                
-                // Register service worker for PWA
-                if ('serviceWorker' in navigator) {
-                  window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('/sw.js')
-                      .then(function(registration) {
-                        console.log('SW registered: ', registration);
-                      })
-                      .catch(function(registrationError) {
-                        console.log('SW registration failed: ', registrationError);
-                      });
-                  });
-                }
-              })();
-            `,
-          }}
-        />
       </head>
       <body
         className={`${lexendSans.variable} ${geistMono.variable} ${cinzelDecorative.variable} ${gloock.variable} antialiased bg-radial from-background to-background-dark bg-fixed`}
         suppressHydrationWarning
       >
-        <Providers>
+        <Providers session={session}>
           <RecaptchaProvider>
             <Navigation />
-            <main className="pt-16 mb-16 md:pb-8">{children}</main>
+            <main className="h-min-screen">
+              <div className="pt-16">{children}</div>
+            </main>
             <PWAInstallPrompt />
             <Toaster position="top-right" richColors />
           </RecaptchaProvider>

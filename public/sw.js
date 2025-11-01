@@ -1,11 +1,8 @@
 // Service Worker pour Magic Stack PWA
-const CACHE_NAME = "mtg-stock-v1";
+const CACHE_NAME = "mtg-stock-v2"; // Changé pour forcer l'update
 const urlsToCache = [
-  "/",
-  "/search",
-  "/collections",
-  "/decks",
   "/manifest.json",
+  // Ne pas cacher les pages HTML pour éviter les problèmes d'hydratation
 ];
 
 // Installation du service worker
@@ -15,6 +12,8 @@ self.addEventListener("install", (event) => {
       return cache.addAll(urlsToCache);
     })
   );
+  // Force l'activation immédiate
+  self.skipWaiting();
 });
 
 // Activation du service worker
@@ -30,19 +29,23 @@ self.addEventListener("activate", (event) => {
       );
     })
   );
+  // Prend le contrôle immédiatement
+  return self.clients.claim();
 });
 
 // Interception des requêtes
 self.addEventListener("fetch", (event) => {
+  // Ne PAS cacher les pages HTML - laisser Next.js gérer
+  if (
+    event.request.mode === "navigate" ||
+    event.request.headers.get("accept")?.includes("text/html")
+  ) {
+    return; // Laisse passer la requête réseau
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
-      // Retourner la ressource du cache si disponible
-      if (response) {
-        return response;
-      }
-
-      // Sinon, faire la requête réseau
-      return fetch(event.request);
+      return response || fetch(event.request);
     })
   );
 });

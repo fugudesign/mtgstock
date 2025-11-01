@@ -8,53 +8,87 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Github } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
 
 // Vérifier si les OAuth providers sont configurés
 const GITHUB_ENABLED = process.env.NEXT_PUBLIC_GITHUB_ENABLED === "true";
 const GOOGLE_ENABLED = process.env.NEXT_PUBLIC_GOOGLE_ENABLED === "true";
 
-function LoginForm() {
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "L'email est requis")
+    .email("Veuillez entrer un email valide"),
+  password: z
+    .string()
+    .min(1, "Le mot de passe est requis")
+    .min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+});
+
+type LoginForm = z.infer<typeof loginSchema>;
+
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { status } = useSession();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const registered = searchParams.get("registered");
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
-  // Rediriger si déjà connecté
+  const form = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  // Rediriger si déjà connecté et afficher les toasts
   useEffect(() => {
     if (status === "authenticated") {
       router.push("/");
     }
-  }, [status, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+    // Afficher le toast de succès après inscription
+    if (registered === "true") {
+      toast.success(
+        "Compte créé avec succès ! Vous pouvez maintenant vous connecter."
+      );
+    }
 
+    // Afficher le toast d'information pour redirection
+    if (callbackUrl !== "/" && status === "unauthenticated") {
+      toast.info("Vous devez être connecté pour accéder à cette page.");
+    }
+  }, [status, router, registered, callbackUrl]);
+
+  const onSubmit = async (data: LoginForm) => {
     try {
       const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
+        email: data.email,
+        password: data.password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Email ou mot de passe incorrect");
-        setLoading(false);
+        toast.error("Email ou mot de passe incorrect");
         return;
       }
 
@@ -63,8 +97,7 @@ function LoginForm() {
       router.refresh();
     } catch (err) {
       console.error("Login error:", err);
-      setError("Erreur lors de la connexion");
-      setLoading(false);
+      toast.error("Erreur lors de la connexion");
     }
   };
 
@@ -73,7 +106,7 @@ function LoginForm() {
       await signIn(provider, { callbackUrl });
     } catch (err) {
       console.error("OAuth error:", err);
-      setError("Erreur lors de la connexion");
+      toast.error("Erreur lors de la connexion OAuth");
     }
   };
 
@@ -92,7 +125,7 @@ function LoginForm() {
   const showOAuthSection = GITHUB_ENABLED || GOOGLE_ENABLED;
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
@@ -103,67 +136,53 @@ function LoginForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {registered && (
-            <div className="bg-green-500/10 text-green-400 p-3 rounded-md text-sm mb-4">
-              Compte créé avec succès ! Vous pouvez maintenant vous connecter.
-            </div>
-          )}
-
-          {callbackUrl !== "/" && (
-            <div className="bg-primary/10 text-primary p-3 rounded-md text-sm mb-4">
-              Vous devez être connecté pour accéder à cette page.
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-destructive/10 text-destructive p-3 rounded-md text-sm">
-                {error}
-              </div>
-            )}
-
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-foreground mb-1"
-              >
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                placeholder="votre@email.com"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="votre@email.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-foreground mb-1"
-              >
-                Mot de passe
-              </label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                placeholder="Votre mot de passe"
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mot de passe</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Votre mot de passe"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Connexion..." : "Se connecter"}
-            </Button>
-          </form>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? "Connexion..." : "Se connecter"}
+              </Button>
+            </form>
+          </Form>
 
           {showOAuthSection && (
             <div className="mt-6">
@@ -241,7 +260,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Chargement...</p>
@@ -249,7 +268,7 @@ export default function LoginPage() {
         </div>
       }
     >
-      <LoginForm />
+      <LoginContent />
     </Suspense>
   );
 }

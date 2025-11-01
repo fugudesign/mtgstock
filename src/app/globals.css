@@ -1,38 +1,9 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-@theme {
-  --color-background-dark: var(--color-neutral-950);
-  --color-background: var(--color-neutral-900);
-  --color-foreground: var(--color-neutral-50);
-  --color-card: var(--color-neutral-900);
-  --color-card-foreground: var(--color-neutral-50);
-  --color-popover: var(--color-neutral-900);
-  --color-popover-foreground: var(--color-neutral-50);
-  --color-primary: var(--color-indigo-600);
-  --color-primary-dark: var(--color-indigo-900);
-  --color-primary-foreground: var(--color-white);
-  --color-secondary: var(--color-neutral-800);
-  --color-secondary-foreground: var(--color-neutral-50);
-  --color-muted: var(--color-neutral-800);
-  --color-muted-foreground: var(--color-neutral-400);
-  --color-accent: var(--color-zinc-700);
-  --color-accent-foreground: var(--color-neutral-50);
-  --color-destructive: var(--color-red-500);
-  --color-destructive-foreground: var(--color-white);
-  --color-border: var(--color-neutral-800);
-  --color-input: var(--color-neutral-800);
-  --color-ring: var(--color-indigo-600);
+/* Anciennes variables de thème supprimées - on utilise maintenant les variables shadcn */
 
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-  --font-decorative: var(--font-decorative);
-  --font-heading: var(--font-heading);
-}
-
-body {
-  background-color: var(--color-background-dark);
-  color: var(--color-foreground);
-}
+/* Styles body maintenant gérés par shadcn via @layer base */
 
 /* PWA et Mobile optimizations */
 html {
@@ -59,7 +30,7 @@ textarea,
 select {
   font-size: 16px !important;
   -webkit-appearance: none;
-  border-radius: 0;
+  /* border-radius: 0; - Supprimé pour préserver les styles shadcn/tailwind */
 }
 
 /* Navigation avec safe areas */
@@ -124,4 +95,150 @@ img {
 /* Masquer le badge reCAPTCHA v3 */
 .grecaptcha-badge {
   visibility: hidden;
+}
+
+@theme inline {
+  /* Polices */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-decorative: var(--font-decorative);
+  --font-heading: var(--font-heading);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background-dark: var(--background-dark);
+  --color-background: var(--background);
+
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-highlight1: var(--highlight1);
+  --color-highlight1-dark: var(--highlight1-dark);
+  --color-highlight1-foreground: var(--highlight1-foreground);
+
+  --color-highlight2: var(--highlight2);
+  --color-highlight2-dark: var(--highlight2-dark);
+  --color-highlight2-foreground: var(--highlight2-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+}
+
+.dark {
+  /* Backgrounds sombres (vos anciennes couleurs neutral-950/900) */
+  --background-dark: var(--color-neutral-950);
+  --background: var(--color-neutral-900);
+  --foreground: var(--color-white);
+
+  /* Cards légèrement plus claires que le background */
+  --card: var(--color-neutral-900);
+  --card-foreground: var(--color-white);
+
+  /* Popovers comme les cards */
+  --popover: var(--color-neutral-900);
+  --popover-foreground: var(--color-white);
+
+  /* Primary en indigo  */
+  --primary: var(--color-indigo-600);
+  --primary-dark: var(--color-indigo-700);
+  --primary-foreground: var(--color-white);
+
+  /* Hightlight 1 en purple  */
+  --highlight1-dark: var(--color-purple-700);
+  --highlight1: var(--color-purple-600);
+  --highlight1-foreground: var(--color-white);
+
+  /* Hightlight 2 en blue  */
+  --highlight2-dark: var(--color-blue-700);
+  --highlight2: var(--color-blue-600);
+  --highlight2-foreground: var(--color-white);
+
+  /* Secondary en neutral plus clair */
+  --secondary: var(--color-neutral-700);
+  --secondary-foreground: var(--color-white);
+
+  /* Muted pour les textes secondaires */
+  --muted: var(--color-neutral-700);
+  --muted-foreground: var(--color-neutral-400);
+
+  /* Accent en zinc comme avant */
+  --accent: var(--color-zinc-700);
+  --accent-foreground: var(--color-white);
+
+  /* Destructive en rouge */
+  --destructive: var(--color-red-500);
+
+  /* Bordures et inputs subtils */
+  --border: var(--color-neutral-800);
+  --input: var(--color-neutral-800);
+  --ring: var(--color-indigo-600);
+
+  /* Charts en couleurs vives */
+  --chart-1: var(--color-blue-500);
+  --chart-2: var(--color-green-500);
+  --chart-3: var(--color-yellow-500);
+  --chart-4: var(--color-purple-500);
+  --chart-5: var(--color-pink-500);
+
+  /* Sidebar comme les cards */
+  --sidebar: var(--color-neutral-800);
+  --sidebar-foreground: var(--color-white);
+  --sidebar-primary: var(--color-indigo-600);
+  --sidebar-primary-foreground: var(--color-white);
+  --sidebar-accent: var(--color-neutral-700);
+  --sidebar-accent-foreground: var(--color-white);
+  --sidebar-border: var(--color-neutral-800);
+  --sidebar-ring: var(--color-indigo-600);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

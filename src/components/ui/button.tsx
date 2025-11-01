@@ -10,7 +10,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         magic:
-          "bg-linear-to-b from-indigo-700 to-purple-700 text-primary-foreground hover:from-indigo-600 hover:to-purple-600",
+          "bg-linear-to-b from-primary-dark to-highlight1-dark text-primary-foreground hover:from-primary hover:to-highlight1",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline:
@@ -21,11 +21,15 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default:
-          "h-10 rounded-md p-0 md:p-4 [&_svg:not([class*='size-'])]:size-5",
-        sm: "h-9 rounded-md p-0 md:p-3 [&_svg:not([class*='size-'])]:size-4",
-        lg: "h-11 rounded-lg p-0 md:p-5 [&_svg:not([class*='size-'])]:size-6",
-        icon: "size-10 aspect-square [&_svg:not([class*='size-'])]:size-5",
+        default: "h-10 rounded-md p-4 [&_svg:not([class*='size-'])]:size-5",
+        sm: "h-9 rounded-md p-3 [&_svg:not([class*='size-'])]:size-4",
+        lg: "h-11 rounded-lg p-5 [&_svg:not([class*='size-'])]:size-6",
+        icon: "h-10 rounded-md p-0 md:p-4 [&_svg:not([class*='size-'])]:size-5",
+        iconSm:
+          "h-9 rounded-md p-0 md:p-3 [&_svg:not([class*='size-'])]:size-4",
+        iconLg:
+          "h-11 rounded-lg p-0 md:p-5 [&_svg:not([class*='size-'])]:size-6",
+        // icon: "size-10 aspect-square [&_svg:not([class*='size-'])]:size-5",
       },
     },
     defaultVariants: {

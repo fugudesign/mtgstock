@@ -1,10 +1,10 @@
 "use client";
 
 import { MagicStackIcon } from "@/components/icons/MagicStackIcon";
+import { UserMenu } from "@/components/UserMenu";
 import { cn } from "@/lib/utils";
-import { BookOpen, Home, Layers, LogOut, Search, User } from "lucide-react";
+import { BookOpen, Home, Layers, Search } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -78,54 +78,13 @@ export function Navigation() {
                 {status === "loading" ? (
                   <div className="h-8 w-20 bg-muted animate-pulse rounded"></div>
                 ) : session ? (
-                  <div className="relative">
-                    <button
-                      onClick={handleToggleUserMenu}
-                      className="flex items-center gap-2 p-1 rounded-full hover:bg-accent transition-colors"
-                    >
-                      {session.user?.image ? (
-                        <Image
-                          src={session.user.image}
-                          alt={session.user.name || "User"}
-                          className="w-8 h-8 rounded-full"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                          <User className="h-4 w-4 text-primary-foreground" />
-                        </div>
-                      )}
-                    </button>
-
-                    {showUserMenu && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-10"
-                          onClick={handleCloseUserMenu}
-                        ></div>
-                        <div className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border border-border py-1 z-20">
-                          <div className="flex items-center justify-between px-4 py-2 text-md font-bold text-foreground">
-                            {session.user?.name || session.user?.email}
-                          </div>
-                          <hr className="border-t border-border my-1" />
-                          <Link
-                            href="/profile"
-                            className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-accent"
-                            onClick={handleCloseUserMenu}
-                          >
-                            <User className="h-4 w-4" />
-                            Mon profil
-                          </Link>
-                          <button
-                            onClick={handleSignOut}
-                            className="flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-destructive/10 w-full text-left"
-                          >
-                            <LogOut className="h-4 w-4" />
-                            Déconnexion
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                  <UserMenu
+                    session={session}
+                    onSignOut={handleSignOut}
+                    open={showUserMenu}
+                    onOpen={handleToggleUserMenu}
+                    onClose={handleCloseUserMenu}
+                  />
                 ) : (
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="sm" asChild>
@@ -143,7 +102,7 @@ export function Navigation() {
       </nav>
 
       {/* Mobile Navigation */}
-      <div className="fixed bottom-0 inset-x-0 z-50 pb-2 bg-background-dark/80 md:hidden border-t border-border backdrop-blur-xs">
+      <div className="fixed bottom-0 inset-x-0 z-50 pb-2 bg-background-dark/90 md:hidden border-t border-border backdrop-blur-xs">
         <div className="flex items-center justify-around py-2">
           {navigation.map((item) => {
             const Icon = item.icon;
