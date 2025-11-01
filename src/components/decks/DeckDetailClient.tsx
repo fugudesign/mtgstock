@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Container } from "@/components/ui/container";
 import {
   Empty,
   EmptyContent,
@@ -185,123 +186,121 @@ export function DeckDetailClient({ deck: initialDeck }: DeckDetailClientProps) {
   const deckMTGCards = initialDeck.cards.map(transformDeckCardToMTGCard);
 
   return (
-    <>
-      <div className="min-h-screen px-4">
-        <PageHeader
-          title={initialDeck.name}
-          subtitle={initialDeck.description}
-          infos={
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <Badge variant="outline" className="capitalize">
-                {initialDeck.format}
-              </Badge>
-              {deckStatus && (
-                <div
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded border",
-                    deckStatus.isValid
-                      ? "bg-green-500/20 text-green-400 border-green-500"
-                      : "bg-orange-500/20 text-orange-400 border-orange-500"
-                  )}
-                >
-                  {deckStatus.isValid ? (
-                    <CheckCircle2 className="h-4 w-4" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4" />
-                  )}
-                  <span className="font-medium">
-                    {deckStatus.totalCards} cartes
-                  </span>
-                </div>
-              )}
-            </div>
-          }
-          className="mb-4"
-        >
-          <Button size="iconSm" asChild>
-            <Link href="/search">
-              <Plus />
-              <span data-slot="text">Ajouter des cartes</span>
-            </Link>
-          </Button>
-          <Button size="iconSm" onClick={() => setShowEditModal(true)}>
-            <Edit />
-            <span data-slot="text">Modifier</span>
-          </Button>
-          <Button variant="outline" size="iconSm" asChild>
-            <Link href="/decks">
-              <X />
-              <span data-slot="text">Retour</span>
-            </Link>
-          </Button>
-        </PageHeader>
-
-        {/* Validation Warnings */}
-        {deckStatus && !deckStatus.isValid && (
-          <Card className="mb-6 border-orange-500 text-orange-400 bg-orange-500/20">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <Info className="h-5 w-5 text-orange-400 mt-0.5" />
-                <div>
-                  <h3 className="font-semibold text-orange-400 mb-2">
-                    Ce deck n&apos;est pas encore valide.
-                  </h3>
-                  <ul className="space-y-1 text-sm text-orange-500">
-                    {deckStatus.totalCards < 40 && (
-                      <li>
-                        • Minimum 40 cartes requises (actuellement{" "}
-                        {deckStatus.totalCards})
-                      </li>
-                    )}
-                    {deckStatus.totalCards > 100 && (
-                      <li>
-                        • Maximum 100 cartes autorisées (actuellement{" "}
-                        {deckStatus.totalCards})
-                      </li>
-                    )}
-                    {deckStatus.duplicateIssues.map(([name, count]) => (
-                      <li key={name}>
-                        • {name} : {count} copies (max 4 autorisé)
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+    <Container>
+      <PageHeader
+        title={initialDeck.name}
+        subtitle={initialDeck.description}
+        infos={
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <Badge variant="outline" className="capitalize">
+              {initialDeck.format}
+            </Badge>
+            {deckStatus && (
+              <div
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded border",
+                  deckStatus.isValid
+                    ? "bg-green-500/20 text-green-400 border-green-500"
+                    : "bg-orange-500/20 text-orange-400 border-orange-500"
+                )}
+              >
+                {deckStatus.isValid ? (
+                  <CheckCircle2 className="h-4 w-4" />
+                ) : (
+                  <AlertCircle className="h-4 w-4" />
+                )}
+                <span className="font-medium">
+                  {deckStatus.totalCards} cartes
+                </span>
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {deckMTGCards.length > 0 ? (
-          <CardGrid
-            cards={deckMTGCards}
-            context="deck"
-            showActions={true}
-            onCardRemove={handleRemoveCard}
-          />
-        ) : (
-          <div className="pt-24">
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <Search />
-                </EmptyMedia>
-                <EmptyTitle>Deck vide</EmptyTitle>
-                <EmptyDescription>
-                  Ajoutez des cartes à votre deck depuis la page de recherche.
-                </EmptyDescription>
-              </EmptyHeader>
-              <EmptyContent>
-                <Button asChild>
-                  <Link href="/search">
-                    <Search className="mr-2 h-4 w-4" />
-                    Rechercher des cartes
-                  </Link>
-                </Button>
-              </EmptyContent>
-            </Empty>
+            )}
           </div>
-        )}
-      </div>
+        }
+        className="mb-4"
+      >
+        <Button size="iconSm" asChild>
+          <Link href="/search">
+            <Plus />
+            <span data-slot="text">Ajouter des cartes</span>
+          </Link>
+        </Button>
+        <Button size="iconSm" onClick={() => setShowEditModal(true)}>
+          <Edit />
+          <span data-slot="text">Modifier</span>
+        </Button>
+        <Button variant="outline" size="iconSm" asChild>
+          <Link href="/decks">
+            <X />
+            <span data-slot="text">Retour</span>
+          </Link>
+        </Button>
+      </PageHeader>
+
+      {/* Validation Warnings */}
+      {deckStatus && !deckStatus.isValid && (
+        <Card className="mb-6 border-orange-500 text-orange-400 bg-orange-500/20">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <Info className="h-5 w-5 text-orange-400 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-orange-400 mb-2">
+                  Ce deck n&apos;est pas encore valide.
+                </h3>
+                <ul className="space-y-1 text-sm text-orange-500">
+                  {deckStatus.totalCards < 40 && (
+                    <li>
+                      • Minimum 40 cartes requises (actuellement{" "}
+                      {deckStatus.totalCards})
+                    </li>
+                  )}
+                  {deckStatus.totalCards > 100 && (
+                    <li>
+                      • Maximum 100 cartes autorisées (actuellement{" "}
+                      {deckStatus.totalCards})
+                    </li>
+                  )}
+                  {deckStatus.duplicateIssues.map(([name, count]) => (
+                    <li key={name}>
+                      • {name} : {count} copies (max 4 autorisé)
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {deckMTGCards.length > 0 ? (
+        <CardGrid
+          cards={deckMTGCards}
+          context="deck"
+          showActions={true}
+          onCardRemove={handleRemoveCard}
+        />
+      ) : (
+        <div className="pt-24">
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Search />
+              </EmptyMedia>
+              <EmptyTitle>Deck vide</EmptyTitle>
+              <EmptyDescription>
+                Ajoutez des cartes à votre deck depuis la page de recherche.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button asChild>
+                <Link href="/search">
+                  <Search className="mr-2 h-4 w-4" />
+                  Rechercher des cartes
+                </Link>
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </div>
+      )}
 
       {/* Edit Deck Modal */}
       <DeckModal
@@ -317,6 +316,6 @@ export function DeckDetailClient({ deck: initialDeck }: DeckDetailClientProps) {
         }}
         isSubmitting={submitting}
       />
-    </>
+    </Container>
   );
 }

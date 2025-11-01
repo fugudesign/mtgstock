@@ -5,6 +5,7 @@ import { CollectionModal } from "@/components/collections";
 import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/container";
 import {
   Empty,
   EmptyContent,
@@ -159,70 +160,68 @@ export function CollectionDetailClient({
   );
 
   return (
-    <>
-      <div className="min-h-screen px-4">
-        <PageHeader
-          title={initialCollection.name}
-          subtitle={initialCollection.description}
-          infos={
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <Badge
-                variant={initialCollection.isPublic ? "default" : "secondary"}
-              >
-                {initialCollection.isPublic ? "Public" : "Privé"}
-              </Badge>
-              <div className="flex items-center gap-2">
-                <Package className="size-4" />
-                <span className="font-medium">{getTotalCards()} cartes</span>
-              </div>
+    <Container>
+      <PageHeader
+        title={initialCollection.name}
+        subtitle={initialCollection.description}
+        infos={
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <Badge
+              variant={initialCollection.isPublic ? "default" : "secondary"}
+            >
+              {initialCollection.isPublic ? "Public" : "Privé"}
+            </Badge>
+            <div className="flex items-center gap-2">
+              <Package className="size-4" />
+              <span className="font-medium">{getTotalCards()} cartes</span>
             </div>
-          }
-          className="mb-4"
-        >
-          <Button size="iconSm" onClick={() => setShowEditModal(true)}>
-            <Edit />
-            <span data-slot="text">Modifier</span>
-          </Button>
-          <Button variant="outline" size="iconSm" asChild>
-            <Link href="/collections">
-              <X />
-              <span data-slot="text">Retour</span>
-            </Link>
-          </Button>
-        </PageHeader>
-
-        {mtgCards.length > 0 ? (
-          <CardGrid
-            cards={mtgCards}
-            context="collection"
-            showActions={true}
-            onCardRemove={handleRemoveCard}
-          />
-        ) : (
-          <div className="pt-24">
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <Search />
-                </EmptyMedia>
-                <EmptyTitle>Collection vide</EmptyTitle>
-                <EmptyDescription>
-                  Ajoutez des cartes à votre collection depuis la page de
-                  recherche.
-                </EmptyDescription>
-              </EmptyHeader>
-              <EmptyContent>
-                <Button asChild>
-                  <Link href="/search">
-                    <Search className="mr-2 h-4 w-4" />
-                    Rechercher des cartes
-                  </Link>
-                </Button>
-              </EmptyContent>
-            </Empty>
           </div>
-        )}
-      </div>
+        }
+        className="mb-4"
+      >
+        <Button size="iconSm" onClick={() => setShowEditModal(true)}>
+          <Edit />
+          <span data-slot="text">Modifier</span>
+        </Button>
+        <Button variant="outline" size="iconSm" asChild>
+          <Link href="/collections">
+            <X />
+            <span data-slot="text">Retour</span>
+          </Link>
+        </Button>
+      </PageHeader>
+
+      {mtgCards.length > 0 ? (
+        <CardGrid
+          cards={mtgCards}
+          context="collection"
+          showActions={true}
+          onCardRemove={handleRemoveCard}
+        />
+      ) : (
+        <div className="pt-24">
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Search />
+              </EmptyMedia>
+              <EmptyTitle>Collection vide</EmptyTitle>
+              <EmptyDescription>
+                Ajoutez des cartes à votre collection depuis la page de
+                recherche.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button asChild>
+                <Link href="/search">
+                  <Search className="mr-2 h-4 w-4" />
+                  Rechercher des cartes
+                </Link>
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </div>
+      )}
 
       {/* Edit Collection Modal */}
       <CollectionModal
@@ -237,6 +236,6 @@ export function CollectionDetailClient({
         }}
         isSubmitting={submitting}
       />
-    </>
+    </Container>
   );
 }

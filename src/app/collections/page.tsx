@@ -3,6 +3,7 @@ import {
   CreateCollectionButton,
 } from "@/components/collections";
 import { PageHeader } from "@/components/PageHeader";
+import { Container } from "@/components/ui/container";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
@@ -39,7 +40,7 @@ export default async function CollectionsPage() {
   }));
 
   return (
-    <div className="space-y-4 px-4">
+    <Container>
       {collections.length > 0 && (
         <PageHeader
           title="Mes Collections"
@@ -50,6 +51,6 @@ export default async function CollectionsPage() {
       )}
 
       <CollectionsClient initialCollections={collections} />
-    </div>
+    </Container>
   );
 }

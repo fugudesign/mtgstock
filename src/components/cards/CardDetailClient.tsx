@@ -5,6 +5,7 @@ import { ManaSymbols, ManaText } from "@/components/ManaSymbol";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Container } from "@/components/ui/container";
 import {
   MTGCard,
   getCardFaceImages,
@@ -150,7 +151,7 @@ export function CardDetailClient({ card }: CardDetailClientProps) {
   const isDoubleFaced = isDoubleFacedCard(card);
 
   return (
-    <div className="min-h-screen mx-auto p-4">
+    <Container>
       {/* Header */}
       <div className="mb-6">
         <Button
@@ -554,6 +555,6 @@ export function CardDetailClient({ card }: CardDetailClientProps) {
         isOpen={showDeckSelector}
         onClose={() => setShowDeckSelector(false)}
       />
-    </div>
+    </Container>
   );
 }

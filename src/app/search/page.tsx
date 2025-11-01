@@ -4,6 +4,7 @@ import { CardGrid } from "@/components/CardGrid";
 import { PageHeader } from "@/components/PageHeader";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/container";
 import { Input } from "@/components/ui/input";
 import {
   getAvailableLanguages,
@@ -269,8 +270,7 @@ function SearchPageContent() {
   };
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen mx-auto p-4 space-y-4">
+      <Container>
         <PageHeader
           title="Recherche de cartes"
           subtitle="Recherchez parmi plus de 30 000 cartes Magic: The Gathering"
@@ -479,8 +479,7 @@ function SearchPageContent() {
           context="search"
           pageSize={PAGE_SIZE}
         />
-      </div>
-    </ProtectedRoute>
+      </Container>
   );
 }
 

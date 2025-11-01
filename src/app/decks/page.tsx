@@ -1,5 +1,6 @@
 import { CreateDeckButton, DecksClient } from "@/components/decks";
 import { PageHeader } from "@/components/PageHeader";
+import { Container } from "@/components/ui/container";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
@@ -36,7 +37,7 @@ export default async function DecksPage() {
   }));
 
   return (
-    <div className="space-y-4 px-4">
+    <Container>
       {decksWithCardCount.length > 0 && (
         <PageHeader
           title="Mes Decks"
@@ -47,6 +48,6 @@ export default async function DecksPage() {
       )}
 
       <DecksClient initialDecks={decksWithCardCount} />
-    </div>
+    </Container>
   );
 }

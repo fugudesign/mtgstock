@@ -96,7 +96,7 @@ export default async function RootLayout({
           <RecaptchaProvider>
             <Navigation />
             <main className="h-min-screen">
-              <div className="pt-16">{children}</div>
+              <div className="pt-4 md:pt-16">{children}</div>
             </main>
             <PWAInstallPrompt />
             <Toaster position="top-right" richColors />
