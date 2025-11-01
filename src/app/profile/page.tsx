@@ -1,5 +1,4 @@
 import { PageHeader } from "@/components/PageHeader";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { ProfileStats } from "@/components/profile/ProfileStats";
 import {
@@ -48,71 +47,69 @@ export default async function ProfilePage() {
   }
 
   return (
-    <ProtectedRoute>
-      <Container className="max-w-3xl">
-        <PageHeader title="Mon profil" />
+    <Container className="max-w-3xl">
+      <PageHeader title="Mon profil" />
 
-        <div className="space-y-6">
-          {/* Account Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="text-primary" />
-                Informations du compte
-              </CardTitle>
-              <CardDescription>
-                Gérez vos informations personnelles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">
-                    Email
-                  </label>
-                  <Input
-                    type="email"
-                    value={user.email}
-                    disabled
-                    className="bg-muted"
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    L&apos;email ne peut pas être modifié
-                  </p>
-                </div>
+      <div className="space-y-6">
+        {/* Account Info */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <User className="text-primary" />
+              Informations du compte
+            </CardTitle>
+            <CardDescription>
+              Gérez vos informations personnelles
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-1">
+                  Email
+                </label>
+                <Input
+                  type="email"
+                  value={user.email}
+                  disabled
+                  className="bg-muted"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  L&apos;email ne peut pas être modifié
+                </p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Profile Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="text-primary" />
-                Préférences
-              </CardTitle>
-              <CardDescription>Personnalisez votre expérience</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ProfileForm
-                initialData={{
-                  name: user.name,
-                  language: user.language,
-                  email: user.email,
-                }}
-              />
-            </CardContent>
-          </Card>
+        {/* Profile Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="text-primary" />
+              Préférences
+            </CardTitle>
+            <CardDescription>Personnalisez votre expérience</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ProfileForm
+              initialData={{
+                name: user.name,
+                language: user.language,
+                email: user.email,
+              }}
+            />
+          </CardContent>
+        </Card>
 
-          {/* Stats Card */}
-          <ProfileStats
-            stats={{
-              collections: user._count.collections,
-              decks: user._count.decks,
-            }}
-          />
-        </div>
-      </Container>
-    </ProtectedRoute>
+        {/* Stats Card */}
+        <ProfileStats
+          stats={{
+            collections: user._count.collections,
+            decks: user._count.decks,
+          }}
+        />
+      </div>
+    </Container>
   );
 }
