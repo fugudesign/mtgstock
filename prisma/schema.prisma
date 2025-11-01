@@ -57,6 +57,7 @@ model User {
   sessions    Session[]
   collections Collection[]
   decks       Deck[]
+  priceHistory CardPriceHistory[]
 
   @@map("users")
 }
@@ -148,6 +149,11 @@ model CollectionCard {
   condition    String  @default("nm") // nm, lp, mp, hp, dmg
   acquiredDate DateTime @default(now())
   notes        String?
+  
+  // Price tracking
+  lastPriceCheck    DateTime?
+  lastPrice         Float?
+  lastPriceCurrency String?  @default("EUR")
 
   collectionId String
   collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
@@ -164,6 +170,11 @@ model DeckCard {
   id       String @id @default(cuid())
   quantity Int    @default(1)
   notes    String?
+  
+  // Price tracking
+  lastPriceCheck    DateTime?
+  lastPrice         Float?
+  lastPriceCurrency String?  @default("EUR")
 
   deckId String
   deck   Deck   @relation(fields: [deckId], references: [id], onDelete: Cascade)
@@ -173,5 +184,22 @@ model DeckCard {
 
   @@unique([deckId, cardId])
   @@index([deckId])
+  @@index([cardId])
+}
+
+// Price history for owned cards
+model CardPriceHistory {
+  id          String   @id @default(cuid())
+  cardId      String   // Scryfall card ID
+  price       Float
+  priceFoil   Float?   // Separate foil price
+  currency    String   @default("EUR")
+  checkedAt   DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, cardId])
+  @@index([checkedAt])
   @@index([cardId])
 }

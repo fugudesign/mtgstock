@@ -221,25 +221,27 @@ class ScryfallApiService {
       queryParts.push(`set:${params.set.toLowerCase()}`);
     }
 
-    if (params.lang) {
-      const langMap: Record<string, string> = {
-        french: "fr",
-        français: "fr",
-        english: "en",
-        german: "de",
-        spanish: "es",
-        italian: "it",
-        "portuguese (brazil)": "pt",
-        japanese: "ja",
-        "chinese simplified": "zhs",
-        "chinese traditional": "zht",
-        korean: "ko",
-        russian: "ru",
-      };
-      const langCode =
-        langMap[params.lang.toLowerCase()] || params.lang.toLowerCase();
-      queryParts.push(`lang:${langCode}`);
-    }
+    // Note: On ne filtre PAS par langue car Scryfall ne fournit les prix que pour les versions anglaises
+    // Les cartes retournées incluront quand même les noms traduits dans printed_name si disponibles
+    // if (params.lang) {
+    //   const langMap: Record<string, string> = {
+    //     french: "fr",
+    //     français: "fr",
+    //     english: "en",
+    //     german: "de",
+    //     spanish: "es",
+    //     italian: "it",
+    //     "portuguese (brazil)": "pt",
+    //     japanese: "ja",
+    //     "chinese simplified": "zhs",
+    //     "chinese traditional": "zht",
+    //     korean: "ko",
+    //     russian: "ru",
+    //   };
+    //   const langCode =
+    //     langMap[params.lang.toLowerCase()] || params.lang.toLowerCase();
+    //   queryParts.push(`lang:${langCode}`);
+    // }
 
     return queryParts.join(" ");
   }

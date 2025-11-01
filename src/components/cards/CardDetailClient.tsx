@@ -1,5 +1,6 @@
 "use client";
 
+import { PriceTracker } from "@/components/cards/PriceTracker";
 import { DeckSelector } from "@/components/decks/DeckSelector";
 import { ManaSymbols, ManaText } from "@/components/ManaSymbol";
 import { Badge } from "@/components/ui/badge";
@@ -305,6 +306,9 @@ export function CardDetailClient({ card }: CardDetailClientProps) {
                   </div>
                 </div>
               )}
+
+              {/* Price Tracker - uniquement si l'utilisateur possède la carte */}
+              {session && <PriceTracker cardId={card.id} />}
 
               {/* Liens externes */}
               <div className="mt-6 space-y-2">

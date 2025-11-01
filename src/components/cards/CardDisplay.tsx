@@ -564,6 +564,57 @@ export function CardDisplay({
               <span>{card.set_name || card.set}</span>
               {card.cmc !== undefined && <span>CMC: {card.cmc}</span>}
             </div>
+
+            {/* Prix indicatif (recherche seulement) */}
+            {context === "search" &&
+              card.prices &&
+              (() => {
+                const eurPrice =
+                  card.prices.eur && card.prices.eur !== "null"
+                    ? parseFloat(card.prices.eur)
+                    : null;
+                const eurFoilPrice =
+                  card.prices.eur_foil && card.prices.eur_foil !== "null"
+                    ? parseFloat(card.prices.eur_foil)
+                    : null;
+                const usdPrice =
+                  card.prices.usd && card.prices.usd !== "null"
+                    ? parseFloat(card.prices.usd)
+                    : null;
+                const usdFoilPrice =
+                  card.prices.usd_foil && card.prices.usd_foil !== "null"
+                    ? parseFloat(card.prices.usd_foil)
+                    : null;
+
+                // Ne rien afficher si aucun prix n'est disponible
+                if (!eurPrice && !usdPrice && !eurFoilPrice && !usdFoilPrice) {
+                  return null;
+                }
+
+                return (
+                  <div className="pt-1 border-t border-muted">
+                    {eurPrice && eurPrice > 0 ? (
+                      <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+                        {eurPrice.toFixed(2)} €
+                        {eurFoilPrice && eurFoilPrice > 0 && (
+                          <span className="ml-2 text-xs text-yellow-600 dark:text-yellow-400">
+                            Foil: {eurFoilPrice.toFixed(2)} €
+                          </span>
+                        )}
+                      </p>
+                    ) : usdPrice && usdPrice > 0 ? (
+                      <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+                        ${usdPrice.toFixed(2)}
+                        {usdFoilPrice && usdFoilPrice > 0 && (
+                          <span className="ml-2 text-xs text-yellow-600 dark:text-yellow-400">
+                            Foil: ${usdFoilPrice.toFixed(2)}
+                          </span>
+                        )}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })()}
           </div>
         </CardContent>
       </Card>

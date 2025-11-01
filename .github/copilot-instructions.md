@@ -35,6 +35,7 @@ Database (Prisma) → API Routes → Components
 - **Client**: Import from `src/lib/prisma.ts`, not direct Prisma imports
 - **Migrations**: Always run `npx prisma db push` after schema changes
 - **Foreign Language Support**: Cards store `printed_name`, `printed_type_line`, `printed_text`
+- **Price Tracking**: `CollectionCard` and `DeckCard` store `lastPrice` for quick calculations, `CardPriceHistory` for historical data and graphs
 
 ### Scryfall API Integration
 
@@ -42,6 +43,7 @@ Database (Prisma) → API Routes → Components
 - **Proxy**: `/api/scryfall/*` routes proxy to avoid CORS and add caching
 - **Query Building**: Use `buildScryfallQuery()` method for complex searches
 - **Localization**: Support French card names via `lang:fr` parameter
+- **Pricing**: Scryfall provides daily updated prices from Cardmarket (EUR) and TCGPlayer (USD) via `card.prices` object
 
 ### Component Patterns
 
