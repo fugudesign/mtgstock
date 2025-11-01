@@ -103,7 +103,7 @@ export function Navigation() {
 
       {/* Mobile Navigation */}
       {session && (
-        <div className="fixed bottom-0 inset-x-0 z-50 pb-2 bg-background-dark/90 md:hidden border-t border-border backdrop-blur-xs">
+        <div className="fixed bottom-0 inset-x-0 z-50 pb-3 bg-background-dark/90 md:hidden border-t border-border backdrop-blur-xs">
           <div className="flex items-center justify-around py-2">
             {navigation.map((item) => {
               const Icon = item.icon;

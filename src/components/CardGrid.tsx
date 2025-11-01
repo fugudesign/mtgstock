@@ -2,7 +2,13 @@
 
 import { CardDisplay } from "@/components/CardDisplay";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { MTGCard } from "@/lib/scryfall-api";
 import { cn } from "@/lib/utils";
 import { Loader2, Search } from "lucide-react";
@@ -73,15 +79,15 @@ export function CardGrid({
   // Affichage de l'empty state
   if (cards.length === 0 && !loading) {
     return (
-      <Card>
-        <CardContent className="p-12 text-center">
-          <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-foreground mb-2">
-            {emptyMessage}
-          </h3>
-          <p className="text-muted-foreground">{emptyDescription}</p>
-        </CardContent>
-      </Card>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Search />
+          </EmptyMedia>
+          <EmptyTitle>{emptyMessage}</EmptyTitle>
+          <EmptyDescription>{emptyDescription}</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
