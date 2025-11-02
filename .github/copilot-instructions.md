@@ -44,10 +44,39 @@ Database (Prisma) → API Routes → Components
 ### Scryfall API Integration
 
 - **Service**: `src/lib/scryfall-api.ts` with rate limiting (100ms between requests)
-- **Proxy**: `/api/scryfall/*` routes proxy to avoid CORS and add caching
+- **Proxy Routes**: `/api/scryfall/*` routes proxy to avoid CORS and add caching
 - **Query Building**: Use `buildScryfallQuery()` method for complex searches
 - **Localization**: Support French card names via `lang:fr` parameter
 - **Pricing**: Scryfall provides daily updated prices from Cardmarket (EUR) and TCGPlayer (USD) via `card.prices` object
+
+**⚠️ When to use Proxy vs Direct API calls:**
+
+✅ **Use `/api/scryfall/*` proxy routes** (via `mtgApiService`):
+
+- Client Components (`"use client"`) making searches or fetching data
+- User-triggered actions (search, autocomplete, filters)
+- Repeated or frequent requests that need rate limiting
+- Browser-side calls that could face CORS issues
+
+✅ **Use direct Scryfall API** (`https://api.scryfall.com`):
+
+- Server Components loading data on page render
+- One-time fetches per page load (no rate limiting risk)
+- When you need the absolute latest data without cache
+- Server-to-server communication (no CORS issues)
+
+**Example patterns:**
+
+```typescript
+// ❌ BAD: Server Component using localhost
+const response = await fetch(`http://localhost:3000/api/scryfall/cards/${id}`);
+
+// ✅ GOOD: Server Component using direct API
+const response = await fetch(`https://api.scryfall.com/cards/${id}`);
+
+// ✅ GOOD: Client Component using proxy
+const card = await mtgApiService.getCardById(id); // Uses /api/scryfall internally
+```
 
 ### Component Patterns
 

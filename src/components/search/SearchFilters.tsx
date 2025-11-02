@@ -34,9 +34,11 @@ export function SearchFilters({
   userLanguage,
 }: SearchFiltersProps) {
   const handleFilterChange = (key: keyof SearchFiltersState, value: string) => {
+    // Convertir "all" en chaîne vide pour l'API
+    const apiValue = value === "all" ? "" : value;
     onFiltersChange({
       ...filters,
-      [key]: value,
+      [key]: apiValue,
     });
   };
 
@@ -51,14 +53,14 @@ export function SearchFilters({
           )}
         </label>
         <Select
-          value={filters.language}
+          value={filters.language || "all"}
           onValueChange={(value) => handleFilterChange("language", value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Toutes les langues" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Toutes les langues</SelectItem>
+            <SelectItem value="all">Toutes les langues</SelectItem>
             {getAvailableLanguages().map((lang) => (
               <SelectItem key={lang.value} value={lang.value}>
                 {lang.label}
@@ -100,14 +102,14 @@ export function SearchFilters({
           Rareté
         </label>
         <Select
-          value={filters.rarity}
+          value={filters.rarity || "all"}
           onValueChange={(value) => handleFilterChange("rarity", value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Toutes" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Toutes</SelectItem>
+            <SelectItem value="all">Toutes</SelectItem>
             <SelectItem value="common">Common</SelectItem>
             <SelectItem value="uncommon">Uncommon</SelectItem>
             <SelectItem value="rare">Rare</SelectItem>

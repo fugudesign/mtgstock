@@ -29,7 +29,13 @@ export async function GET(
           cardId,
           collection: { userId: session.user.id },
         },
-        include: {
+        select: {
+          id: true,
+          quantity: true,
+          foil: true,
+          lastPrice: true,
+          lastPriceCheck: true,
+          lastPriceCurrency: true,
           collection: { select: { id: true, name: true } },
         },
       }),
@@ -38,7 +44,12 @@ export async function GET(
           cardId,
           deck: { userId: session.user.id },
         },
-        include: {
+        select: {
+          id: true,
+          quantity: true,
+          lastPrice: true,
+          lastPriceCheck: true,
+          lastPriceCurrency: true,
           deck: { select: { id: true, name: true } },
         },
       }),
@@ -51,6 +62,80 @@ export async function GET(
         { error: "Carte non trouvée dans vos collections/decks" },
         { status: 404 }
       );
+    }
+
+    // Vérifier si on a déjà vérifié le prix récemment (< 24h) et que ce n'est pas un refresh forcé
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    if (!forceRefresh) {
+      const lastCheck =
+        collectionCards[0]?.lastPriceCheck || deckCards[0]?.lastPriceCheck;
+      if (lastCheck && lastCheck > oneDayAgo) {
+        // Retourner les données en cache sans refetch
+        const cachedPrice =
+          collectionCards[0]?.lastPrice || deckCards[0]?.lastPrice;
+        const cachedCurrency =
+          collectionCards[0]?.lastPriceCurrency ||
+          deckCards[0]?.lastPriceCurrency ||
+          "EUR";
+
+        if (cachedPrice) {
+          // Récupérer quand même l'historique pour les variations
+          const lastPriceRecord = await prisma.cardPriceHistory.findFirst({
+            where: {
+              userId: session.user.id,
+              cardId,
+              checkedAt: { lt: oneDayAgo },
+            },
+            orderBy: { checkedAt: "desc" },
+          });
+
+          let priceChange: "up" | "down" | "stable" | null = null;
+          let priceChangePercent: number | null = null;
+
+          if (lastPriceRecord && lastPriceRecord.price > 0) {
+            const diff = cachedPrice - lastPriceRecord.price;
+            priceChangePercent = (diff / lastPriceRecord.price) * 100;
+
+            if (priceChangePercent > 2) {
+              priceChange = "up";
+            } else if (priceChangePercent < -2) {
+              priceChange = "down";
+            } else {
+              priceChange = "stable";
+            }
+          }
+
+          return NextResponse.json({
+            cardId,
+            price: cachedPrice,
+            priceFoil: null,
+            currency: cachedCurrency,
+            priceChange,
+            priceChangePercent:
+              priceChangePercent !== null
+                ? Math.round(priceChangePercent * 10) / 10
+                : null,
+            lastChecked: lastCheck,
+            noPriceAvailable: false,
+            cached: true,
+            ownedIn: {
+              collections: collectionCards.map((cc) => ({
+                id: cc.collection.id,
+                name: cc.collection.name,
+                quantity: cc.quantity,
+                foil: cc.foil,
+              })),
+              decks: deckCards.map((dc) => ({
+                id: dc.deck.id,
+                name: dc.deck.name,
+                quantity: dc.quantity,
+              })),
+            },
+          });
+        }
+      }
     }
 
     // Récupérer les informations de la carte depuis Scryfall
@@ -130,7 +215,6 @@ export async function GET(
     }
 
     // Récupérer le dernier prix enregistré (> 24h)
-    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const lastPriceRecord = await prisma.cardPriceHistory.findFirst({
       where: {
         userId: session.user.id,
@@ -186,6 +270,7 @@ export async function GET(
           prisma.collectionCard.update({
             where: { id: cc.id },
             data: {
+              lastPrice: currentPrice,
               lastPriceCheck: new Date(),
               lastPriceCurrency: currency,
             },
@@ -195,6 +280,7 @@ export async function GET(
           prisma.deckCard.update({
             where: { id: dc.id },
             data: {
+              lastPrice: currentPrice,
               lastPriceCheck: new Date(),
               lastPriceCurrency: currency,
             },
