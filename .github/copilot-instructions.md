@@ -33,7 +33,11 @@ Database (Prisma) → API Routes → Components
 
 - **Schema**: Multi-table structure with `User`, `Collection`, `Deck`, `Card`, and junction tables
 - **Client**: Import from `src/lib/prisma.ts`, not direct Prisma imports
-- **Migrations**: Always run `npx prisma db push` after schema changes
+- **⚠️ CRITICAL - Migrations**: **NEVER use `npx prisma db push` in development!** Always create proper migrations:
+  1. Modify `prisma/schema.prisma`
+  2. Run `npx prisma migrate dev --name descriptive_name` to create migration
+  3. Commit the migration file to git
+  4. **Never skip this step** - `db push` bypasses migrations and causes production deployment failures
 - **Foreign Language Support**: Cards store `printed_name`, `printed_type_line`, `printed_text`
 - **Price Tracking**: `CollectionCard` and `DeckCard` store `lastPrice` for quick calculations, `CardPriceHistory` for historical data and graphs
 
@@ -77,12 +81,20 @@ if (status === "authenticated") { /* show actions */ }
 ### Setup Commands
 
 ```bash
-npm install                    # Install dependencies
-npm run dev                   # Start dev server
-npm run dev:prisma           # Start Prisma Studio
-npm run dev:all              # Both dev server and Prisma Studio
-npx prisma db push           # Sync schema changes
-npx prisma generate          # Regenerate client after schema changes
+npm install                           # Install dependencies
+npm run dev                          # Start dev server
+npm run dev:prisma                   # Start Prisma Studio
+npm run dev:all                      # Both dev server and Prisma Studio
+
+# Database migrations (CRITICAL - read carefully!)
+npx prisma migrate dev --name <name>  # Create and apply migration (ALWAYS use this)
+npx prisma migrate deploy            # Apply migrations in production (auto in Vercel)
+npx prisma generate                  # Regenerate client after schema changes
+npx prisma studio                    # Open Prisma Studio GUI
+
+# ⚠️ NEVER use these commands:
+# npx prisma db push                 # Skips migrations - FORBIDDEN
+# npx prisma migrate reset           # Deletes all data - dangerous
 ```
 
 ### Environment Variables
