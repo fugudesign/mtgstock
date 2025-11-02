@@ -12,9 +12,8 @@ async function fetchCardData(
   userLang: string | null
 ): Promise<MTGCard | null> {
   try {
-    // Récupérer la carte depuis l'API Scryfall
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-    const response = await fetch(`${baseUrl}/api/scryfall/cards/${cardId}`, {
+    // Récupérer la carte directement depuis Scryfall (évite les problèmes d'URL)
+    const response = await fetch(`https://api.scryfall.com/cards/${cardId}`, {
       cache: "no-store",
     });
 
@@ -31,7 +30,7 @@ async function fetchCardData(
 
     // Chercher la version dans la langue de l'utilisateur via l'oracle_id
     try {
-      const searchUrl = `${baseUrl}/api/scryfall/search?q=oracleid:${fetchedCard.oracle_id}+lang:${userLang}&unique=prints`;
+      const searchUrl = `https://api.scryfall.com/cards/search?q=oracleid:${fetchedCard.oracle_id}+lang:${userLang}&unique=prints`;
       const localizedResponse = await fetch(searchUrl, { cache: "no-store" });
 
       if (localizedResponse.ok) {
@@ -70,19 +69,13 @@ export default async function CardDetailPage({ params }: PageProps) {
   let userLang: string | null = null;
   if (session?.user?.id) {
     try {
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-      const profileResponse = await fetch(`${baseUrl}/api/user/profile`, {
-        headers: {
-          cookie: `next-auth.session-token=${session}`,
-        },
-        cache: "no-store",
+      // Récupérer directement depuis la base de données au lieu d'un fetch API
+      const { prisma } = await import("@/lib/prisma");
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { language: true },
       });
-
-      if (profileResponse.ok) {
-        const profileData = await profileResponse.json();
-        userLang = profileData.language || "en";
-      }
+      userLang = user?.language || "en";
     } catch (error) {
       console.error("Error fetching user language:", error);
       userLang = "en";
