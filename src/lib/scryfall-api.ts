@@ -1,4 +1,8 @@
 import axios from "axios";
+import {
+  getScryfallCodeByCode,
+  getScryfallCodeByName,
+} from "./language-mapper";
 
 const SCRYFALL_API_BASE = "https://api.scryfall.com";
 
@@ -221,26 +225,16 @@ class ScryfallApiService {
       queryParts.push(`set:${params.set.toLowerCase()}`);
     }
 
-    // Note: On filtre par langue pour avoir directement les versions traduites
-    // Puis on enrichit avec les prix de la version anglaise (seule à avoir des prix sur Scryfall)
+    // Note: Priorité ABSOLUE à la langue demandée
+    // Les prix ne seront pas affichés dans la recherche (cartes non-anglaises n'ont pas de prix)
+    // L'enrichissement avec les prix se fait à la demande (page détail, ajout à collection)
     if (params.lang) {
-      const langMap: Record<string, string> = {
-        french: "fr",
-        français: "fr",
-        english: "en",
-        german: "de",
-        spanish: "es",
-        italian: "it",
-        "portuguese (brazil)": "pt",
-        japanese: "ja",
-        "chinese simplified": "zhs",
-        "chinese traditional": "zht",
-        korean: "ko",
-        russian: "ru",
-      };
-      const langCode =
-        langMap[params.lang.toLowerCase()] || params.lang.toLowerCase();
-      queryParts.push(`lang:${langCode}`);
+      // Utilise le mapper centralisé pour convertir en code Scryfall
+      const scryfallCode =
+        params.lang.length === 2
+          ? getScryfallCodeByCode(params.lang)
+          : getScryfallCodeByName(params.lang);
+      queryParts.push(`lang:${scryfallCode}`);
     }
 
     return queryParts.join(" ");
@@ -282,7 +276,6 @@ class ScryfallApiService {
 
       const pageSize = params.pageSize || 12;
       const currentPage = params.page || 1;
-      const userLanguage = params.language || "fr"; // Langue souhaitée pour l'affichage
 
       // Si c'est une nouvelle recherche (page 1) ou si la query a changé
       if (
@@ -295,7 +288,7 @@ class ScryfallApiService {
 
         const searchParams = new URLSearchParams({
           q: query,
-          unique: "prints",
+          unique: "prints", // Toutes les impressions (évite de limiter artificiellement)
           order: "name",
           page: "1", // Toujours commencer par la page 1 de l'API
         });
@@ -314,15 +307,6 @@ class ScryfallApiService {
           total: response.data.total_cards,
           hasMoreFromApi: response.data.has_more,
         };
-
-        // Enrichir avec les prix anglais si la recherche est dans une autre langue
-        if (userLanguage && userLanguage !== "en") {
-          this.currentSearch.allCards = await Promise.all(
-            this.currentSearch.allCards.map((card) =>
-              this.enrichWithEnglishPrices(card)
-            )
-          );
-        }
       }
 
       // Calculer les cartes pour cette page côté client
@@ -341,7 +325,7 @@ class ScryfallApiService {
 
         const searchParams = new URLSearchParams({
           q: query,
-          unique: "prints",
+          unique: "prints", // Toutes les impressions
           order: "name",
           page: (nextApiPage + 1).toString(),
         });
@@ -353,16 +337,8 @@ class ScryfallApiService {
 
         const response = await axios.get<ScryfallSearchResponse>(url);
 
-        // Enrichir les nouvelles cartes avec les prix anglais si nécessaire
-        let newCards = response.data.data;
-        if (userLanguage && userLanguage !== "en") {
-          newCards = await Promise.all(
-            newCards.map((card) => this.enrichWithEnglishPrices(card))
-          );
-        }
-
         // Ajouter les nouvelles cartes au cache
-        this.currentSearch.allCards.push(...newCards);
+        this.currentSearch.allCards.push(...response.data.data);
         this.currentSearch.hasMoreFromApi = response.data.has_more;
 
         // Recalculer les cartes pour cette page
@@ -492,6 +468,14 @@ class ScryfallApiService {
     }
   }
 
+  // ============================================================================
+  // FONCTIONS D'ENRICHISSEMENT DES PRIX (pour usage futur)
+  // ============================================================================
+  // Ces fonctions permettent d'enrichir les cartes traduites avec les prix
+  // des versions anglaises. Elles ne sont PAS utilisées dans la recherche
+  // mais peuvent être utilisées sur les pages détail ou lors de l'ajout à une collection.
+  // ============================================================================
+
   /**
    * Récupère uniquement les prix de la version anglaise d'une carte via son oracle_id
    * Utilisé pour enrichir les cartes traduites avec les prix (qui n'existent que pour les versions EN)
@@ -502,10 +486,12 @@ class ScryfallApiService {
   ): Promise<MTGCard["prices"] | null> {
     try {
       // Rechercher la version anglaise de cette carte
-      const searchQuery = `oracle_id:${oracleId} lang:en${set ? ` set:${set}` : ""}`;
+      const searchQuery = `oracle_id:${oracleId} lang:en${
+        set ? ` set:${set}` : ""
+      }`;
       const searchParams = new URLSearchParams({
         q: searchQuery,
-        unique: "prints",
+        unique: "cards", // Une seule version (la plus pertinente)
         order: "released",
       });
 
@@ -532,9 +518,7 @@ class ScryfallApiService {
    * Enrichit une carte traduite avec les prix de la version anglaise
    * (Scryfall ne fournit les prix que pour les versions anglaises)
    */
-  async enrichWithEnglishPrices(
-    localizedCard: MTGCard
-  ): Promise<MTGCard> {
+  async enrichWithEnglishPrices(localizedCard: MTGCard): Promise<MTGCard> {
     // Si c'est déjà une carte anglaise ou qu'elle n'a pas d'oracle_id, on la retourne telle quelle
     if (!localizedCard.oracle_id || localizedCard.lang === "en") {
       return localizedCard;

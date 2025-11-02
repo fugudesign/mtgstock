@@ -46,11 +46,16 @@ Database (Prisma) → API Routes → Components
 - **Service**: `src/lib/scryfall-api.ts` with rate limiting (100ms between requests)
 - **Proxy Routes**: `/api/scryfall/*` routes proxy to avoid CORS and add caching
 - **Query Building**: Use `buildScryfallQuery()` method for complex searches
-- **Localization Strategy**: 
-  - **Search with user's language** (e.g., `lang:fr`) to get localized cards directly
-  - **Enrich with English prices** using `enrichWithEnglishPrices()` method
-  - This approach avoids duplicates (one card per edition) while showing localized text with accurate prices
-  - Scryfall only provides prices for English versions, but cards store `printed_name`, `printed_type_line`, `printed_text` for display
+- **Language Mapping**: **ALWAYS use `src/lib/language-mapper.ts`** for language code conversions
+  - Use `getScryfallCodeByName()` to convert full names (e.g., "French" → "fr")
+  - Use `getScryfallCodeByCode()` to convert codes (e.g., "fr" → "fr", "zh" → "zhs")
+  - **NEVER create inline language maps** - use the centralized mapper
+- **Localization Strategy (PRIORITÉ ABSOLUE)**: 
+  - ⚠️ **TOUJOURS filtrer par langue** avec `lang:fr` (ou autre langue utilisateur)
+  - **Prices NOT shown in search results** for non-English cards (Scryfall limitation)
+  - **Price enrichment on-demand only**: use `enrichWithEnglishPrices()` on detail pages or when adding to collection/deck
+  - Cards display `printed_name`, `printed_type_line`, `printed_text` in the user's language
+  - **Never compromise language for prices** - user experience in native language is top priority
 - **Pricing**: Scryfall provides daily updated prices from Cardmarket (EUR) and TCGPlayer (USD) via `card.prices` object (English versions only)
 
 **⚠️ When to use Proxy vs Direct API calls:**
