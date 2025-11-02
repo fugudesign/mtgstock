@@ -50,7 +50,7 @@ Database (Prisma) → API Routes → Components
   - Use `getScryfallCodeByName()` to convert full names (e.g., "French" → "fr")
   - Use `getScryfallCodeByCode()` to convert codes (e.g., "fr" → "fr", "zh" → "zhs")
   - **NEVER create inline language maps** - use the centralized mapper
-- **Localization Strategy (PRIORITÉ ABSOLUE)**: 
+- **Localization Strategy (PRIORITÉ ABSOLUE)**:
   - ⚠️ **TOUJOURS filtrer par langue** avec `lang:fr` (ou autre langue utilisateur)
   - **Prices NOT shown in search results** for non-English cards (Scryfall limitation)
   - **Price enrichment on-demand only**: use `enrichWithEnglishPrices()` on detail pages or when adding to collection/deck

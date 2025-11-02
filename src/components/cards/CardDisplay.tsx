@@ -192,15 +192,15 @@ export function CardDisplay({
   const getRarityColor = (rarity?: string) => {
     switch (rarity?.toLowerCase()) {
       case "common":
-        return "bg-gray-500";
+        return "bg-gray-600";
       case "uncommon":
-        return "bg-green-500";
+        return "bg-green-600";
       case "rare":
-        return "bg-blue-500";
+        return "bg-blue-600";
       case "mythic":
-        return "bg-orange-500";
+        return "bg-orange-600";
       default:
-        return "bg-gray-400";
+        return "bg-gray-600";
     }
   };
 
@@ -316,14 +316,20 @@ export function CardDisplay({
 
           {/* Badge foil */}
           {foil && (
-            <Badge className="absolute top-2 left-2 bg-yellow-500 text-black border-0 font-bold mt-10">
+            <Badge
+              size="sm"
+              className="absolute top-2 left-2 bg-yellow-600 text-black border-0 font-bold mt-10"
+            >
               FOIL
             </Badge>
           )}
 
           {/* Badge condition */}
           {condition && condition !== "nm" && (
-            <Badge className="absolute top-2 left-2 bg-orange-500 text-white border-0 mt-20">
+            <Badge
+              size="sm"
+              className="absolute top-2 left-2 bg-orange-600 text-white border-0"
+            >
               {condition.toUpperCase()}
             </Badge>
           )}
@@ -519,30 +525,32 @@ export function CardDisplay({
               </div>
             </div>
           )}
-
-          {/* Badge de rareté */}
-          {card.rarity && (
-            <Badge
-              size="sm"
-              className={cn(
-                "absolute top-2 right-2 text-white border-0 capitalize",
-                getRarityColor(card.rarity)
-              )}
-            >
-              {card.rarity}
-            </Badge>
-          )}
-
-          {/* Badge pour cartes double-face */}
-          {isDoubleFacedCard(card) && (
-            <Badge className="absolute top-2 left-2 bg-purple-600 text-white border-0 flex items-center gap-1">
-              <Layers className="h-3 w-3" />
-              Double face
-            </Badge>
-          )}
         </div>
 
-        <CardContent className="p-3">
+        <CardContent className="p-3 relative">
+          <div className="flex gap-2 items-center justify-end w-full absolute top-0 right-2 -translate-y-1/2">
+            {/* Badge pour cartes double-face */}
+            {isDoubleFacedCard(card) && (
+              <Badge
+                size="sm"
+                className="bg-neutral-700 text-neutral-400 border-0 flex items-center gap-1"
+              >
+                2 faces
+              </Badge>
+            )}
+            {/* Badge de rareté */}
+            {card.rarity && (
+              <Badge
+                size="sm"
+                className={cn(
+                  "text-white border-0 capitalize",
+                  getRarityColor(card.rarity)
+                )}
+              >
+                {card.rarity}
+              </Badge>
+            )}
+          </div>
           <div className="space-y-1">
             <h3 className="font-semibold text-sm leading-tight line-clamp-2">
               {card.printed_name || card.name}
