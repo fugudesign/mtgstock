@@ -1,5 +1,5 @@
 {
-  "name": "magicstack",
+  "name": "magic-stack",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,6 @@
     "dev:prisma": "prisma studio",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:prisma\" --names \"next,prisma\" --prefix-colors \"cyan,magenta\"",
     "build": "prisma generate && next build",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate"
