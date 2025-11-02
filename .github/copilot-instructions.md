@@ -46,8 +46,12 @@ Database (Prisma) → API Routes → Components
 - **Service**: `src/lib/scryfall-api.ts` with rate limiting (100ms between requests)
 - **Proxy Routes**: `/api/scryfall/*` routes proxy to avoid CORS and add caching
 - **Query Building**: Use `buildScryfallQuery()` method for complex searches
-- **Localization**: Support French card names via `lang:fr` parameter
-- **Pricing**: Scryfall provides daily updated prices from Cardmarket (EUR) and TCGPlayer (USD) via `card.prices` object
+- **Localization Strategy**: 
+  - **Search with user's language** (e.g., `lang:fr`) to get localized cards directly
+  - **Enrich with English prices** using `enrichWithEnglishPrices()` method
+  - This approach avoids duplicates (one card per edition) while showing localized text with accurate prices
+  - Scryfall only provides prices for English versions, but cards store `printed_name`, `printed_type_line`, `printed_text` for display
+- **Pricing**: Scryfall provides daily updated prices from Cardmarket (EUR) and TCGPlayer (USD) via `card.prices` object (English versions only)
 
 **⚠️ When to use Proxy vs Direct API calls:**
 

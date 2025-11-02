@@ -221,27 +221,27 @@ class ScryfallApiService {
       queryParts.push(`set:${params.set.toLowerCase()}`);
     }
 
-    // Note: On ne filtre PAS par langue car Scryfall ne fournit les prix que pour les versions anglaises
-    // Les cartes retournées incluront quand même les noms traduits dans printed_name si disponibles
-    // if (params.lang) {
-    //   const langMap: Record<string, string> = {
-    //     french: "fr",
-    //     français: "fr",
-    //     english: "en",
-    //     german: "de",
-    //     spanish: "es",
-    //     italian: "it",
-    //     "portuguese (brazil)": "pt",
-    //     japanese: "ja",
-    //     "chinese simplified": "zhs",
-    //     "chinese traditional": "zht",
-    //     korean: "ko",
-    //     russian: "ru",
-    //   };
-    //   const langCode =
-    //     langMap[params.lang.toLowerCase()] || params.lang.toLowerCase();
-    //   queryParts.push(`lang:${langCode}`);
-    // }
+    // Note: On filtre par langue pour avoir directement les versions traduites
+    // Puis on enrichit avec les prix de la version anglaise (seule à avoir des prix sur Scryfall)
+    if (params.lang) {
+      const langMap: Record<string, string> = {
+        french: "fr",
+        français: "fr",
+        english: "en",
+        german: "de",
+        spanish: "es",
+        italian: "it",
+        "portuguese (brazil)": "pt",
+        japanese: "ja",
+        "chinese simplified": "zhs",
+        "chinese traditional": "zht",
+        korean: "ko",
+        russian: "ru",
+      };
+      const langCode =
+        langMap[params.lang.toLowerCase()] || params.lang.toLowerCase();
+      queryParts.push(`lang:${langCode}`);
+    }
 
     return queryParts.join(" ");
   }
@@ -282,6 +282,7 @@ class ScryfallApiService {
 
       const pageSize = params.pageSize || 12;
       const currentPage = params.page || 1;
+      const userLanguage = params.language || "fr"; // Langue souhaitée pour l'affichage
 
       // Si c'est une nouvelle recherche (page 1) ou si la query a changé
       if (
@@ -313,6 +314,15 @@ class ScryfallApiService {
           total: response.data.total_cards,
           hasMoreFromApi: response.data.has_more,
         };
+
+        // Enrichir avec les prix anglais si la recherche est dans une autre langue
+        if (userLanguage && userLanguage !== "en") {
+          this.currentSearch.allCards = await Promise.all(
+            this.currentSearch.allCards.map((card) =>
+              this.enrichWithEnglishPrices(card)
+            )
+          );
+        }
       }
 
       // Calculer les cartes pour cette page côté client
@@ -343,8 +353,16 @@ class ScryfallApiService {
 
         const response = await axios.get<ScryfallSearchResponse>(url);
 
+        // Enrichir les nouvelles cartes avec les prix anglais si nécessaire
+        let newCards = response.data.data;
+        if (userLanguage && userLanguage !== "en") {
+          newCards = await Promise.all(
+            newCards.map((card) => this.enrichWithEnglishPrices(card))
+          );
+        }
+
         // Ajouter les nouvelles cartes au cache
-        this.currentSearch.allCards.push(...response.data.data);
+        this.currentSearch.allCards.push(...newCards);
         this.currentSearch.hasMoreFromApi = response.data.has_more;
 
         // Recalculer les cartes pour cette page
@@ -471,6 +489,75 @@ class ScryfallApiService {
     } catch (error) {
       console.error("Erreur lors de la récupération des sets:", error);
       return [];
+    }
+  }
+
+  /**
+   * Récupère uniquement les prix de la version anglaise d'une carte via son oracle_id
+   * Utilisé pour enrichir les cartes traduites avec les prix (qui n'existent que pour les versions EN)
+   */
+  async getEnglishPrices(
+    oracleId: string,
+    set?: string
+  ): Promise<MTGCard["prices"] | null> {
+    try {
+      // Rechercher la version anglaise de cette carte
+      const searchQuery = `oracle_id:${oracleId} lang:en${set ? ` set:${set}` : ""}`;
+      const searchParams = new URLSearchParams({
+        q: searchQuery,
+        unique: "prints",
+        order: "released",
+      });
+
+      const url =
+        typeof window !== "undefined"
+          ? `/api/scryfall/search?${searchParams}`
+          : `${this.baseUrl}/cards/search?${searchParams}`;
+
+      const response = await axios.get<ScryfallSearchResponse>(url);
+
+      // Retourner les prix de la première carte trouvée (la plus récente du set)
+      if (response.data.data && response.data.data.length > 0) {
+        return response.data.data[0].prices;
+      }
+
+      return null;
+    } catch {
+      // Si pas de version anglaise trouvée, ce n'est pas une erreur critique
+      return null;
+    }
+  }
+
+  /**
+   * Enrichit une carte traduite avec les prix de la version anglaise
+   * (Scryfall ne fournit les prix que pour les versions anglaises)
+   */
+  async enrichWithEnglishPrices(
+    localizedCard: MTGCard
+  ): Promise<MTGCard> {
+    // Si c'est déjà une carte anglaise ou qu'elle n'a pas d'oracle_id, on la retourne telle quelle
+    if (!localizedCard.oracle_id || localizedCard.lang === "en") {
+      return localizedCard;
+    }
+
+    try {
+      const englishPrices = await this.getEnglishPrices(
+        localizedCard.oracle_id,
+        localizedCard.set
+      );
+
+      if (englishPrices) {
+        // On enrichit la carte traduite avec les prix de la version anglaise
+        return {
+          ...localizedCard,
+          prices: englishPrices,
+        };
+      }
+
+      return localizedCard;
+    } catch (error) {
+      console.error("Erreur lors de l'enrichissement des prix:", error);
+      return localizedCard;
     }
   }
 }
