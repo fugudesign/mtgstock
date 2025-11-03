@@ -1,6 +1,8 @@
 "use client";
 
 import { CardQuickView } from "@/components/cards/CardQuickView";
+import { CollectionDropdown } from "@/components/cards/CollectionDropdown";
+import { DeckDropdown } from "@/components/cards/DeckDropdown";
 import { ManaSymbols } from "@/components/ManaSymbol";
 import {
   AlertDialog,
@@ -16,14 +18,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   MTGCard,
   getCardImageUrl,
   getCardManaCost,
@@ -31,7 +25,7 @@ import {
   isDoubleFacedCard,
 } from "@/lib/scryfall-api";
 import { cn } from "@/lib/utils";
-import { BookOpen, Eye, Layers, Loader2, Trash2 } from "lucide-react";
+import { BookOpen, Eye, Layers, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -51,18 +45,6 @@ interface CardDisplayProps {
   context?: "search" | "collection" | "deck";
 }
 
-interface Collection {
-  id: string;
-  name: string;
-}
-
-interface Deck {
-  id: string;
-  name: string;
-  format: string;
-  cardCount: number;
-}
-
 export function CardDisplay({
   card,
   onAddToCollection,
@@ -77,9 +59,6 @@ export function CardDisplay({
   const { status } = useSession();
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [decks, setDecks] = useState<Deck[]>([]);
-  const [adding, setAdding] = useState(false);
 
   // État pour l'overlay mobile
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
@@ -91,100 +70,6 @@ export function CardDisplay({
   // État pour l'AlertDialog de suppression
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // État pour contrôler quel dropdown est ouvert
-  const [openDropdown, setOpenDropdown] = useState<
-    "collection" | "deck" | null
-  >(null);
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchCollections();
-      fetchDecks();
-    }
-  }, [status]);
-
-  const fetchCollections = async () => {
-    try {
-      const response = await fetch("/api/collections");
-      if (response.ok) {
-        const data = await response.json();
-        setCollections(data);
-      }
-    } catch (error) {
-      console.error("Error fetching collections:", error);
-    }
-  };
-
-  const fetchDecks = async () => {
-    try {
-      const response = await fetch("/api/decks");
-      if (response.ok) {
-        const data = await response.json();
-        setDecks(data);
-      }
-    } catch (error) {
-      console.error("Error fetching decks:", error);
-    }
-  };
-
-  const handleAddToCollection = async (collectionId: string) => {
-    setAdding(true);
-    try {
-      const response = await fetch(`/api/collections/${collectionId}/cards`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          cardData: card,
-          quantity: 1,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        toast.success(data.message);
-        if (onAddToCollection) {
-          onAddToCollection(card);
-        }
-      }
-    } catch (error) {
-      console.error("Error adding card to collection:", error);
-      toast.error("Erreur lors de l'ajout de la carte");
-    } finally {
-      setAdding(false);
-    }
-  };
-
-  const handleAddToDeck = async (deckId: string) => {
-    setAdding(true);
-    try {
-      const response = await fetch(`/api/decks/${deckId}/cards`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          cardData: card,
-          quantity: 1,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        toast.success(data.message);
-        if (onAddToDeck) {
-          onAddToDeck(card);
-        }
-      }
-    } catch (error) {
-      console.error("Error adding card to deck:", error);
-      toast.error("Erreur lors de l'ajout de la carte");
-    } finally {
-      setAdding(false);
-    }
-  };
 
   const getImageUrl = () => {
     if (imageError) {
@@ -376,108 +261,57 @@ export function CardDisplay({
                 </div>
 
                 {status === "authenticated" && (
-                  <DropdownMenu
-                    open={openDropdown === "collection"}
-                    onOpenChange={(open) =>
-                      setOpenDropdown(open ? "collection" : null)
+                  <CollectionDropdown
+                    card={card}
+                    onSuccess={
+                      onAddToCollection
+                        ? () => onAddToCollection(card)
+                        : undefined
                     }
                   >
                     <div className="relative group/tooltip">
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="default"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                          className="rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
-                        >
-                          <BookOpen />
-                        </Button>
-                      </DropdownMenuTrigger>
+                      <Button
+                        size="icon"
+                        variant="default"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        className="rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
+                      >
+                        <BookOpen />
+                      </Button>
                       <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                         Ajouter à une collection
                         <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
                       </div>
                     </div>
-                    <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenuLabel>
-                        Ajouter à une collection
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {collections.length > 0 ? (
-                        collections.map((collection) => (
-                          <DropdownMenuItem
-                            key={collection.id}
-                            onClick={() => handleAddToCollection(collection.id)}
-                            disabled={adding}
-                          >
-                            <span>{collection.name}</span>
-                            {adding && (
-                              <Loader2 className="ml-auto h-4 w-4 animate-spin" />
-                            )}
-                          </DropdownMenuItem>
-                        ))
-                      ) : (
-                        <DropdownMenuItem disabled>
-                          Aucune collection
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  </CollectionDropdown>
                 )}
 
                 {status === "authenticated" && (
-                  <DropdownMenu
-                    open={openDropdown === "deck"}
-                    onOpenChange={(open) =>
-                      setOpenDropdown(open ? "deck" : null)
+                  <DeckDropdown
+                    card={card}
+                    onSuccess={
+                      onAddToDeck ? () => onAddToDeck(card) : undefined
                     }
                   >
                     <div className="relative group/tooltip">
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="default"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                          className="rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
-                        >
-                          <Layers />
-                        </Button>
-                      </DropdownMenuTrigger>
+                      <Button
+                        size="icon"
+                        variant="default"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        className="rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
+                      >
+                        <Layers />
+                      </Button>
                       <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                         Ajouter à un deck
                         <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
                       </div>
                     </div>
-                    <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenuLabel>Ajouter à un deck</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {decks.length > 0 ? (
-                        decks.map((deck) => (
-                          <DropdownMenuItem
-                            key={deck.id}
-                            onClick={() => handleAddToDeck(deck.id)}
-                            disabled={adding}
-                          >
-                            <div className="flex flex-col">
-                              <span className="font-medium">{deck.name}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {deck.format} • {deck.cardCount} cartes
-                              </span>
-                            </div>
-                            {adding && (
-                              <Loader2 className="ml-auto h-4 w-4 animate-spin" />
-                            )}
-                          </DropdownMenuItem>
-                        ))
-                      ) : (
-                        <DropdownMenuItem disabled>Aucun deck</DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  </DeckDropdown>
                 )}
               </div>
             </div>
@@ -670,23 +504,6 @@ export function CardDisplay({
           card={showQuickView ? card : null}
           open={showQuickView}
           onOpenChange={setShowQuickView}
-          onAddToCollection={
-            status === "authenticated"
-              ? () => {
-                  // Ouvrir le dropdown collection depuis le Quick View
-                  setShowQuickView(false);
-                  // On pourrait implémenter une action directe ici
-                  // Pour l'instant, fermer et laisser l'utilisateur utiliser l'overlay
-                }
-              : undefined
-          }
-          onAddToDeck={
-            status === "authenticated"
-              ? () => {
-                  setShowQuickView(false);
-                }
-              : undefined
-          }
         />
       )}
     </>
