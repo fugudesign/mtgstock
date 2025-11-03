@@ -50,7 +50,7 @@ export function PWAInstallPrompt() {
 
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-semibold text-foreground">
-            Installer Magic Stack
+            Installer MTG Stack
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
             Accédez rapidement à vos cartes depuis votre écran d&apos;accueil

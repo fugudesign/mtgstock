@@ -1,4 +1,4 @@
-# Magic Stack
+# MTG Stack
 
 Une application moderne de gestion de collections et decks Magic: The Gathering, construite avec Next.js, TypeScript et Tailwind CSS.
 

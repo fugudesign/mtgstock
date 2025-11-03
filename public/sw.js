@@ -1,4 +1,4 @@
-// Service Worker pour Magic Stack PWA
+// Service Worker pour MTG Stack PWA
 const CACHE_NAME = "mtg-stock-v2"; // Changé pour forcer l'update
 const urlsToCache = [
   "/manifest.json",

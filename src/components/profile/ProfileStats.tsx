@@ -22,7 +22,7 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
           <ChartLine className="text-primary" />
           Statistiques
         </CardTitle>
-        <CardDescription>Votre activité sur Magic Stack</CardDescription>
+        <CardDescription>Votre activité sur MTG Stack</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-3 gap-4">

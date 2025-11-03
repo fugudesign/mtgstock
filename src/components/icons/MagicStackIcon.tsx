@@ -2,7 +2,7 @@ import { LucideProps } from "lucide-react";
 import { forwardRef } from "react";
 
 /**
- * Magic Stack Logo Icon - Compatible avec Lucide
+ * MTG Stack Logo Icon - Compatible avec Lucide
  *
  * Utilisation:
  * <MagicStack className="h-6 w-6" />

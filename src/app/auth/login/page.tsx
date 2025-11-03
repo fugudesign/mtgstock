@@ -132,7 +132,7 @@ function LoginContent() {
             Connexion
           </CardTitle>
           <CardDescription className="text-center">
-            Connectez-vous à votre compte Magic Stack
+            Connectez-vous à votre compte MTG Stack
           </CardDescription>
         </CardHeader>
         <CardContent>

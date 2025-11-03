@@ -1,6 +1,6 @@
 {
-  "name": "Magic Stack - Gérez vos cartes Magic: The Gathering",
-  "short_name": "Magic Stack",
+  "name": "MTG Stack - Gérez vos cartes Magic: The Gathering",
+  "short_name": "MTG Stack",
   "description": "Application de gestion de collections et decks Magic: The Gathering",
   "start_url": "/",
   "display": "standalone",

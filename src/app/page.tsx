@@ -31,7 +31,7 @@ export default function Home() {
   return (
     <div className="space-y-4">
       {/* Hero Section */}
-      <section className="px-4 relative h-lvh md:h-[calc(100vh-100px)]  flex flex-col justify-center items-center overflow-hidden">
+      <section className="px-4 relative h-[calc(100vh-80px)] md:h-[calc(100vh-100px)]  flex flex-col justify-center items-center overflow-hidden">
         <MagicStackIcon className="size-[500px] md:size-[800px] pointer-events-none absolute z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30 text-primary-dark/60 blur-xs" />
         <div className="z-10 mx-auto text-center">
           <h1 className="font-decorative text-7xl md:text-9xl text-highlight1 drop-shadow-md mb-2 text-shadow-lg text-shadow-indigo-950">
@@ -188,7 +188,7 @@ export default function Home() {
             Prêt à organiser votre collection ?
           </h2>
           <p className="text-xl text-primary-foreground/80 mb-8">
-            Rejoignez Magic Stack dès aujourd&apos;hui et donnez une nouvelle
+            Rejoignez MTG Stack dès aujourd&apos;hui et donnez une nouvelle
             dimension à votre passion pour Magic: The Gathering.
           </p>
           <Link href="/api/auth/signin">

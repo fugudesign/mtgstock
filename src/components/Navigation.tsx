@@ -46,7 +46,7 @@ export function Navigation() {
                 </div>
                 {!!session && (
                   <span className="text-xl tracking-tight font-semibold text-foreground">
-                    Magic Stack
+                    MTG Stack
                   </span>
                 )}
               </Link>
