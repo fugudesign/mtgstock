@@ -20,7 +20,7 @@ class PriceCache {
    */
   get(cardId: string): MTGCard["prices"] | null {
     const cached = this.cache.get(cardId);
-    
+
     if (!cached) {
       return null;
     }

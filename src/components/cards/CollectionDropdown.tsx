@@ -92,9 +92,7 @@ export function CollectionDropdown({
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        {children}
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
         <DropdownMenuLabel>Ajouter à une collection</DropdownMenuLabel>
         <DropdownMenuSeparator />

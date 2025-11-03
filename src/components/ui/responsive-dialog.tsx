@@ -72,15 +72,21 @@ export function ResponsiveDialog({
         </Dialog>
       ) : (
         <Drawer open={isOpen} onOpenChange={onClose}>
-          <DrawerContent className={cn("flex flex-col", className, mobileClassName)}>
+          <DrawerContent
+            className={cn("flex flex-col", className, mobileClassName)}
+          >
             <DrawerHeader className="text-left shrink-0">
               <DrawerTitle>{title}</DrawerTitle>
               {description && (
                 <DrawerDescription>{description}</DrawerDescription>
               )}
             </DrawerHeader>
-            <div className="px-4 pb-8 overflow-y-auto flex-1 min-h-0">{children}</div>
-            {footer && <DrawerFooter className="pt-2 shrink-0">{footer}</DrawerFooter>}
+            <div className="px-4 pb-8 overflow-y-auto flex-1 min-h-0">
+              {children}
+            </div>
+            {footer && (
+              <DrawerFooter className="pt-2 shrink-0">{footer}</DrawerFooter>
+            )}
           </DrawerContent>
         </Drawer>
       )}

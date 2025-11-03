@@ -26,11 +26,7 @@ interface DeckDropdownProps {
   children: React.ReactNode;
 }
 
-export function DeckDropdown({
-  card,
-  onSuccess,
-  children,
-}: DeckDropdownProps) {
+export function DeckDropdown({ card, onSuccess, children }: DeckDropdownProps) {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [adding, setAdding] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -92,9 +88,7 @@ export function DeckDropdown({
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        {children}
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
         <DropdownMenuLabel>Ajouter à un deck</DropdownMenuLabel>
         <DropdownMenuSeparator />
