@@ -104,7 +104,7 @@ export function Navigation() {
       {/* Mobile Navigation */}
       {session && (
         <div className="fixed bottom-0 inset-x-0 z-50 pb-3 bg-background-dark/90 md:hidden border-t border-border backdrop-blur-xs">
-          <div className="flex items-center justify-around py-2">
+          <div className="grid grid-cols-5 py-2 px-2">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -124,13 +124,15 @@ export function Navigation() {
               );
             })}
 
-            <UserMenu
-              session={session}
-              onSignOut={handleSignOut}
-              open={showUserMenu}
-              onOpen={handleToggleUserMenu}
-              onClose={handleCloseUserMenu}
-            />
+            <div className="flex flex-col justify-center items-center">
+              <UserMenu
+                session={session}
+                onSignOut={handleSignOut}
+                open={showUserMenu}
+                onOpen={handleToggleUserMenu}
+                onClose={handleCloseUserMenu}
+              />
+            </div>
           </div>
         </div>
       )}

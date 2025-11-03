@@ -94,7 +94,7 @@ export function CardGrid({
   // Affichage de la grille de cartes
   return (
     <>
-      <div className={cn(gridClasses, "mb-8")}>
+      <div className={cn(gridClasses)}>
         {cards.map((card) => (
           <CardDisplay
             key={card.id}
@@ -110,7 +110,7 @@ export function CardGrid({
 
       {/* Bouton Load More */}
       {hasMore && onLoadMore && (
-        <div className="text-center">
+        <div className="mt-8 text-center">
           <Button
             onClick={handleLoadMore}
             disabled={loading}

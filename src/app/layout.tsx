@@ -89,7 +89,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${lexendSans.variable} ${geistMono.variable} ${cinzelDecorative.variable} ${gloock.variable} antialiased bg-radial from-background to-background-dark bg-fixed`}
+        className={`${lexendSans.variable} ${geistMono.variable} ${cinzelDecorative.variable} ${gloock.variable} antialiased bg-radial from-background to-background-dark bg-fixed min-h-lvh`}
         suppressHydrationWarning
       >
         <Providers session={session}>
