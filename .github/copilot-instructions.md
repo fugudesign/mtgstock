@@ -9,8 +9,24 @@ Magic Stack is a French Magic: The Gathering collection management app built wit
 ### Component Structure
 
 - **`CardDisplay`**: Universal card component with context-aware behavior (`search|collection|deck`)
+  - In `search` context: Opens `CardQuickView` modal on click
+  - In `collection|deck` context: Shows overlay with actions on hover (desktop only)
+- **`CardQuickView`**: Apple-style Quick Look modal for card details in search
+  - ResponsiveDialog (Drawer on mobile, Dialog on desktop)
+  - 2-column layout desktop (1/3 image, 2/3 info), stacked mobile
+  - Price enrichment on-demand with 24h client-side cache
+  - Footer with fixed action buttons (scroll content only)
+  - Organized in blocks like detail page (badges, legalities, keywords)
 - **`CardGrid`**: Shared grid layout for all card displays with loading states and pagination
 - **`ItemCard`**: Reusable template for collections/decks with slots for badges, metadata, and actions
+- **`CollectionDropdown`**: Reusable dropdown for adding cards to collections
+  - Accepts `children` as trigger for customization
+  - Fetches collections with card count on open
+  - Shows loading state during fetch
+- **`DeckDropdown`**: Reusable dropdown for adding cards to decks
+  - Accepts `children` as trigger for customization
+  - Fetches decks with format and card count on open
+  - Shows loading state during fetch
 - **`ProtectedRoute`**: Client-side wrapper that redirects unauthenticated users to `/auth/login`
 
 ### Data Flow
@@ -39,7 +55,11 @@ Database (Prisma) → API Routes → Components
   3. Commit the migration file to git
   4. **Never skip this step** - `db push` bypasses migrations and causes production deployment failures
 - **Foreign Language Support**: Cards store `printed_name`, `printed_type_line`, `printed_text`
-- **Price Tracking**: `CollectionCard` and `DeckCard` store `lastPrice` for quick calculations, `CardPriceHistory` for historical data and graphs
+- **Price Tracking**:
+  - `CollectionCard` and `DeckCard` store `lastPrice` for quick calculations
+  - `CardPriceHistory` for historical data and graphs
+  - **Client-side price cache**: `src/lib/price-cache.ts` with 24h TTL to avoid repeated API calls
+  - Price enrichment done on-demand (detail pages, QuickView, add to collection/deck)
 
 ### Scryfall API Integration
 
@@ -109,10 +129,19 @@ if (status === "authenticated") { /* show actions */ }
 
 ### Mobile-First Responsive Design
 
-- **CardDisplay**: Simple responsive behavior - click card to navigate on all devices
-- **Desktop Pattern**: Hover overlay with all actions visible (hidden on mobile with `hidden md:block`)
-- **Mobile Pattern**: Tap card to navigate to details, no overlay actions
-- **Implementation**: Use Tailwind responsive classes to hide/show elements
+- **CardDisplay**: Context-aware behavior
+  - **Search context**: Click opens `CardQuickView` modal (all devices)
+  - **Collection/Deck context**: Desktop hover overlay with actions, mobile tap to navigate
+- **CardQuickView**: Apple-style Quick Look
+  - **Desktop**: Dialog (max-w-7xl, 90vh), 2-column layout (1/3 image, 2/3 info), footer with 3 buttons in row
+  - **Mobile**: Drawer (95vh), stacked layout, footer with 3 buttons stacked
+  - **Scroll behavior**: Only content scrolls, header and footer stay fixed
+  - **Price enrichment**: On-demand with 24h cache when QuickView opens
+- **Responsive Patterns**:
+  - Use `useMediaQuery("(min-width: 768px)")` for desktop detection
+  - Use `ResponsiveDialog` for adaptive modals (Dialog desktop, Drawer mobile)
+  - Footer buttons: `flex-1` only on desktop, natural height on mobile
+  - Hidden overlays on mobile with `hidden md:block` pattern
 
 ## 🚀 Development Workflow
 
@@ -254,8 +283,14 @@ try {
 
 - `src/lib/scryfall-api.ts` - MTG card data utilities and types
 - `src/lib/auth.ts` - Authentication configuration
+- `src/lib/price-cache.ts` - Client-side price cache with 24h TTL
+- `src/lib/language-mapper.ts` - Centralized language code mapping (ALWAYS use this)
 - `prisma/schema.prisma` - Database schema with all relationships
-- `src/components/CardDisplay.tsx` - Card component with all features
+- `src/components/cards/CardDisplay.tsx` - Universal card component with context-aware behavior
+- `src/components/cards/CardQuickView.tsx` - Apple-style Quick Look modal with price enrichment
+- `src/components/cards/CollectionDropdown.tsx` - Reusable dropdown for collections
+- `src/components/cards/DeckDropdown.tsx` - Reusable dropdown for decks
+- `src/components/ui/responsive-dialog.tsx` - Adaptive Dialog/Drawer with footer support
 - `src/app/api/` - API routes for collections, decks, and Scryfall proxy
 
 ## 🌐 Internationalization Notes
