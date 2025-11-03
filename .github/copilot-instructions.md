@@ -227,6 +227,14 @@ try {
 
 - **CSS Framework**: Tailwind CSS with custom theme
 - **Components**: shadcn/ui components in `src/components/ui/`
+- **Class Name Merging**: **ALWAYS use `cn()` utility from `@/lib/utils`** - NEVER use template strings for className
+  ```tsx
+  // ✅ CORRECT - Use cn() for combining classes
+  <div className={cn("base-class", conditionalClass, props.className)} />
+  
+  // ❌ WRONG - Never use template strings
+  <div className={`base-class ${conditionalClass} ${props.className || ""}`} />
+  ```
 - **Card Images**: Use Next.js `Image` component with Scryfall domains whitelisted
 - **Responsive**: Mobile-first approach with `md:` breakpoint at 768px
 - **Dark/Light**: Theme support via CSS variables

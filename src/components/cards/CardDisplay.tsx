@@ -1,5 +1,6 @@
 "use client";
 
+import { CardQuickView } from "@/components/cards/CardQuickView";
 import { ManaSymbols } from "@/components/ManaSymbol";
 import {
   AlertDialog,
@@ -83,6 +84,9 @@ export function CardDisplay({
   // État pour l'overlay mobile
   const [showMobileOverlay, setShowMobileOverlay] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // État pour le Quick View (contexte search uniquement)
+  const [showQuickView, setShowQuickView] = useState(false);
 
   // État pour l'AlertDialog de suppression
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
@@ -218,6 +222,12 @@ export function CardDisplay({
 
     e.stopPropagation();
 
+    // Contexte search : ouvrir le Quick View
+    if (context === "search") {
+      setShowQuickView(true);
+      return;
+    }
+
     // Détecter si on est sur mobile (approximatif mais suffisant)
     const isMobile = window.innerWidth < 768;
 
@@ -334,8 +344,8 @@ export function CardDisplay({
             </Badge>
           )}
 
-          {/* Overlay avec les actions - Desktop au hover, Mobile au tap */}
-          {showActions && context === "search" && (
+          {/* Overlay avec les actions - Uniquement pour collection/deck */}
+          {showActions && context !== "search" && (
             <div
               // Empêcher la propagation des interactions depuis l'overlay vers la Card parent
               onClick={(e) => e.stopPropagation()}
@@ -653,6 +663,32 @@ export function CardDisplay({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Quick View pour contexte search */}
+      {context === "search" && (
+        <CardQuickView
+          card={showQuickView ? card : null}
+          open={showQuickView}
+          onOpenChange={setShowQuickView}
+          onAddToCollection={
+            status === "authenticated"
+              ? () => {
+                  // Ouvrir le dropdown collection depuis le Quick View
+                  setShowQuickView(false);
+                  // On pourrait implémenter une action directe ici
+                  // Pour l'instant, fermer et laisser l'utilisateur utiliser l'overlay
+                }
+              : undefined
+          }
+          onAddToDeck={
+            status === "authenticated"
+              ? () => {
+                  setShowQuickView(false);
+                }
+              : undefined
+          }
+        />
+      )}
     </>
   );
 }
