@@ -5,6 +5,7 @@ import { CollectionDropdown } from "@/components/cards/CollectionDropdown";
 import { DeckDropdown } from "@/components/cards/DeckDropdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { useMediaQuery } from "@/hooks";
 import { priceCache } from "@/lib/price-cache";
@@ -93,21 +94,6 @@ export function CardQuickView({
   const manaCost = getCardManaCost(displayCard);
   const typeText = getCardType(displayCard);
 
-  const getRarityColor = (rarity: string) => {
-    switch (rarity.toLowerCase()) {
-      case "common":
-        return "bg-gray-500";
-      case "uncommon":
-        return "bg-gray-400";
-      case "rare":
-        return "bg-yellow-600";
-      case "mythic":
-        return "bg-orange-600";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
   const formatPrice = (price: string | null | undefined) => {
     if (!price || price === "null") return null;
     const numPrice = parseFloat(price);
@@ -118,12 +104,43 @@ export function CardQuickView({
   const eurPrice = formatPrice(displayCard.prices?.eur);
   const usdPrice = formatPrice(displayCard.prices?.usd);
 
+  // Footer avec les boutons d'action
+  const footerActions = (
+    <div
+      className={cn("flex gap-2 w-full", isDesktop ? "flex-row" : "flex-col")}
+    >
+      <Button
+        onClick={() => window.open(card.scryfall_uri, "_blank")}
+        className={cn(isDesktop && "flex-1")}
+        variant="outline"
+      >
+        <ExternalLink className="mr-2 h-4 w-4" />
+        Voir sur Scryfall
+      </Button>
+
+      <CollectionDropdown card={card}>
+        <Button variant="default" className={cn(isDesktop && "flex-1")}>
+          <BookOpen className="mr-2 h-4 w-4" />
+          Ajouter à une collection
+        </Button>
+      </CollectionDropdown>
+
+      <DeckDropdown card={card}>
+        <Button variant="default" className={cn(isDesktop && "flex-1")}>
+          <Layers className="mr-2 h-4 w-4" />
+          Ajouter à un deck
+        </Button>
+      </DeckDropdown>
+    </div>
+  );
+
   return (
     <ResponsiveDialog
       isOpen={open}
       onClose={() => onOpenChange(false)}
       title={card.printed_name || card.name}
       description={card.set_name}
+      footer={footerActions}
       // Desktop: Dialog très large et haut (force avec !important), Mobile: Drawer quasi fullscreen
       desktopClassName="!max-w-7xl !w-[95vw] !h-[90vh] overflow-hidden flex flex-col"
       mobileClassName="!h-[95vh] !max-h-[95vh] overflow-hidden"
@@ -132,7 +149,7 @@ export function CardQuickView({
       <div
         className={cn(
           "overflow-y-auto flex-1 min-h-0",
-          isDesktop ? "grid grid-cols-3 gap-6 p-2" : "space-y-4 pb-4"
+          isDesktop ? "grid grid-cols-3 gap-6 p-2" : "space-y-4"
         )}
       >
         {/* Colonne 1 : Image de la carte + boutons (desktop uniquement) */}
@@ -151,153 +168,280 @@ export function CardQuickView({
               className="rounded-lg w-full h-auto shadow-xl"
               priority
             />
-            {/* Badge de rareté */}
-            {card.rarity && (
-              <Badge
-                className={cn(
-                  "absolute top-2 right-2 text-white border-0 capitalize",
-                  getRarityColor(card.rarity)
-                )}
-              >
-                {card.rarity}
-              </Badge>
-            )}
           </div>
         </div>
 
         {/* Colonne 2 : Informations détaillées (col-span-2 desktop) */}
-        <div className={cn("space-y-4 pb-4", isDesktop && "col-span-2")}>
-          {/* Coût de mana */}
-          {manaCost && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground">
-                Coût :
-              </span>
-              <ManaSymbols manaCost={manaCost} size={20} />
-            </div>
-          )}
-
-          {/* Type */}
-          {typeText && (
-            <div>
-              <span className="text-sm font-medium text-muted-foreground">
-                Type :{" "}
-              </span>
-              <span className="text-sm">
-                {card.printed_type_line || typeText}
-              </span>
-            </div>
-          )}
-
-          {/* Texte d'oracle */}
-          {(card.printed_text || card.oracle_text) && (
-            <div>
-              <span className="text-sm font-medium text-muted-foreground">
-                Texte :
-              </span>
-              <div className="text-sm mt-1">
-                <ManaText
-                  text={card.printed_text || card.oracle_text || ""}
-                  symbolSize={16}
-                  className="whitespace-pre-wrap"
-                />
+        <div className={cn("space-y-4", isDesktop && "col-span-2")}>
+          {/* Bloc principal : infos de la carte */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-start justify-between gap-2">
+                <CardTitle className="text-xl">
+                  {card.printed_name || card.name}
+                </CardTitle>
+                {manaCost && (
+                  <div className="flex gap-1 shrink-0">
+                    <ManaSymbols manaCost={manaCost} size={20} />
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "border",
+                    card.rarity === "mythic" &&
+                      "bg-orange-700/20 text-orange-300 border-orange-700",
+                    card.rarity === "rare" &&
+                      "bg-yellow-700/20 text-yellow-300 border-yellow-700",
+                    card.rarity === "uncommon" &&
+                      "bg-gray-400/20 text-gray-300 border-gray-400",
+                    card.rarity === "common" &&
+                      "bg-gray-600/20 text-gray-400 border-gray-600"
+                  )}
+                >
+                  {card.rarity === "mythic" && "Mythique"}
+                  {card.rarity === "rare" && "Rare"}
+                  {card.rarity === "uncommon" && "Peu commune"}
+                  {card.rarity === "common" && "Commune"}
+                  {card.rarity === "special" && "Spéciale"}
+                  {card.rarity === "bonus" && "Bonus"}
+                </Badge>
+                {card.lang && (
+                  <Badge variant="outline">{card.lang.toUpperCase()}</Badge>
+                )}
+                {(card.foil || card.nonfoil) && (
+                  <Badge variant="outline">
+                    {card.foil && card.nonfoil
+                      ? "Foil & Non-foil"
+                      : card.foil
+                      ? "Foil uniquement"
+                      : "Non-foil uniquement"}
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Type */}
+              <div>
+                <h3 className="font-semibold text-sm text-foreground mb-2">
+                  Type
+                </h3>
+                <p className="text-muted-foreground">
+                  {card.printed_type_line || typeText}
+                </p>
+              </div>
 
-          {/* Force/Endurance ou Loyauté */}
-          {card.power && card.toughness && (
-            <div>
-              <span className="text-sm font-medium text-muted-foreground">
-                Force/Endurance :{" "}
-              </span>
-              <span className="text-sm">
-                {card.power}/{card.toughness}
-              </span>
-            </div>
-          )}
-
-          {card.loyalty && (
-            <div>
-              <span className="text-sm font-medium text-muted-foreground">
-                Loyauté :{" "}
-              </span>
-              <span className="text-sm">{card.loyalty}</span>
-            </div>
-          )}
-
-          {/* Prix */}
-          <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Prix indicatifs</span>
-              {loadingPrices && (
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              {/* Texte d'oracle */}
+              {(card.printed_text || card.oracle_text) && (
+                <div>
+                  <h3 className="font-semibold text-sm text-foreground mb-2">
+                    Texte d&apos;Oracle
+                  </h3>
+                  <ManaText
+                    text={card.printed_text || card.oracle_text || ""}
+                    symbolSize={16}
+                    className="whitespace-pre-wrap"
+                  />
+                </div>
               )}
-            </div>
 
-            {!loadingPrices && (eurPrice || usdPrice) ? (
-              <div className="flex gap-3">
-                {eurPrice && (
-                  <Badge variant="secondary" className="text-base">
-                    {eurPrice} €
-                  </Badge>
+              {/* Texte d'ambiance */}
+              {card.flavor_text && (
+                <div>
+                  <h3 className="font-semibold text-sm text-foreground mb-2">
+                    Texte d&apos;ambiance
+                  </h3>
+                  <p className="text-muted-foreground italic">
+                    {card.flavor_text}
+                  </p>
+                </div>
+              )}
+
+              {/* Force/Endurance */}
+              {(card.power || card.toughness) && (
+                <div>
+                  <h3 className="font-semibold text-sm text-foreground mb-2">
+                    Force / Endurance
+                  </h3>
+                  <p className="text-muted-foreground">
+                    {card.power} / {card.toughness}
+                  </p>
+                </div>
+              )}
+
+              {/* Loyauté */}
+              {card.loyalty && (
+                <div>
+                  <h3 className="font-semibold text-sm text-foreground mb-2">
+                    Loyauté
+                  </h3>
+                  <p className="text-muted-foreground">{card.loyalty}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Bloc Prix */}
+          {(eurPrice || usdPrice || loadingPrices) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  Prix
+                  {loadingPrices && (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {!loadingPrices && (eurPrice || usdPrice) ? (
+                  <>
+                    {eurPrice && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Normal:</span>
+                        <span className="font-semibold">{eurPrice}€</span>
+                      </div>
+                    )}
+                    {displayCard.prices?.eur_foil &&
+                      formatPrice(displayCard.prices.eur_foil) && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Foil:</span>
+                          <span className="font-semibold">
+                            {formatPrice(displayCard.prices.eur_foil)}€
+                          </span>
+                        </div>
+                      )}
+                    {card.lang !== "en" && (
+                      <p className="text-xs text-muted-foreground italic pt-2">
+                        Prix de la version anglaise
+                      </p>
+                    )}
+                  </>
+                ) : !loadingPrices ? (
+                  <p className="text-xs text-muted-foreground">
+                    Prix non disponible
+                  </p>
+                ) : null}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Bloc Légalités */}
+          {card.legalities && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Légalités</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  {Object.entries(card.legalities).map(([format, status]) => {
+                    if (status === "not_legal") return null;
+
+                    const statusColors: { [key: string]: string } = {
+                      legal: "bg-green-700/20 text-green-300 border-green-700",
+                      banned: "bg-red-700/20 text-red-300 border-red-700",
+                      restricted:
+                        "bg-orange-700/20 text-orange-300 border-orange-700",
+                    };
+
+                    const statusLabels: { [key: string]: string } = {
+                      legal: "Légal",
+                      banned: "Banni",
+                      restricted: "Restreint",
+                    };
+
+                    return (
+                      <div
+                        key={format}
+                        className={cn(
+                          "px-3 py-2 rounded-md border",
+                          statusColors[status] ||
+                            "bg-muted text-muted-foreground border-border"
+                        )}
+                      >
+                        <p className="font-semibold text-xs uppercase">
+                          {format.replace("_", " ")}
+                        </p>
+                        <p className="text-sm">
+                          {statusLabels[status] || status}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Bloc Mots-clés */}
+          {card.keywords && card.keywords.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Mots-clés</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {card.keywords.map((keyword, index) => (
+                    <Badge key={index} variant="secondary">
+                      {keyword}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Bloc Informations de l'édition */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Informations de l&apos;édition</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-semibold text-sm text-foreground mb-1">
+                    Édition
+                  </h3>
+                  <p className="text-muted-foreground">{card.set_name}</p>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-sm text-foreground mb-1">
+                    Code de l&apos;édition
+                  </h3>
+                  <p className="text-muted-foreground uppercase">{card.set}</p>
+                </div>
+                {card.collector_number && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-foreground mb-1">
+                      Numéro de collection
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {card.collector_number}
+                    </p>
+                  </div>
                 )}
-                {usdPrice && (
-                  <Badge variant="secondary" className="text-base">
-                    ${usdPrice}
-                  </Badge>
+                {card.released_at && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-foreground mb-1">
+                      Date de sortie
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {new Date(card.released_at).toLocaleDateString("fr-FR")}
+                    </p>
+                  </div>
+                )}
+                {card.artist && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-foreground mb-1">
+                      Artiste
+                    </h3>
+                    <p className="text-muted-foreground">{card.artist}</p>
+                  </div>
                 )}
               </div>
-            ) : !loadingPrices ? (
-              <p className="text-xs text-muted-foreground">
-                Prix non disponible
-              </p>
-            ) : null}
-
-            {card.lang !== "en" && !loadingPrices && (
-              <p className="text-xs text-muted-foreground italic">
-                Prix de la version anglaise
-              </p>
-            )}
-          </div>
-
-          {/* Artiste et set */}
-          <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
-            {card.artist && <span>Illustré par {card.artist}</span>}
-            <span>
-              {card.set.toUpperCase()} #{card.collector_number}
-            </span>
-          </div>
-
-          {/* Actions */}
-          <div
-            className={cn("flex flex-col gap-2 pt-4", {
-              "flex-row gap-4": isDesktop,
-            })}
-          >
-            <CollectionDropdown card={card}>
-              <Button variant="default" className="w-full">
-                <BookOpen className="mr-2 h-4 w-4" />
-                Ajouter à une collection
-              </Button>
-            </CollectionDropdown>
-
-            <DeckDropdown card={card}>
-              <Button variant="default" className="w-full">
-                <Layers className="mr-2 h-4 w-4" />
-                Ajouter à un deck
-              </Button>
-            </DeckDropdown>
-
-            <Button
-              onClick={() => window.open(card.scryfall_uri, "_blank")}
-              className="w-full"
-              variant="outline"
-            >
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Voir sur Scryfall
-            </Button>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </ResponsiveDialog>
