@@ -192,7 +192,14 @@ class ScryfallApiService {
     const queryParts: string[] = [];
 
     if (params.name) {
-      queryParts.push(`${params.name}`);
+      // Utiliser chaque mot individuellement pour une recherche plus large
+      // Cela permet de trouver toutes les cartes contenant ces mots dans le nom
+      const words = params.name.trim().split(/\s+/);
+      words.forEach((word) => {
+        if (word) {
+          queryParts.push(word);
+        }
+      });
     }
 
     if (params.colors) {

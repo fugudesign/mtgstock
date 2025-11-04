@@ -1,53 +1,54 @@
 "use client";
 
 import { CardGrid } from "@/components/cards/CardGrid";
-import { Button } from "@/components/ui/button";
+import { SearchBar } from "@/components/search/SearchBar";
 import { getLanguageNameByCode } from "@/lib/language-mapper";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
-import { Filter, Loader2, Search } from "lucide-react";
+import {
+  buildSearchParams,
+  hasRealSearchCriteria,
+  hasSearchValues,
+  parseSearchParams,
+  searchFormSchema,
+  SearchFormValues,
+} from "@/lib/search-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SearchBar } from "./SearchBar";
-import { SearchFilters, SearchFiltersState } from "./SearchFilters";
+import { useForm } from "react-hook-form";
+import { SearchFilters } from "./SearchFilters";
 
 const PAGE_SIZE = 15;
 
-interface SearchClientProps {
-  initialQuery?: string;
-  initialFilters?: SearchFiltersState;
-  initialPage?: number;
-}
-
 /**
  * Composant client principal pour la recherche de cartes
- * Gère l'état, la logique de recherche, et l'interaction avec l'URL
+ * Utilise react-hook-form + Zod pour une gestion robuste du formulaire
  */
-export function SearchClient({
-  initialQuery = "",
-  initialFilters,
-  initialPage = 1,
-}: SearchClientProps) {
+export function SearchClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [cards, setCards] = useState<MTGCard[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [userLanguage, setUserLanguage] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const [filters, setFilters] = useState<SearchFiltersState>(
-    initialFilters || {
+  // Initialiser le formulaire avec react-hook-form
+  const form = useForm<SearchFormValues>({
+    resolver: zodResolver(searchFormSchema),
+    mode: "onChange",
+    defaultValues: {
+      query: "",
       colors: "",
       type: "",
       rarity: "",
       set: "",
       language: "",
-    }
-  );
+    },
+  });
 
   // Récupérer la langue par défaut de l'utilisateur
   useEffect(() => {
@@ -58,9 +59,7 @@ export function SearchClient({
           const data = await response.json();
           const langCode = data.language || "en";
           setUserLanguage(langCode);
-
-          const fullLanguageName = getLanguageNameByCode(langCode);
-          setFilters((prev) => ({ ...prev, language: fullLanguageName }));
+          // Ne pas faire form.setValue ici, on le fera dans l'autre useEffect
         }
       } catch (error) {
         console.error("Error fetching user language:", error);
@@ -70,94 +69,52 @@ export function SearchClient({
     fetchUserLanguage();
   }, []);
 
-  // Charger les paramètres depuis l'URL au montage
+  // Initialiser depuis l'URL une seule fois, de manière synchrone
   useEffect(() => {
     if (!isInitialized && userLanguage !== "") {
-      const query = searchParams.get("q") || "";
-      const colors = searchParams.get("colors") || "";
-      const type = searchParams.get("type") || "";
-      const rarity = searchParams.get("rarity") || "";
-      const set = searchParams.get("set") || "";
-      const lang = searchParams.get("lang") || "";
-      const page = searchParams.get("page") || "1";
+      const values = parseSearchParams(searchParams);
 
-      const defaultLanguage = filters.language;
-
-      setSearchQuery(query);
-      setFilters({
-        colors,
-        type,
-        rarity,
-        set,
-        language: lang || defaultLanguage,
-      });
-
-      // Si des paramètres sont présents, lancer la recherche automatiquement
-      if (query || colors || type || rarity || set || lang) {
-        handleSearchWithParams(
-          query,
-          { colors, type, rarity, set, language: lang || defaultLanguage },
-          parseInt(page)
-        );
+      // Si pas de langue dans l'URL, utiliser celle de l'utilisateur
+      if (!values.language) {
+        const fullLanguageName = getLanguageNameByCode(userLanguage);
+        values.language = fullLanguageName;
       }
+
+      // Mettre à jour le formulaire avec les valeurs de l'URL (+ langue par défaut)
+      form.reset(values);
+
+      // Si des paramètres sont présents (hors langue par défaut), lancer la recherche automatiquement
+      if (hasRealSearchCriteria(values)) {
+        performSearch(values, 1);
+      }
+
       setIsInitialized(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, isInitialized, userLanguage]);
 
-  // Mettre à jour l'URL avec les paramètres de recherche
-  const updateURL = (
-    query: string,
-    currentFilters: SearchFiltersState,
-    page: number
-  ) => {
-    const params = new URLSearchParams();
-
-    if (query.trim()) params.set("q", query.trim());
-    if (currentFilters.colors) params.set("colors", currentFilters.colors);
-    if (currentFilters.type) params.set("type", currentFilters.type);
-    if (currentFilters.rarity) params.set("rarity", currentFilters.rarity);
-    if (currentFilters.set) params.set("set", currentFilters.set);
-    if (currentFilters.language) params.set("lang", currentFilters.language);
-    if (page > 1) params.set("page", page.toString());
-
-    router.push(`/search?${params.toString()}`, { scroll: false });
-  };
-
   // Effectuer la recherche avec des paramètres spécifiques
-  const handleSearchWithParams = async (
-    query: string,
-    currentFilters: SearchFiltersState,
-    page = 1
-  ) => {
-    if (
-      !query.trim() &&
-      !currentFilters.colors &&
-      !currentFilters.type &&
-      !currentFilters.rarity &&
-      !currentFilters.set &&
-      !currentFilters.language
-    ) {
+  const performSearch = async (values: SearchFormValues, page = 1) => {
+    if (!hasSearchValues(values)) {
       return;
     }
 
     setLoading(true);
 
     try {
-      const searchParams: Record<string, string | number> = {
+      const apiParams: Record<string, string | number> = {
         page,
         pageSize: PAGE_SIZE,
       };
 
-      if (query.trim()) searchParams.name = query;
-      if (currentFilters.colors) searchParams.colors = currentFilters.colors;
-      if (currentFilters.type) searchParams.type = currentFilters.type;
-      if (currentFilters.rarity) searchParams.rarity = currentFilters.rarity;
-      if (currentFilters.set) searchParams.set = currentFilters.set;
-      if (currentFilters.language)
-        searchParams.language = currentFilters.language;
+      if (values.query) apiParams.name = values.query;
+      if (values.colors) apiParams.colors = values.colors;
+      if (values.type) apiParams.type = values.type;
+      if (values.rarity) apiParams.rarity = values.rarity;
+      if (values.set) apiParams.set = values.set;
+      if (values.language) apiParams.language = values.language;
 
-      const result = await mtgApiService.searchCards(searchParams);
+      const result = await mtgApiService.searchCards(apiParams);
 
       if (page === 1) {
         setCards(result.cards);
@@ -169,7 +126,10 @@ export function SearchClient({
       setTotalResults(result.total || 0);
       setCurrentPage(page);
 
-      updateURL(query, currentFilters, page);
+      // Mettre à jour l'URL
+      const params = buildSearchParams(values);
+      if (page > 1) params.set("page", page.toString());
+      router.push(`/search?${params.toString()}`, { scroll: false });
     } catch (error) {
       console.error("Erreur lors de la recherche:", error);
     } finally {
@@ -177,17 +137,19 @@ export function SearchClient({
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = form.handleSubmit((values) => {
     setCurrentPage(1);
-    handleSearchWithParams(searchQuery, filters, 1);
-  };
+    performSearch(values, 1);
+  });
 
   const handleLoadMore = () => {
-    handleSearchWithParams(searchQuery, filters, currentPage + 1);
+    const values = form.getValues();
+    performSearch(values, currentPage + 1);
   };
 
   const getEmptyDescription = () => {
-    if (searchQuery || Object.values(filters).some((f) => f)) {
+    const values = form.getValues();
+    if (hasSearchValues(values)) {
       return "Essayez avec des termes différents ou modifiez les filtres";
     }
     return "Commencez votre recherche en entrant un nom de carte";
@@ -196,50 +158,18 @@ export function SearchClient({
   return (
     <div className="space-y-6">
       {/* Barre de recherche */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          onSearch={handleSearch}
-          loading={loading}
-        />
-        <div className="flex gap-4">
-          <Button
-            onClick={handleSearch}
-            disabled={loading}
-            size="lg"
-            className="flex-1 md:flex-none"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Recherche...
-              </>
-            ) : (
-              <>
-                <Search className="mr-2 h-5 w-5" />
-                Rechercher
-              </>
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <Filter className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
+      <SearchBar
+        form={form}
+        handleSearch={handleSearch}
+        handleOpenFilters={() => setShowFilters(!showFilters)}
+        loading={loading}
+        isInitialized={isInitialized}
+      />
 
       {/* Filtres avancés */}
       {showFilters && (
         <div className="pt-6 border-t border-border">
-          <SearchFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-            userLanguage={userLanguage}
-          />
+          <SearchFilters form={form} userLanguage={userLanguage} />
         </div>
       )}
 

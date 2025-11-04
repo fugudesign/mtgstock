@@ -9,38 +9,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getAvailableLanguages } from "@/lib/language-mapper";
-
-export interface SearchFiltersState {
-  colors: string;
-  type: string;
-  rarity: string;
-  set: string;
-  language: string;
-}
+import { SearchFormValues } from "@/lib/search-schema";
+import { Controller, UseFormReturn } from "react-hook-form";
 
 interface SearchFiltersProps {
-  filters: SearchFiltersState;
-  onFiltersChange: (filters: SearchFiltersState) => void;
+  form: UseFormReturn<SearchFormValues>;
   userLanguage?: string;
 }
 
 /**
  * Composant des filtres de recherche avancés
- * Utilise shadcn Select et Input pour une UX cohérente
+ * Contrôlé par react-hook-form pour une gestion cohérente
  */
-export function SearchFilters({
-  filters,
-  onFiltersChange,
-  userLanguage,
-}: SearchFiltersProps) {
-  const handleFilterChange = (key: keyof SearchFiltersState, value: string) => {
-    // Convertir "all" en chaîne vide pour l'API
-    const apiValue = value === "all" ? "" : value;
-    onFiltersChange({
-      ...filters,
-      [key]: apiValue,
-    });
-  };
+export function SearchFilters({ form, userLanguage }: SearchFiltersProps) {
+  const languageValue = form.watch("language");
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -48,26 +30,35 @@ export function SearchFilters({
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
           Langue{" "}
-          {userLanguage && filters.language && (
+          {userLanguage && languageValue && (
             <span className="text-xs text-primary ml-1">(par défaut)</span>
           )}
         </label>
-        <Select
-          value={filters.language || "all"}
-          onValueChange={(value) => handleFilterChange("language", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Toutes les langues" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Toutes les langues</SelectItem>
-            {getAvailableLanguages().map((lang) => (
-              <SelectItem key={lang.value} value={lang.value}>
-                {lang.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Controller
+          name="language"
+          control={form.control}
+          render={({ field }) => (
+            <Select
+              value={field.value || "all"}
+              onValueChange={(value) => {
+                // Convertir "all" en chaîne vide pour l'API
+                field.onChange(value === "all" ? "" : value);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Toutes les langues" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les langues</SelectItem>
+                {getAvailableLanguages().map((lang) => (
+                  <SelectItem key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
       </div>
 
       {/* Couleurs */}
@@ -75,11 +66,12 @@ export function SearchFilters({
         <label className="block text-sm font-medium text-foreground mb-2">
           Couleurs
         </label>
-        <Input
-          type="text"
-          placeholder="ex: red, blue"
-          value={filters.colors}
-          onChange={(e) => handleFilterChange("colors", e.target.value)}
+        <Controller
+          name="colors"
+          control={form.control}
+          render={({ field }) => (
+            <Input {...field} type="text" placeholder="ex: red, blue" />
+          )}
         />
       </div>
 
@@ -88,11 +80,12 @@ export function SearchFilters({
         <label className="block text-sm font-medium text-foreground mb-2">
           Type
         </label>
-        <Input
-          type="text"
-          placeholder="ex: creature, instant"
-          value={filters.type}
-          onChange={(e) => handleFilterChange("type", e.target.value)}
+        <Controller
+          name="type"
+          control={form.control}
+          render={({ field }) => (
+            <Input {...field} type="text" placeholder="ex: creature, instant" />
+          )}
         />
       </div>
 
@@ -101,21 +94,29 @@ export function SearchFilters({
         <label className="block text-sm font-medium text-foreground mb-2">
           Rareté
         </label>
-        <Select
-          value={filters.rarity || "all"}
-          onValueChange={(value) => handleFilterChange("rarity", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Toutes" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Toutes</SelectItem>
-            <SelectItem value="common">Common</SelectItem>
-            <SelectItem value="uncommon">Uncommon</SelectItem>
-            <SelectItem value="rare">Rare</SelectItem>
-            <SelectItem value="mythic rare">Mythic Rare</SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          name="rarity"
+          control={form.control}
+          render={({ field }) => (
+            <Select
+              value={field.value || "all"}
+              onValueChange={(value) => {
+                field.onChange(value === "all" ? "" : value);
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Toutes" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes</SelectItem>
+                <SelectItem value="common">Common</SelectItem>
+                <SelectItem value="uncommon">Uncommon</SelectItem>
+                <SelectItem value="rare">Rare</SelectItem>
+                <SelectItem value="mythic rare">Mythic Rare</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
       </div>
 
       {/* Extension */}
@@ -123,13 +124,17 @@ export function SearchFilters({
         <label className="block text-sm font-medium text-foreground mb-2">
           Extension (code)
         </label>
-        <Input
-          type="text"
-          placeholder="ex: KTK, M15"
-          value={filters.set}
-          onChange={(e) =>
-            handleFilterChange("set", e.target.value.toUpperCase())
-          }
+        <Controller
+          name="set"
+          control={form.control}
+          render={({ field }) => (
+            <Input
+              {...field}
+              type="text"
+              placeholder="ex: KTK, M15"
+              onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+            />
+          )}
         />
       </div>
     </div>

@@ -24,7 +24,9 @@ export function PageHeader({
     >
       <div className="flex justify-between items-start gap-2">
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+          <h1 className="text-2xl font-bold text-secondary font-heading">
+            {title}
+          </h1>
           {!!subtitle && (
             <p className="text-xs md:text-sm text-muted-foreground">
               {subtitle}
