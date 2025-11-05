@@ -26,35 +26,30 @@ export function SearchFilters({ form, userLanguage }: SearchFiltersProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-      {/* Langue */}
+      {/* Rareté */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
-          Langue{" "}
-          {userLanguage && languageValue && (
-            <span className="text-xs text-primary ml-1">(par défaut)</span>
-          )}
+          Rareté
         </label>
         <Controller
-          name="language"
+          name="rarity"
           control={form.control}
           render={({ field }) => (
             <Select
               value={field.value || "all"}
               onValueChange={(value) => {
-                // Convertir "all" en chaîne vide pour l'API
                 field.onChange(value === "all" ? "" : value);
               }}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Toutes les langues" />
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Toutes" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Toutes les langues</SelectItem>
-                {getAvailableLanguages().map((lang) => (
-                  <SelectItem key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </SelectItem>
-                ))}
+                <SelectItem value="all">Toutes</SelectItem>
+                <SelectItem value="common">Common</SelectItem>
+                <SelectItem value="uncommon">Uncommon</SelectItem>
+                <SelectItem value="rare">Rare</SelectItem>
+                <SelectItem value="mythic rare">Mythic Rare</SelectItem>
               </SelectContent>
             </Select>
           )}
@@ -89,40 +84,10 @@ export function SearchFilters({ form, userLanguage }: SearchFiltersProps) {
         />
       </div>
 
-      {/* Rareté */}
-      <div>
-        <label className="block text-sm font-medium text-foreground mb-2">
-          Rareté
-        </label>
-        <Controller
-          name="rarity"
-          control={form.control}
-          render={({ field }) => (
-            <Select
-              value={field.value || "all"}
-              onValueChange={(value) => {
-                field.onChange(value === "all" ? "" : value);
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Toutes" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes</SelectItem>
-                <SelectItem value="common">Common</SelectItem>
-                <SelectItem value="uncommon">Uncommon</SelectItem>
-                <SelectItem value="rare">Rare</SelectItem>
-                <SelectItem value="mythic rare">Mythic Rare</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </div>
-
       {/* Extension */}
       <div>
         <label className="block text-sm font-medium text-foreground mb-2">
-          Extension (code)
+          Extension <span className="text-xs text-muted ml-1">(code)</span>
         </label>
         <Controller
           name="set"
@@ -134,6 +99,41 @@ export function SearchFilters({ form, userLanguage }: SearchFiltersProps) {
               placeholder="ex: KTK, M15"
               onChange={(e) => field.onChange(e.target.value.toUpperCase())}
             />
+          )}
+        />
+      </div>
+
+      {/* Langue */}
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-2">
+          Langue{" "}
+          {userLanguage && languageValue && (
+            <span className="text-xs text-muted ml-1">(par défaut)</span>
+          )}
+        </label>
+        <Controller
+          name="language"
+          control={form.control}
+          render={({ field }) => (
+            <Select
+              value={field.value || "all"}
+              onValueChange={(value) => {
+                // Convertir "all" en chaîne vide pour l'API
+                field.onChange(value === "all" ? "" : value);
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Toutes les langues" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes les langues</SelectItem>
+                {getAvailableLanguages().map((lang) => (
+                  <SelectItem key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         />
       </div>

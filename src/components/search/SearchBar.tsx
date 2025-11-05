@@ -1,38 +1,54 @@
 import { SearchField } from "@/components/search/SearchField";
+import { SearchFiltersWrapper } from "@/components/search/SearchFiltersWrapper";
 import { Button } from "@/components/ui/button";
 import { useMediaQuery } from "@/hooks";
 import { SearchFormValues } from "@/lib/search-schema";
 import { cn } from "@/lib/utils";
-import { Filter, Loader2, Search } from "lucide-react";
+import { ListFilterIcon, Loader2, Search } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
 interface SearchBarProps {
   form: UseFormReturn<SearchFormValues>;
-  handleSearch: () => void;
-  handleOpenFilters: () => void;
   loading: boolean;
   isInitialized: boolean;
+  userLanguage: string;
+  filtersOpen: boolean;
+  onSearch: () => void;
+  onOpenFilters: () => void;
+  onCloseFilters: () => void;
 }
 
 export function SearchBar({
   form,
-  handleSearch,
-  handleOpenFilters,
   loading,
   isInitialized,
+  userLanguage,
+  filtersOpen,
+  onSearch,
+  onOpenFilters,
+  onCloseFilters,
 }: SearchBarProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   return (
-    <form onSubmit={handleSearch} className="flex gap-2">
+    <form onSubmit={onSearch} className="flex flex-col gap-2">
       <div className="flex w-full">
         <SearchField
           form={form}
-          onSearch={handleSearch}
+          onSearch={onSearch}
           loading={loading}
           isInitialized={isInitialized}
           inputClassName="rounded-r-none"
         />
+        <Button
+          type="button"
+          variant={filtersOpen ? "secondary" : "outline"}
+          size={isDesktop ? "default" : "icon"}
+          className="rounded-none border-l-0"
+          onClick={onOpenFilters}
+        >
+          <ListFilterIcon className="h-5 w-5" />
+        </Button>
         <Button
           type="submit"
           disabled={loading}
@@ -54,14 +70,14 @@ export function SearchBar({
           )}
         </Button>
       </div>
-      <Button
-        type="button"
-        variant="outline"
-        size={isDesktop ? "default" : "icon"}
-        onClick={handleOpenFilters}
-      >
-        <Filter className="h-5 w-5" />
-      </Button>
+
+      {/* Filtres avancés */}
+      <SearchFiltersWrapper
+        form={form}
+        userLanguage={userLanguage}
+        showFilters={filtersOpen}
+        onClose={onCloseFilters}
+      />
     </form>
   );
 }

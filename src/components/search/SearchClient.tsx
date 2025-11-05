@@ -2,6 +2,7 @@
 
 import { CardGrid } from "@/components/cards/CardGrid";
 import { SearchBar } from "@/components/search/SearchBar";
+import { SearchResultsCount } from "@/components/search/SearchResultsCount";
 import { getLanguageNameByCode } from "@/lib/language-mapper";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
 import {
@@ -16,7 +17,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { SearchFilters } from "./SearchFilters";
 
 const PAGE_SIZE = 15;
 
@@ -32,7 +32,7 @@ export function SearchClient() {
   const [hasMore, setHasMore] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
-  const [showFilters, setShowFilters] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [userLanguage, setUserLanguage] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -157,36 +157,25 @@ export function SearchClient() {
 
   return (
     <div className="space-y-6">
-      {/* Barre de recherche */}
-      <SearchBar
-        form={form}
-        handleSearch={handleSearch}
-        handleOpenFilters={() => setShowFilters(!showFilters)}
-        loading={loading}
-        isInitialized={isInitialized}
-      />
+      <div className="flex flex-col gap-2">
+        {/* Barre de recherche */}
+        <SearchBar
+          form={form}
+          loading={loading}
+          isInitialized={isInitialized}
+          userLanguage={userLanguage}
+          filtersOpen={filtersOpen}
+          onSearch={handleSearch}
+          onOpenFilters={() => setFiltersOpen(!filtersOpen)}
+          onCloseFilters={() => setFiltersOpen(false)}
+        />
 
-      {/* Filtres avancés */}
-      {showFilters && (
-        <div className="pt-6 border-t border-border">
-          <SearchFilters form={form} userLanguage={userLanguage} />
-        </div>
-      )}
-
-      {/* Compteur de résultats */}
-      {totalResults > 0 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Affichage de {cards.length} sur {totalResults} résultat
-            {totalResults > 1 ? "s" : ""}
-          </div>
-          {hasMore && (
-            <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
-              Plus de cartes disponibles
-            </div>
-          )}
-        </div>
-      )}
+        {/* Compteur de résultats */}
+        <SearchResultsCount
+          count={totalResults}
+          className="text-primary ml-4"
+        />
+      </div>
 
       {/* Grille de résultats */}
       <CardGrid

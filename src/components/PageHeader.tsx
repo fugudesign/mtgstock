@@ -18,13 +18,13 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 p-0 pb-4 md:p-4 rounded-lg",
+        "flex flex-col gap-4 p-0 pb-4 md:py-4 rounded-lg",
         className
       )}
     >
       <div className="flex justify-between items-start gap-2">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-bold text-secondary font-heading">
+        <div className="flex flex-col gap-0">
+          <h1 className="text-2xl tracking-wide text-secondary font-serif text-shadow-md">
             {title}
           </h1>
           {!!subtitle && (
