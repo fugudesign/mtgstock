@@ -77,6 +77,7 @@ export function SearchBar({
         userLanguage={userLanguage}
         showFilters={filtersOpen}
         onClose={onCloseFilters}
+        onApply={onSearch}
       />
     </form>
   );

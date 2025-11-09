@@ -20,12 +20,12 @@ import {
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 interface ResponsiveDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  title?: string;
   description?: string;
   children: ReactNode;
   footer?: ReactNode;
@@ -51,12 +51,20 @@ export function ResponsiveDialog({
   mobileClassName,
 }: ResponsiveDialogProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Ne pas rendre si la modal n'est pas ouverte
-  if (!isOpen) return null;
+  // Attendre que le composant soit monté côté client pour éviter le flash
+  useEffect(() => {
+    // Utiliser un micro-délai pour éviter le flash d'animation
+    const timer = setTimeout(() => setIsMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Ne pas rendre si la modal n'est pas ouverte OU si pas encore monté
+  if (!isOpen || !isMounted) return null;
 
   return (
-    <div suppressHydrationWarning>
+    <>
       {isDesktop ? (
         <Dialog open={isOpen} onOpenChange={onClose}>
           <DialogContent className={cn(className, desktopClassName)}>
@@ -90,7 +98,7 @@ export function ResponsiveDialog({
           </DrawerContent>
         </Drawer>
       )}
-    </div>
+    </>
   );
 }
 

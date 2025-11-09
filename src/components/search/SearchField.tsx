@@ -132,7 +132,7 @@ export function SearchField({
             {...field}
             ref={searchInputRef}
             type="text"
-            placeholder="Nom de la carte (ex: Lightning Bolt, Ancestral Recall...)"
+            placeholder="Nom de la carte..."
             onKeyPress={handleKeyPress}
             onFocus={() => {
               // Ne réactiver l'autocomplete que si on n'a pas juste sélectionné une suggestion

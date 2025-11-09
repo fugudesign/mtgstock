@@ -15,6 +15,7 @@ import {
 } from "@/lib/search-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
+import { format } from "path";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -49,6 +50,8 @@ export function SearchClient() {
       language: "",
     },
   });
+
+  form.watch(); // Pour re-render à chaque changement de valeur
 
   // Récupérer la langue par défaut de l'utilisateur
   useEffect(() => {

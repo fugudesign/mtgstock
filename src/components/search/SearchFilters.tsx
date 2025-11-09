@@ -49,6 +49,7 @@ export function SearchFilters({ form, userLanguage }: SearchFiltersProps) {
                 <SelectItem value="common">Common</SelectItem>
                 <SelectItem value="uncommon">Uncommon</SelectItem>
                 <SelectItem value="rare">Rare</SelectItem>
+                <SelectItem value="mythic">Mythic</SelectItem>
                 <SelectItem value="mythic rare">Mythic Rare</SelectItem>
               </SelectContent>
             </Select>

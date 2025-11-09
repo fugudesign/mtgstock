@@ -520,7 +520,7 @@ export function CardDetailClient({ card }: CardDetailClientProps) {
                         )}
                       >
                         <p className="font-semibold text-xs uppercase">
-                          {format.replace("_", " ")}
+                          {format.replace(/_/g, " ")}
                         </p>
                         <p className="text-sm">
                           {statusLabels[status] || status}
