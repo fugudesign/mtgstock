@@ -84,22 +84,14 @@ export function CardQuickView({
       )}
     >
       <CollectionDropdown card={card}>
-        <Button
-          size={isDesktop ? "default" : "sm"}
-          variant="default"
-          className="w-full"
-        >
+        <Button variant="default" className="w-full">
           <BookOpen className="mr-2 h-4 w-4" />
           Ajouter à une collection
         </Button>
       </CollectionDropdown>
 
       <DeckDropdown card={card}>
-        <Button
-          size={isDesktop ? "default" : "sm"}
-          variant="default"
-          className="w-full"
-        >
+        <Button variant="default" className="w-full">
           <Layers className="mr-2 h-4 w-4" />
           Ajouter à un deck
         </Button>
