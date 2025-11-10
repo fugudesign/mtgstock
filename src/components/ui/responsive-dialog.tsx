@@ -93,7 +93,7 @@ export function ResponsiveDialog({
               {children}
             </div>
             {footer && (
-              <DrawerFooter className="pt-2 pb-6 shrink-0">
+              <DrawerFooter className="pt-2 pb-8 shrink-0">
                 {footer}
               </DrawerFooter>
             )}
