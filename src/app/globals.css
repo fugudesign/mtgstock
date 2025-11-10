@@ -16,10 +16,9 @@ html {
 body {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
-  /* Support des safe areas pour les appareils avec encoche */
+  /* Support des safe areas pour les appareils avec encoche - uniquement left/right */
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  /* Le padding-top est géré par la navigation en mode PWA */
 }
 
 /* Empêcher le zoom sur les inputs sur iOS */
@@ -34,11 +33,10 @@ select {
   /* border-radius: 0; - Supprimé pour préserver les styles shadcn/tailwind */
 }
 
-/* Navigation avec safe areas */
+/* Navigation avec safe areas - seulement left/right */
 .navigation {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  /* Le padding-top crée un double espacement en mode PWA, on utilise 'top' à la place */
 }
 
 /* Navigation mobile avec safe area bottom */
@@ -82,28 +80,6 @@ html {
 img {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-}
-
-/* Optimisations PWA standalone */
-@media (display-mode: standalone) {
-  /* Le body doit avoir un padding top pour que rien ne passe sous la barre d'état */
-  body {
-    padding-top: env(safe-area-inset-top);
-  }
-
-  /* Navigation en mode standalone - respecter le safe area */
-  .navigation {
-    position: fixed;
-    top: env(safe-area-inset-top);
-    left: 0;
-    right: 0;
-    z-index: 50;
-  }
-
-  /* Sticky elements doivent respecter le safe area top */
-  .sticky {
-    top: calc(env(safe-area-inset-top));
-  }
 }
 
 /* Masquer le badge reCAPTCHA v3 */
