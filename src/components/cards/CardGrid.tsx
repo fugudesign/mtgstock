@@ -25,6 +25,7 @@ interface CardGridProps {
   onCardRemove?: (cardId: string) => Promise<void>;
   skeletonCount?: number;
   pageSize?: number; // Pour afficher combien de cartes seront chargées
+  emptyContent?: React.ReactNode; // Contenu additionnel dans l'empty state
 }
 
 /**
@@ -43,6 +44,7 @@ export function CardGrid({
   onCardRemove,
   skeletonCount = 10,
   pageSize = 12,
+  emptyContent,
 }: CardGridProps) {
   // Handler pour le bouton Load More
   const handleLoadMore = () => {
@@ -77,15 +79,18 @@ export function CardGrid({
   }
 
   // Affichage de l'empty state
-  if (cards.length === 0 && !loading) {
+  if (!loading && cards.length === 0) {
     return (
-      <Empty>
+      <Empty className="py-8">
         <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <Search />
+          <EmptyMedia>
+            <div className="rounded-full bg-muted/50 p-3">
+              <Search className="size-6 text-muted-foreground" />
+            </div>
           </EmptyMedia>
           <EmptyTitle>{emptyMessage}</EmptyTitle>
           <EmptyDescription>{emptyDescription}</EmptyDescription>
+          {emptyContent}
         </EmptyHeader>
       </Empty>
     );

@@ -3,6 +3,7 @@
 import { CardGrid } from "@/components/cards/CardGrid";
 import { SearchBar } from "@/components/search/SearchBar";
 import { SearchResultsCount } from "@/components/search/SearchResultsCount";
+import { SearchSuggestions } from "@/components/search/SearchSuggestions";
 import { useSticky } from "@/hooks";
 import { getLanguageNameByCode } from "@/lib/language-mapper";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
@@ -18,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 const PAGE_SIZE = 15;
 
@@ -55,7 +56,8 @@ export function SearchClient() {
     },
   });
 
-  form.watch(); // Pour re-render à chaque changement de valeur
+  // Surveiller les valeurs du formulaire
+  const formValues = useWatch({ control: form.control });
 
   // Récupérer la langue par défaut de l'utilisateur
   useEffect(() => {
@@ -155,12 +157,19 @@ export function SearchClient() {
   };
 
   const getEmptyDescription = () => {
-    const values = form.getValues();
-    if (hasSearchValues(values)) {
+    if (hasRealSearchCriteria(formValues as SearchFormValues)) {
       return "Essayez avec des termes différents ou modifiez les filtres";
     }
     return "Commencez votre recherche en entrant un nom de carte";
   };
+
+  const handleSuggestionClick = (cardName: string) => {
+    form.setValue("query", cardName, { shouldDirty: true });
+    handleSearch();
+  };
+
+  const showSuggestions =
+    !loading && !hasRealSearchCriteria(formValues as SearchFormValues);
 
   return (
     <div>
@@ -202,6 +211,11 @@ export function SearchClient() {
           showActions={true}
           context="search"
           pageSize={PAGE_SIZE}
+          emptyContent={
+            showSuggestions && (
+              <SearchSuggestions onSuggestionClick={handleSuggestionClick} />
+            )
+          }
         />
       </div>
     </div>
