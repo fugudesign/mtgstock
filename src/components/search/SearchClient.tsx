@@ -163,14 +163,13 @@ export function SearchClient() {
   };
 
   return (
-    <div className="space-y-4">
+    <div>
       <div
         ref={stickyRef}
         className={cn(
-          "sticky z-40 flex flex-col gap-2 transition-all duration-200",
-          isStuck && "bg-background-dark/95 backdrop-blur-xs shadow-md py-4"
+          "sticky top-0 md:top-16 z-40 flex flex-col gap-2 transition-all duration-200 py-4",
+          isStuck && "bg-background-dark/95 backdrop-blur-xs shadow-md"
         )}
-        style={{ top: 0 }}
       >
         {/* Barre de recherche */}
         <SearchBar
@@ -191,18 +190,20 @@ export function SearchClient() {
         />
       </div>
 
-      {/* Grille de résultats */}
-      <CardGrid
-        cards={cards}
-        loading={loading}
-        hasMore={hasMore}
-        onLoadMore={handleLoadMore}
-        emptyMessage="Aucun résultat"
-        emptyDescription={getEmptyDescription()}
-        showActions={true}
-        context="search"
-        pageSize={PAGE_SIZE}
-      />
+      <div className="space-y-4">
+        {/* Grille de résultats */}
+        <CardGrid
+          cards={cards}
+          loading={loading}
+          hasMore={hasMore}
+          onLoadMore={handleLoadMore}
+          emptyMessage="Aucun résultat"
+          emptyDescription={getEmptyDescription()}
+          showActions={true}
+          context="search"
+          pageSize={PAGE_SIZE}
+        />
+      </div>
     </div>
   );
 }

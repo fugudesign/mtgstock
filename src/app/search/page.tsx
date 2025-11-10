@@ -8,6 +8,7 @@ export default function SearchPage() {
       <PageHeader
         title="Rechercher des cartes"
         subtitle="Parmi plus de 30 000 cartes Magic: The Gathering"
+        className="mb-0 pb-2"
       />
       <SearchClient />
     </Container>
