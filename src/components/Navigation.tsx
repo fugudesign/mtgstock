@@ -103,7 +103,7 @@ export function Navigation() {
 
       {/* Mobile Navigation */}
       {session && (
-        <div className="fixed bottom-0 inset-x-0 z-50 flex flex-col justify-end bg-background-dark/90 md:hidden border-t border-border backdrop-blur-xs">
+        <div className="fixed bottom-0 inset-x-0 z-50 pb-4 flex flex-col justify-end bg-background-dark/90 md:hidden border-t border-border backdrop-blur-xs">
           <div className="grid grid-cols-5 py-2 px-2">
             {navigation.map((item) => {
               const Icon = item.icon;
