@@ -80,11 +80,9 @@ export function CardQuickView({
     <div
       className={cn(
         "w-full",
-        isDesktop ? "grid grid-cols-3 gap-6" : "space-y-2"
+        isDesktop ? "grid grid-cols-3 gap-6" : "space-y-2 pt-2 pb-4"
       )}
     >
-      <div className="flex-1" />
-
       <CollectionDropdown card={card}>
         <Button
           size={isDesktop ? "default" : "sm"}
