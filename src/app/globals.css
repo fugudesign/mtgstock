@@ -30,10 +30,9 @@ select {
   /* border-radius: 0; - Supprimé pour préserver les styles shadcn/tailwind */
 }
 
-/* Main content avec safe areas - déjà géré par body */
+/* Main content - config standard */
 main {
   min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport height pour mobile */
 }
 
 /* Améliorer le touch sur mobile */
