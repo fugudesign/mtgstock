@@ -98,7 +98,7 @@ export function CollectionModal({
   };
 
   const footer = (
-    <>
+    <div className="flex flex-col-reverse md:flex-row gap-3">
       <Button
         type="button"
         variant="outline"
@@ -114,7 +114,7 @@ export function CollectionModal({
       >
         {isSubmitting ? "Traitement..." : submitLabel}
       </Button>
-    </>
+    </div>
   );
 
   return (

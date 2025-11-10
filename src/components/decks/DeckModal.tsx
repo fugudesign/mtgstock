@@ -126,7 +126,7 @@ export function DeckModal({
   };
 
   const footer = (
-    <>
+    <div className="flex flex-col-reverse md:flex-row gap-3">
       <Button
         type="button"
         variant="outline"
@@ -142,7 +142,7 @@ export function DeckModal({
       >
         {isSubmitting ? "Traitement..." : submitLabel}
       </Button>
-    </>
+    </div>
   );
 
   return (
