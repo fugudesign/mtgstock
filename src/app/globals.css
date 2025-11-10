@@ -43,7 +43,7 @@ select {
 
 /* Navigation mobile avec safe area bottom */
 .mobile-nav {
-  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Main content avec safe areas */
@@ -86,6 +86,11 @@ img {
 
 /* Optimisations PWA standalone */
 @media (display-mode: standalone) {
+  /* Le body doit avoir un padding top pour que rien ne passe sous la barre d'état */
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
+
   /* Navigation en mode standalone - respecter le safe area */
   .navigation {
     position: fixed;
@@ -97,19 +102,7 @@ img {
 
   /* Sticky elements doivent respecter le safe area top */
   .sticky {
-    top: env(safe-area-inset-top);
-  }
-
-  /* Le contenu principal doit avoir un padding top pour ne pas passer sous la navigation */
-  main > div {
-    padding-top: calc(1rem + env(safe-area-inset-top));
-  }
-
-  /* Sur desktop, garder le padding de 4rem */
-  @media (min-width: 768px) {
-    main > div {
-      padding-top: calc(4rem + env(safe-area-inset-top));
-    }
+    top: calc(env(safe-area-inset-top));
   }
 }
 

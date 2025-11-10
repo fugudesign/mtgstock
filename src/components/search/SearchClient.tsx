@@ -167,9 +167,10 @@ export function SearchClient() {
       <div
         ref={stickyRef}
         className={cn(
-          "sticky top-0 z-40 flex flex-col gap-2 transition-all duration-200",
+          "sticky z-40 flex flex-col gap-2 transition-all duration-200",
           isStuck && "bg-background-dark/95 backdrop-blur-xs shadow-md py-4"
         )}
+        style={{ top: 0 }}
       >
         {/* Barre de recherche */}
         <SearchBar
