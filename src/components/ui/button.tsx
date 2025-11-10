@@ -24,12 +24,11 @@ const buttonVariants = cva(
         default: "h-10 rounded-md p-4 [&_svg:not([class*='size-'])]:size-5",
         sm: "h-9 rounded-md p-3 [&_svg:not([class*='size-'])]:size-4",
         lg: "h-11 rounded-lg p-5 [&_svg:not([class*='size-'])]:size-6",
-        icon: "h-10 rounded-md p-0 md:p-4 [&_svg:not([class*='size-'])]:size-5",
+        icon: "h-10 aspect-square rounded-md p-0 [&_svg:not([class*='size-'])]:size-5",
         iconSm:
-          "h-9 rounded-md p-0 md:p-3 [&_svg:not([class*='size-'])]:size-4",
+          "h-8 aspect-square rounded-md p-0 [&_svg:not([class*='size-'])]:size-4",
         iconLg:
-          "h-11 rounded-lg p-0 md:p-5 [&_svg:not([class*='size-'])]:size-6",
-        // icon: "size-10 aspect-square [&_svg:not([class*='size-'])]:size-5",
+          "h-12 aspect-square rounded-lg p-0 [&_svg:not([class*='size-'])]:size-6",
       },
     },
     defaultVariants: {

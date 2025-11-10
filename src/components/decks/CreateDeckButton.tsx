@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useMediaQuery } from "@/hooks";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -9,6 +10,7 @@ import { DeckModal } from "./DeckModal";
 
 export function CreateDeckButton() {
   const router = useRouter();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const [showDeckModal, setShowDeckModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -60,7 +62,10 @@ export function CreateDeckButton() {
 
   return (
     <>
-      <Button size="iconSm" onClick={handleCreateDeck}>
+      <Button
+        size={isDesktop ? "default" : "iconSm"}
+        onClick={handleCreateDeck}
+      >
         <Plus />
         <span data-slot="text">Nouveau deck</span>
       </Button>

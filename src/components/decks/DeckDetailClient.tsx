@@ -2,9 +2,9 @@
 
 import { CardGrid } from "@/components/cards/CardGrid";
 import { PageHeader } from "@/components/PageHeader";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import {
   Empty,
@@ -14,17 +14,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { useMediaQuery } from "@/hooks";
 import { MTGCard } from "@/lib/scryfall-api";
 import { cn } from "@/lib/utils";
-import {
-  AlertCircle,
-  CheckCircle2,
-  Edit,
-  Info,
-  Plus,
-  Search,
-  X,
-} from "lucide-react";
+import { AlertCircle, CheckCircle2, Edit, Info, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -60,6 +53,7 @@ interface DeckDetailClientProps {
 
 export function DeckDetailClient({ deck: initialDeck }: DeckDetailClientProps) {
   const router = useRouter();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const [showEditModal, setShowEditModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -218,57 +212,52 @@ export function DeckDetailClient({ deck: initialDeck }: DeckDetailClientProps) {
         }
         className="mb-4"
       >
-        <Button size="iconSm" asChild>
-          <Link href="/search">
-            <Plus />
-            <span data-slot="text">Ajouter des cartes</span>
-          </Link>
-        </Button>
-        <Button size="iconSm" onClick={() => setShowEditModal(true)}>
-          <Edit />
-          <span data-slot="text">Modifier</span>
-        </Button>
-        <Button variant="outline" size="iconSm" asChild>
+        <Button
+          variant="outline"
+          size={isDesktop ? "default" : "iconSm"}
+          asChild
+        >
           <Link href="/decks">
             <X />
             <span data-slot="text">Retour</span>
           </Link>
         </Button>
+        <Button
+          size={isDesktop ? "default" : "iconSm"}
+          onClick={() => setShowEditModal(true)}
+        >
+          <Edit />
+          <span data-slot="text">Modifier</span>
+        </Button>
       </PageHeader>
 
       {/* Validation Warnings */}
       {deckStatus && !deckStatus.isValid && (
-        <Card className="mb-6 border-orange-500 text-orange-400 bg-orange-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-orange-400 mt-0.5" />
-              <div>
-                <h3 className="font-semibold text-orange-400 mb-2">
-                  Ce deck n&apos;est pas encore valide.
-                </h3>
-                <ul className="space-y-1 text-sm text-orange-500">
-                  {deckStatus.totalCards < 40 && (
-                    <li>
-                      • Minimum 40 cartes requises (actuellement{" "}
-                      {deckStatus.totalCards})
-                    </li>
-                  )}
-                  {deckStatus.totalCards > 100 && (
-                    <li>
-                      • Maximum 100 cartes autorisées (actuellement{" "}
-                      {deckStatus.totalCards})
-                    </li>
-                  )}
-                  {deckStatus.duplicateIssues.map(([name, count]) => (
-                    <li key={name}>
-                      • {name} : {count} copies (max 4 autorisé)
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <Alert className="mb-6 border-orange-500 text-orange-400 bg-orange-500/20">
+          <Info className="h-5 w-5 text-orange-400" />
+          <AlertTitle>Ce deck n&apos;est pas encore valide.</AlertTitle>
+          <AlertDescription>
+            <ul className="space-y-1">
+              {deckStatus.totalCards < 40 && (
+                <li>
+                  • Minimum 40 cartes requises (actuellement{" "}
+                  {deckStatus.totalCards})
+                </li>
+              )}
+              {deckStatus.totalCards > 100 && (
+                <li>
+                  • Maximum 100 cartes autorisées (actuellement{" "}
+                  {deckStatus.totalCards})
+                </li>
+              )}
+              {deckStatus.duplicateIssues.map(([name, count]) => (
+                <li key={name}>
+                  • {name} : {count} copies (max 4 autorisé)
+                </li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
       )}
 
       {deckMTGCards.length > 0 ? (

@@ -18,6 +18,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useMediaQuery } from "@/hooks";
+import {
   MTGCard,
   getCardImageUrl,
   getCardManaCost,
@@ -58,6 +64,7 @@ export function CardDisplay({
 }: CardDisplayProps) {
   const { status } = useSession();
   const router = useRouter();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const [imageError, setImageError] = useState(false);
 
   // État pour l'overlay mobile
@@ -229,7 +236,7 @@ export function CardDisplay({
             </Badge>
           )}
 
-          {/* Overlay avec les actions - Uniquement pour collection/deck */}
+          {/* Overlay avec les actions - Adapté selon le contexte (PAS pour search qui utilise QuickView) */}
           {showActions && context !== "search" && (
             <div
               // Empêcher la propagation des interactions depuis l'overlay vers la Card parent
@@ -242,130 +249,113 @@ export function CardDisplay({
               }`}
             >
               <div className="flex gap-2">
-                <div className="relative group/tooltip">
-                  <Button
-                    size="icon"
-                    variant="default"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleViewCard();
-                    }}
-                    className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
-                  >
-                    <Eye />
-                  </Button>
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                    Voir les détails
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </div>
+                {/* Bouton Voir les détails - toujours présent */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="default"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewCard();
+                      }}
+                      className="shadow-lg rounded-full"
+                    >
+                      <Eye />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Voir les détails</p>
+                  </TooltipContent>
+                </Tooltip>
 
-                {status === "authenticated" && (
-                  <CollectionDropdown
-                    card={card}
-                    onSuccess={
-                      onAddToCollection
-                        ? () => onAddToCollection(card)
-                        : undefined
-                    }
-                  >
-                    <div className="relative group/tooltip">
+                {/* Boutons spécifiques au contexte collection/deck */}
+                {(context === "collection" || context === "deck") &&
+                onRemove ? (
+                  // Dans collection/deck : bouton Retirer
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                       <Button
                         size="icon"
-                        variant="default"
+                        variant="destructive"
+                        className="rounded-full shadow-lg"
                         onClick={(e) => {
                           e.stopPropagation();
+                          handleRemoveCard(e);
                         }}
-                        className="rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
                       >
-                        <BookOpen />
+                        <Trash2 />
                       </Button>
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                        Ajouter à une collection
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
-                      </div>
-                    </div>
-                  </CollectionDropdown>
-                )}
-
-                {status === "authenticated" && (
-                  <DeckDropdown
-                    card={card}
-                    onSuccess={
-                      onAddToDeck ? () => onAddToDeck(card) : undefined
-                    }
-                  >
-                    <div className="relative group/tooltip">
-                      <Button
-                        size="icon"
-                        variant="default"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                        className="rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        Retirer{" "}
+                        {context === "collection"
+                          ? "de la collection"
+                          : "du deck"}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  // Hors collection/deck : boutons ajouter
+                  <>
+                    {status === "authenticated" && (
+                      <CollectionDropdown
+                        card={card}
+                        onSuccess={
+                          onAddToCollection
+                            ? () => onAddToCollection(card)
+                            : undefined
+                        }
                       >
-                        <Layers />
-                      </Button>
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                        Ajouter à un deck
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
-                      </div>
-                    </div>
-                  </DeckDropdown>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="default"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                              className="rounded-full bg-pink-600 hover:bg-pink-700 shadow-lg"
+                            >
+                              <BookOpen />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Ajouter à une collection</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </CollectionDropdown>
+                    )}
+
+                    {status === "authenticated" && (
+                      <DeckDropdown
+                        card={card}
+                        onSuccess={
+                          onAddToDeck ? () => onAddToDeck(card) : undefined
+                        }
+                      >
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="default"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
+                              className="rounded-full bg-purple-600 hover:bg-purple-700 shadow-lg"
+                            >
+                              <Layers />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Ajouter à un deck</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </DeckDropdown>
+                    )}
+                  </>
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* Actions pour collection/deck - Desktop au hover, Mobile au tap */}
-          {onRemove && (context === "collection" || context === "deck") && (
-            <div
-              // Empêcher la propagation des interactions depuis l'overlay vers la Card parent
-              onClick={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-              className={`absolute inset-0 bg-black/50 transition-all duration-200 flex items-center justify-center ${
-                showMobileOverlay
-                  ? "opacity-100 pointer-events-auto"
-                  : "opacity-0 md:group-hover:opacity-100 pointer-events-none md:group-hover:pointer-events-auto"
-              }`}
-            >
-              <div className="flex gap-2">
-                <div className="relative group/tooltip">
-                  <Button
-                    size="icon"
-                    variant="default"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleViewCard();
-                    }}
-                    className="rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg"
-                  >
-                    <Eye />
-                  </Button>
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                    Voir les détails
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </div>
-
-                <div className="relative group/tooltip">
-                  <Button
-                    size="icon"
-                    variant="default"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveCard(e);
-                    }}
-                    className="rounded-full bg-red-600 hover:bg-red-700 shadow-lg"
-                  >
-                    <Trash2 />
-                  </Button>
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                    Retirer{" "}
-                    {context === "collection" ? "de la collection" : "du deck"}
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900"></div>
-                  </div>
-                </div>
               </div>
             </div>
           )}

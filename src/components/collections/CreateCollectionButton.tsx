@@ -2,6 +2,7 @@
 
 import { CollectionModal } from "@/components/collections";
 import { Button } from "@/components/ui/button";
+import { useMediaQuery } from "@/hooks";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -9,6 +10,7 @@ import { toast } from "sonner";
 
 export function CreateCollectionButton() {
   const router = useRouter();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const [showCollectionModal, setShowCollectionModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -58,7 +60,10 @@ export function CreateCollectionButton() {
 
   return (
     <>
-      <Button size="iconSm" onClick={handleCreateCollection}>
+      <Button
+        size={isDesktop ? "default" : "iconSm"}
+        onClick={handleCreateCollection}
+      >
         <Plus />
         <span data-slot="text">Nouvelle collection</span>
       </Button>

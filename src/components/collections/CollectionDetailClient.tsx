@@ -14,6 +14,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { useMediaQuery } from "@/hooks";
 import { MTGCard } from "@/lib/scryfall-api";
 import { Edit, Package, Search, X } from "lucide-react";
 import Link from "next/link";
@@ -58,6 +59,7 @@ export function CollectionDetailClient({
   collection: initialCollection,
 }: CollectionDetailClientProps) {
   const router = useRouter();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const [showEditModal, setShowEditModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -72,6 +74,20 @@ export function CollectionDetailClient({
   const transformCollectionCardToMTGCard = (
     collectionCard: CollectionCard
   ): MTGCard => {
+    // Si une carte enrichie est disponible, l'utiliser directement
+    const enriched = (
+      collectionCard.card as unknown as { __enriched?: MTGCard }
+    ).__enriched;
+    if (enriched) {
+      return {
+        ...enriched,
+        quantity: collectionCard.quantity,
+        foil: collectionCard.foil,
+        condition: collectionCard.condition,
+      } as MTGCard;
+    }
+
+    // Sinon, transformer comme avant (fallback)
     return {
       id: collectionCard.card.id,
       name: collectionCard.card.name,
@@ -179,15 +195,22 @@ export function CollectionDetailClient({
         }
         className="mb-4"
       >
-        <Button size="iconSm" onClick={() => setShowEditModal(true)}>
-          <Edit />
-          <span data-slot="text">Modifier</span>
-        </Button>
-        <Button variant="outline" size="iconSm" asChild>
+        <Button
+          variant="outline"
+          size={isDesktop ? "default" : "iconSm"}
+          asChild
+        >
           <Link href="/collections">
             <X />
             <span data-slot="text">Retour</span>
           </Link>
+        </Button>
+        <Button
+          size={isDesktop ? "default" : "iconSm"}
+          onClick={() => setShowEditModal(true)}
+        >
+          <Edit />
+          <span data-slot="text">Modifier</span>
         </Button>
       </PageHeader>
 
