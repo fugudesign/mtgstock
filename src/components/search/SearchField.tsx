@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { SearchFormValues } from "@/lib/search-schema";
 import { cn } from "@/lib/utils";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 
@@ -121,6 +121,17 @@ export function SearchField({
     }, 150);
   };
 
+  const handleClear = () => {
+    form.setValue("query", "");
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setHasUserInteracted(false);
+    onSearch();
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
+
   return (
     <div className={cn("relative flex-1", className)}>
       <Search className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none z-10" />
@@ -128,37 +139,54 @@ export function SearchField({
         name="query"
         control={form.control}
         render={({ field }) => (
-          <Input
-            {...field}
-            ref={searchInputRef}
-            type="text"
-            placeholder="Nom de la carte..."
-            onKeyPress={handleKeyPress}
-            onFocus={() => {
-              // Ne réactiver l'autocomplete que si on n'a pas juste sélectionné une suggestion
-              if (!justSelectedSuggestion) {
-                setHasUserInteracted(true);
-                if (suggestions.length > 0) {
-                  setShowSuggestions(true);
+          <>
+            <Input
+              {...field}
+              ref={searchInputRef}
+              type="text"
+              placeholder="Nom de la carte..."
+              onKeyPress={handleKeyPress}
+              onFocus={() => {
+                // Ne réactiver l'autocomplete que si on n'a pas juste sélectionné une suggestion
+                if (!justSelectedSuggestion) {
+                  setHasUserInteracted(true);
+                  if (suggestions.length > 0) {
+                    setShowSuggestions(true);
+                  }
                 }
-              }
-            }}
-            onChange={(e) => {
-              // Ne trigger l'autocomplete que si on n'a pas juste sélectionné une suggestion
-              if (!justSelectedSuggestion) {
-                setHasUserInteracted(true);
-              }
-              field.onChange(e);
-            }}
-            onBlur={() => {
-              // Délai pour permettre le clic sur les suggestions
-              setTimeout(() => {
-                setShowSuggestions(false);
-              }, 200);
-            }}
-            className={cn("md:pl-10 text-lg", inputClassName)}
-            disabled={loading}
-          />
+              }}
+              onChange={(e) => {
+                // Ne trigger l'autocomplete que si on n'a pas juste sélectionné une suggestion
+                if (!justSelectedSuggestion) {
+                  setHasUserInteracted(true);
+                }
+                field.onChange(e);
+              }}
+              onBlur={() => {
+                // Délai pour permettre le clic sur les suggestions
+                setTimeout(() => {
+                  setShowSuggestions(false);
+                }, 200);
+              }}
+              className={cn(
+                "md:pl-10",
+                queryValue && "pr-10",
+                "text-lg",
+                inputClassName
+              )}
+              disabled={loading}
+            />
+            {queryValue && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground hover:text-foreground transition-colors z-10"
+                aria-label="Effacer la recherche"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
+          </>
         )}
       />
 
