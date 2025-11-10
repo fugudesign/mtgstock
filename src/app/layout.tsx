@@ -95,11 +95,11 @@ export default async function RootLayout({
         <Providers session={session}>
           <RecaptchaProvider>
             <Navigation />
-            <main className="h-min-lvh">
-              <div className="h-min-screen pt-4 md:pt-16">{children}</div>
+            <main className="h-min-screen">
+              <div className="pt-4 md:pt-16">{children}</div>
+              <Toaster position="top-right" richColors />
             </main>
             <PWAInstallPrompt />
-            <Toaster position="top-right" richColors />
           </RecaptchaProvider>
         </Providers>
       </body>
