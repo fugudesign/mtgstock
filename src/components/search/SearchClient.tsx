@@ -3,6 +3,7 @@
 import { CardGrid } from "@/components/cards/CardGrid";
 import { SearchBar } from "@/components/search/SearchBar";
 import { SearchResultsCount } from "@/components/search/SearchResultsCount";
+import { useSticky } from "@/hooks";
 import { getLanguageNameByCode } from "@/lib/language-mapper";
 import { mtgApiService, MTGCard } from "@/lib/scryfall-api";
 import {
@@ -13,9 +14,9 @@ import {
   searchFormSchema,
   SearchFormValues,
 } from "@/lib/search-schema";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import { format } from "path";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -36,6 +37,9 @@ export function SearchClient() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [userLanguage, setUserLanguage] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Hook pour détecter quand la barre de recherche est sticky
+  const [stickyRef, isStuck] = useSticky<HTMLDivElement>();
 
   // Initialiser le formulaire avec react-hook-form
   const form = useForm<SearchFormValues>({
@@ -159,8 +163,14 @@ export function SearchClient() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-2">
+    <div className="space-y-4">
+      <div
+        ref={stickyRef}
+        className={cn(
+          "sticky top-0 z-40 flex flex-col gap-2 transition-all duration-200",
+          isStuck && "bg-background-dark/95 backdrop-blur-xs shadow-md py-4"
+        )}
+      >
         {/* Barre de recherche */}
         <SearchBar
           form={form}
