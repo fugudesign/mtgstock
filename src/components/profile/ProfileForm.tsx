@@ -1,5 +1,6 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,17 +19,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getAvatarUrl } from "@/lib/avatar";
 import { getAvailableLanguagesByCode } from "@/lib/language-mapper";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save } from "lucide-react";
+import { Save, Trash2, Upload, User } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useRef, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
 // Schema de validation pour le profil
 const profileSchema = z.object({
   name: z.string().optional(),
+  image: z.string().url("URL invalide").optional().or(z.literal("")),
   language: z.string().min(1, "La langue est requise"),
 });
 
@@ -37,6 +42,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 interface ProfileFormProps {
   initialData: {
     name?: string | null;
+    image?: string | null;
     language?: string | null;
     email: string;
   };
@@ -58,14 +64,107 @@ const getBrowserLanguage = (): string => {
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
   const router = useRouter();
+  const { update } = useSession();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: initialData.name || "",
+      image: initialData.image || "",
       language: initialData.language || getBrowserLanguage(),
     },
   });
+
+  const imageValue = useWatch({ control: form.control, name: "image" });
+
+  const handleAvatarUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validation côté client
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Fichier trop volumineux. Maximum 5MB");
+      return;
+    }
+
+    if (
+      !["image/jpeg", "image/png", "image/webp", "image/gif"].includes(
+        file.type
+      )
+    ) {
+      toast.error(
+        "Type de fichier non supporté. Utilisez JPG, PNG, WebP ou GIF"
+      );
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const response = await fetch("/api/user/avatar", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || "Erreur lors de l'upload");
+        return;
+      }
+
+      // Mettre à jour le formulaire avec la nouvelle URL
+      form.setValue("image", data.user.image);
+      toast.success("Avatar mis à jour avec succès");
+
+      // Rafraîchir la session pour mettre à jour l'avatar dans la navbar
+      await update();
+      router.refresh();
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Erreur lors de l'upload");
+    } finally {
+      setUploading(false);
+      // Reset le input file
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleAvatarDelete = async () => {
+    if (!imageValue) return;
+
+    try {
+      const response = await fetch("/api/user/avatar", {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || "Erreur lors de la suppression");
+        return;
+      }
+
+      form.setValue("image", "");
+      toast.success("Avatar supprimé avec succès");
+
+      // Rafraîchir la session pour mettre à jour l'avatar dans la navbar
+      await update();
+      router.refresh();
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("Erreur lors de la suppression");
+    }
+  };
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
@@ -85,6 +184,9 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       }
 
       toast.success("Profil mis à jour avec succès");
+
+      // Rafraîchir la session pour mettre à jour le nom dans la navbar
+      await update();
       router.refresh(); // Rafraîchir les données server-side
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -95,6 +197,57 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Aperçu de l'avatar */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+            <Avatar className="size-20">
+              <AvatarImage
+                src={getAvatarUrl(imageValue || null, initialData.email, 160)}
+                alt={initialData.name || "User"}
+              />
+              <AvatarFallback className="bg-primary">
+                <User className="size-8" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <p className="text-sm font-medium mb-2">Photo de profil</p>
+              <div className="flex gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                >
+                  <Upload />
+                  {uploading ? "Upload..." : "Télécharger"}
+                </Button>
+                {imageValue && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="iconSm"
+                    onClick={handleAvatarDelete}
+                  >
+                    <Trash2 />
+                  </Button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                JPG, PNG, WebP ou GIF. Max 5MB.
+                {!imageValue && " Gravatar par défaut."}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <FormField
           control={form.control}
           name="name"

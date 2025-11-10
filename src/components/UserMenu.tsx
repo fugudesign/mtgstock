@@ -8,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getAvatarUrl } from "@/lib/avatar";
 import { LogOut, User } from "lucide-react";
 import { Session } from "next-auth";
 import Link from "next/link";
@@ -24,11 +25,14 @@ export function UserMenu({ session, onSignOut }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar>
+        <Avatar className="cursor-pointer">
           <AvatarImage
-            src={session?.user?.image || undefined}
+            src={getAvatarUrl(
+              session?.user?.image,
+              session?.user?.email || "",
+              64
+            )}
             alt={session?.user?.name || "User"}
-            className="w-8 h-8 rounded-full"
           />
           <AvatarFallback className="bg-primary">
             <User className="size-4" />

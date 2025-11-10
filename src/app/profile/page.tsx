@@ -95,6 +95,7 @@ export default async function ProfilePage() {
             <ProfileForm
               initialData={{
                 name: user.name,
+                image: user.image,
                 language: user.language,
                 email: user.email,
               }}

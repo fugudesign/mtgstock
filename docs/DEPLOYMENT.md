@@ -69,7 +69,24 @@
    GOOGLE_CLIENT_SECRET=votre-client-secret
    ```
 
-4. **Déployer**
+   **reCAPTCHA (Optionnel)** - Pour la protection anti-bot :
+
+   ```
+   NEXT_PUBLIC_RECAPTCHA_SITE_KEY=votre-site-key
+   RECAPTCHA_SECRET_KEY=votre-secret-key
+   ```
+
+4. **Configurer le Blob Storage (pour les avatars)**
+
+   - Dans le dashboard Vercel de votre projet
+   - Allez dans l'onglet "Storage"
+   - Cliquez sur "Create Database" → "Blob"
+   - Donnez-lui un nom (ex: "mtg-avatars")
+   - Cliquez sur "Create"
+   - Le token `BLOB_READ_WRITE_TOKEN` sera automatiquement ajouté aux variables d'environnement
+   - **Plan gratuit** : 1GB stockage + 1GB bande passante/mois
+
+5. **Déployer**
    - Cliquez sur "Deploy"
    - Attendez la fin du build (2-3 minutes)
 

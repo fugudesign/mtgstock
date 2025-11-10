@@ -53,7 +53,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const { name, language } = await req.json();
+    const { name, image, language } = await req.json();
 
     // Validate language
     const validLanguages = [
@@ -72,10 +72,23 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Langue invalide" }, { status: 400 });
     }
 
+    // Validate image URL if provided
+    if (image && image.length > 0) {
+      try {
+        new URL(image);
+      } catch {
+        return NextResponse.json(
+          { error: "URL d'image invalide" },
+          { status: 400 }
+        );
+      }
+    }
+
     const user = await prisma.user.update({
       where: { email: session.user.email },
       data: {
         ...(name !== undefined && { name }),
+        ...(image !== undefined && { image: image || null }),
         ...(language && { language }),
       },
       select: {
